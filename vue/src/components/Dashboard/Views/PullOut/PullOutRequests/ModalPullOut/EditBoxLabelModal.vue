@@ -10,7 +10,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5 text-weight-bold" id="exampleModalLabel">
-            LIST OF BOX LABEL [ {{ newInputItem }} ]
+            LIST OF BOX LABEL [ {{ newItemInputBox }} ]
           </h1>
         </div>
         <div class="modal-body">
@@ -90,7 +90,7 @@ export default {
   components: {
     NotificationTemplate,
   },
-  props: ["transferredData", "newInputItem"],
+  props: ["transferredData", "newItemInputBox"],
   // mounted() {
   //   $("#myModal").modal("show");
   // },

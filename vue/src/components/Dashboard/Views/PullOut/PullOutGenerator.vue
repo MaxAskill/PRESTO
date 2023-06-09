@@ -347,7 +347,7 @@
       </form>
       <EditBoxLabelModal
         :transferredData="transferredData"
-        :newItemInput="newItemInput"
+        :newItemInputBox="newItemInputBox"
         @closeModal="transferredData"
       ></EditBoxLabelModal>
     </div>
