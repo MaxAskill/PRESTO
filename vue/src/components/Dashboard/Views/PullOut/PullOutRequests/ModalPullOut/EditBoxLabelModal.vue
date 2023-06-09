@@ -10,7 +10,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5 text-weight-bold" id="exampleModalLabel">
-            LIST OF BOX LABEL [ {{ newItemInputBox }} ]
+            LIST OF BOX LABEL {{ newItemInputBox }}
           </h1>
         </div>
         <div class="modal-body">
@@ -145,6 +145,7 @@ export default {
 
       if (localData >= 0) {
         this.transferredData.boxLabels.splice(localData, 1);
+        this.newItemInputBox.splice(localData, 1);
       }
       // console.log("after", this.transferredData);
       // this.$emit("closeModal", this.transferredData);

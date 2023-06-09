@@ -49,14 +49,6 @@
             >
               <i class="nc-icon nc-single-copy-04"></i>
             </p-button>
-            <!-- <p-button
-              type="danger"
-              size="sm"
-              icon
-              @click="handleDelete(props.$index, props.row)"
-            >
-              <i class="fa fa-times"></i>
-            </p-button> -->
           </template>
         </el-table-column>
       </el-table>
@@ -80,11 +72,6 @@
       :itemData="itemData"
       @closeModal="closeModal"
     ></UnprocessModal>
-    <button id="button" aria-describedby="tooltip">I'm a button</button>
-    <div id="tooltip" role="tooltip">
-      I'm a tooltip
-      <div id="arrow" data-popper-arrow></div>
-    </div>
   </div>
 </template>
 <script>
@@ -93,22 +80,6 @@ import Vue from "vue";
 import { Table, TableColumn, Select, Option } from "element-ui";
 import PPagination from "../../../../UIComponents/Pagination.vue";
 import axiosClient from "../../../../../axios";
-
-import { createPopper } from "@popperjs/core/lib/popper-lite.js";
-const button = document.querySelector("#button");
-const tooltip = document.querySelector("#tooltip");
-
-const popperInstance = createPopper(button, tooltip, {
-  modifiers: [
-    {
-      name: "offset",
-      options: {
-        offset: [0, 8],
-      },
-    },
-  ],
-});
-
 Vue.use(Table);
 Vue.use(TableColumn);
 Vue.use(Select);
@@ -263,52 +234,5 @@ export default {
 .pr {
   padding-left: 0px;
   padding-right: 4px;
-}
-#tooltip {
-  background: #333;
-  color: white;
-  font-weight: bold;
-  padding: 4px 8px;
-  font-size: 13px;
-  border-radius: 4px;
-  display: none;
-}
-
-#tooltip[data-show] {
-  display: block;
-}
-
-#arrow,
-#arrow::before {
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  background: inherit;
-}
-
-#arrow {
-  visibility: hidden;
-}
-
-#arrow::before {
-  visibility: visible;
-  content: "";
-  transform: rotate(45deg);
-}
-
-#tooltip[data-popper-placement^="top"] > #arrow {
-  bottom: -4px;
-}
-
-#tooltip[data-popper-placement^="bottom"] > #arrow {
-  top: -4px;
-}
-
-#tooltip[data-popper-placement^="left"] > #arrow {
-  right: -4px;
-}
-
-#tooltip[data-popper-placement^="right"] > #arrow {
-  left: -4px;
 }
 </style>

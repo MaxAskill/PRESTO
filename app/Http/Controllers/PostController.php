@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\MailNotify;
 use App\Models\TransactionModel;
 use App\Models\EpcBranchModel;
+use App\Models\NbfiBranchModel;
 use App\Models\EpcBrandModel;
 use App\Models\EpcDriverModel;
 use App\Models\EpcReasonModel;
@@ -419,7 +420,11 @@ class PostController extends Controller
 
     public function addNewBranch(Request $request){
 
+        if($request->company == "EPC")
         $input = new EpcBranchModel();
+        else
+        $input = new NbfiBranchModel();
+
         $input->chainCode = $request->chainCode;
         $input->branchCode = strtoupper($request->branchCode);
         $input->branchName = strtoupper($request->branchName);

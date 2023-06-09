@@ -6,7 +6,7 @@
     aria-labelledby="uploaditemmodalLabel"
     aria-hidden="true"
   >
-    <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5 text-weight-bold" id="uploaditemmodalLabel">
@@ -14,43 +14,9 @@
           </h1>
         </div>
         <div class="modal-body">
-          <!-- <form>
-            <div class="row">
-              <div class="col-sm-4 pull-left">
-                <fg-input
-                  label="Branch Code"
-                  placeholder="Branch Code"
-                  v-model="newBranch.branchCode"
-                ></fg-input>
-              </div>
-              <div class="col-sm-4">
-                <fg-input label="Chain Code">
-                  <el-select
-                    class="select-default"
-                    size="large"
-                    placeholder="Select Chain Code"
-                    v-model="newBranch.chainCode"
-                  >
-                    <el-option
-                      v-for="option in chainCodeList"
-                      class="select-default"
-                      :value="option.code"
-                      :label="option.code"
-                      :key="option.id"
-                    >
-                    </el-option>
-                  </el-select>
-                </fg-input>
-              </div>
-              <div class="col-sm-4">
-                <fg-input
-                  label="Branch Name"
-                  placeholder="Branch Name"
-                  v-model="newBranch.branchName"
-                ></fg-input>
-              </div>
-            </div>
-          </form> -->
+          <div class="upload-style">
+            <input type="file" accept=".csv" />
+          </div>
         </div>
         <div class="modal-footer px-5">
           <button
@@ -111,8 +77,18 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
 .form-group {
   text-align: left !important;
+}
+.upload-style {
+  border-style: dashed;
+  border-color: #9ca3af;
+  border-radius: 0.5rem;
+  border-width: 2px;
+  padding-top: 10vh;
+  padding-left: 15vw;
+  padding-right: 10vw;
+  padding-bottom: 10vh;
 }
 </style>

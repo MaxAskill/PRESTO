@@ -177,7 +177,7 @@
               <collapse-item
                 v-for="boxLabel in newTransaction.boxLabels"
                 :key="boxLabel.id"
-                :title="(boxLabel.boxLabel, boxLabel.id)"
+                :title="boxLabel.boxLabel"
                 name="1"
                 class="font-weight-bold"
               >

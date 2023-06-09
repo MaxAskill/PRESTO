@@ -94,10 +94,7 @@
       >
       </p-pagination>
     </div>
-    <AddBranchModal
-      :companyType="companyType"
-      :chainCodeList="chainCodeList"
-    ></AddBranchModal>
+    <AddBranchModal :company="company" :chainCodeList="chainCodeList"></AddBranchModal>
   </div>
 </template>
 <script>

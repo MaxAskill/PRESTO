@@ -83,7 +83,7 @@ Vue.use(TableColumn);
 Vue.use(Select);
 Vue.use(Option);
 export default {
-  props: ["companyType", "chainCodeList"],
+  props: ["company", "chainCodeList"],
 
   watch: {},
   computed: {
@@ -109,7 +109,25 @@ export default {
   },
   methods: {
     submit() {
-      console.log("Submit:", this.companyType);
+      console.log("Submit:", this.company);
+
+      axiosClient
+        .post("/addNewBranch", {
+          branchCode: this.newBranch.branchCode,
+          chainCode: this.newBranch.chainCode,
+          branchName: this.newBranch.branchName,
+          userID: sessionStorage.getItem("UserID"),
+          company: sessionStorage.getItem("Company"),
+        })
+        .then((response) => {
+          console.log("Response:", response.data);
+          setTimeout(() => {
+            window.location.reload();
+          }, 3000); // Reload after 3 seconds
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     },
     closeModal() {
       this.newBranch.branchCode = "";
@@ -120,7 +138,7 @@ export default {
       axiosClient
         .get("/fetchChainCodeAdmin", {
           params: {
-            company: this.companyType,
+            company: this.company,
           },
         })
         .then((response) => {
