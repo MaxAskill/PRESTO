@@ -4,18 +4,13 @@
       <a
         class="simple-text logo-mini"
         aria-label="sidebar mini logo"
-        href="https://www.creative-tim.com/product/vue-paper-dashboard-2-pro"
+        href="http://192.168.0.7:4040/"
       >
         <div class="logo-img">
           <img :src="logo" alt="" />
         </div>
       </a>
-      <a
-        class="simple-text logo-normal"
-        href="https://www.creative-tim.com/vue-paper-dashboard-2-pro"
-      >
-        {{ title }}
-      </a>
+      <a class="simple-text logo-normal" href="http://192.168.0.7:4040/"> PRESTO </a>
     </div>
     <div class="sidebar-wrapper" ref="sidebarScrollArea">
       <slot> </slot>
@@ -95,7 +90,7 @@ export default {
   methods: {
     async initScrollBarAsync() {
       this.positionEmployee = sessionStorage.getItem("Position");
-      console.log("SideBar: ", this.sidebarLinks);
+      // console.log("SideBar: ", this.sidebarLinks);
       let isWindows = navigator.platform.startsWith("Win");
       if (!isWindows) {
         return;

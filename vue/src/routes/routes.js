@@ -13,6 +13,7 @@ import User from '../components/Dashboard/Views/Pages/UserProfile.vue'
 import TimeLine from '../components/Dashboard/Views/Pages/TimeLinePage.vue'
 import Login from '../components/Dashboard/Views/Pages/Login.vue'
 import Register from '../components/Dashboard/Views/Pages/Register.vue'
+import OTPForm from '../components/Dashboard/Views/Pages/OTPRegister/OTPRegister.vue'
 import Lock from '../components/Dashboard/Views/Pages/Lock.vue'
 
 // Components pages
@@ -279,6 +280,12 @@ const routes = [
     component: Register,
     meta: { isGuest: true}
   },
+  {
+    path: '/register/otpform',
+    name: 'OTPForm',
+    component: OTPForm,
+    meta: { isGuest: true}
+  },
   componentsMenu,
   formsMenu,
   tablesMenu,
@@ -338,8 +345,18 @@ const router = new VueRouter({
           }
       }
       else if (to.matched.some(record => record.meta.isGuest)) {
+
           if (getToken()) {
+
+            var user = sessionStorage.getItem("Position");
+            console.log("Position", user);
+            if(user == "Admin"){
               return next({path: '/admin/overview'});
+            }else if(user == "Agent"){
+              return next({path: '/pull-out/requests'});
+            }else if(user == "User"){
+              return next({path: '/pull-out/requisition-form'});
+            }
           }
           else{
               return next();

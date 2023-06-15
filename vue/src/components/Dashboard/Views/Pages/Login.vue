@@ -42,8 +42,10 @@
 
                   <br />
 
-                  <p-checkbox> Subscribe to newsletter </p-checkbox>
-
+                  <div class="d-flex justify-content-between">
+                    <p-checkbox> Remember Me </p-checkbox>
+                    <a slot="footer" class="forgotPass">Forgot Your Password? </a>
+                  </div>
                   <p-button
                     native-type="submit"
                     slot="footer"
@@ -51,7 +53,7 @@
                     round
                     block
                     class="mb-3"
-                    >Get started</p-button
+                    >Log In</p-button
                   >
                 </card>
               </form>
@@ -131,4 +133,16 @@ export default {
   },
 };
 </script>
-<style></style>
+<style lang="scss">
+.forgotPass {
+  font-size: 11px !important;
+  text-decoration-line: underline !important;
+  margin-right: 10px;
+  margin-top: 5px;
+  color: gray !important;
+}
+.forgotPass:hover {
+  color: black !important;
+  cursor: pointer;
+}
+</style>

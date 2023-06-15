@@ -80,7 +80,9 @@
 import Vue from "vue";
 import { Table, TableColumn, Select, Option } from "element-ui";
 import axiosClient from "../../../../../../axios";
-import NotificationTemplate from "../../../Components/Notification/NotificationSuccessfulRename.vue";
+// import NotificationTemplate from "../../../Components/Notification/NotifSuccessRenameBoxLabel.vue";
+import NotifRenameBoxLabel from "../../../Components/Notification/NotifSuccessRenameBoxLabel.vue";
+import NotifDeleteBoxLabel from "../../../Components/Notification/NotifSuccessDeleteBoxLabel.vue";
 
 Vue.use(Table);
 Vue.use(TableColumn);
@@ -88,7 +90,8 @@ Vue.use(Select);
 Vue.use(Option);
 export default {
   components: {
-    NotificationTemplate,
+    NotifRenameBoxLabel,
+    NotifDeleteBoxLabel,
   },
   props: ["transferredData", "newItemInputBox"],
   // mounted() {
@@ -146,22 +149,35 @@ export default {
       if (localData >= 0) {
         this.transferredData.boxLabels.splice(localData, 1);
         this.newItemInputBox.splice(localData, 1);
+        this.notifyVue("DeleteBoxLabel", "bottom", "right");
       }
+
       // console.log("after", this.transferredData);
       // this.$emit("closeModal", this.transferredData);
     },
     handleBoxLabel(boxLabel) {
       if (!boxLabel) console.log("Empty boxlabel");
-      else this.notifyVue("bottom", "right");
+      else this.notifyVue("EditBoxLabel", "bottom", "right");
     },
-    notifyVue(verticalAlign, horizontalAlign) {
-      const color = Math.floor(Math.random() * 4 + 1);
+    notifyVue(notify, verticalAlign, horizontalAlign) {
+      var notification = "";
+      let notifType = "";
+
+      if (notify == "DeleteBoxLabel") {
+        notification = NotifDeleteBoxLabel;
+        notifType = "danger";
+      } else {
+        notification = NotifRenameBoxLabel;
+        notifType = "success";
+      }
+
+      // const color = Math.floor(Math.random() * 4 + 1);
       this.$notify({
-        component: NotificationTemplate,
-        // icon: 'nc-icon nc-app',
+        component: notification,
+        // icon: "nc-icon nc-app",
         horizontalAlign: horizontalAlign,
         verticalAlign: verticalAlign,
-        type: "success",
+        type: notifType,
         props: {
           customValue: "Success Add Box",
         },

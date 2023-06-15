@@ -19,6 +19,7 @@ use App\Models\TransactionModel;
 use App\Models\EpcBranchModel;
 use App\Models\NbfiBranchModel;
 use App\Models\EpcBrandModel;
+use App\Models\NbfiBrandModel;
 use App\Models\EpcDriverModel;
 use App\Models\EpcReasonModel;
 use App\Http\Controllers\BrevoSMService;
@@ -210,8 +211,8 @@ class PostController extends Controller
             'date' => $formattedDate,
             'branchName' => $tempdata[0]->branchName,
             'chainCode' => $tempdata[0]->chainCode,
-            'dateStart' => $formattedDateStart,
-            'dateEnd' => $formattedDateEnd,
+            'dateStart' => $request->dateStart,
+            'dateEnd' => $request->dateEnd,
             'company' => $request->company
         ];
 
@@ -254,13 +255,10 @@ class PostController extends Controller
             $quantities .= $data->quantity . ',';
         }
 
-        // $sms = array(
-        //     'recipient' => "+639",
-        //     'message' => "We would like to inform you that your transaction no.".$request->plID." has been approved. The transaction has been processed and will proceed once the document was signed by the admin.",
-        //     'sender' => "Barbizon Helpdesk"
-        // );
-
-        // $result = (new BrevoSMService($sms))->sendSMS();
+        $name = DB::table('users')
+                    ->select('name')
+                    ->where('id', $request->userID)
+                    ->first()->name;
 
         //SEND EMAIL IF APPROVED
         $mail = array(
@@ -269,7 +267,7 @@ class PostController extends Controller
             'email' => $request->email,
             'name' => $request->name,
             'viewToEmail' => $viewToEmail,
-            'adminName' => $request->adminName,
+            'adminName' => $name,
             'viewEmail' => $viewToEmail,
             'chainCode' => $tempdata[0]->chainCode,
             'branchName' => $tempdata[0]->branchName,
@@ -279,7 +277,6 @@ class PostController extends Controller
             'itemDescriptions' => $itemDescriptions,
             'brands' => $brands,
             'quantities' => $quantities,
-            // 'result' => $result,
         );
 
         Mail::to($request->email)->send(new MailNotify($mail));
@@ -305,13 +302,17 @@ class PostController extends Controller
                             WHERE id = \''.$request->id.'\' ');
         }
 
+        $name = DB::table('users')
+                    ->select('name')
+                    ->where('id', $request->userID)
+                    ->first()->name;
 
         $data = array(
             'transactionID' => $request->id,
             'name' => $request->promoName,
             'status' => 'Denied',
             'reason' => $request->reason,
-            'adminName' => $request->name
+            'adminName' => $name
         );
 
         $res = Mail::to($request->email)->send(new MailNotify($data));
@@ -428,6 +429,7 @@ class PostController extends Controller
         $input->chainCode = $request->chainCode;
         $input->branchCode = strtoupper($request->branchCode);
         $input->branchName = strtoupper($request->branchName);
+        $input->company = $request->companyType;
         $input->status = 'Active';
 
         $input->save();
@@ -447,11 +449,20 @@ class PostController extends Controller
 
     public function addNewBrand(Request $request){
 
-        $data = EpcBrandModel::orderBy('id', 'desc')->first()->id;
+        if($request->company == "EPC"){
+            $data = EpcBrandModel::orderBy('id', 'desc')->first()->id;
+            $input = new EpcBrandModel();
+            $table_affected = 'epcbrandsmaintenance';
+
+        }else if($request->company == "NBFI"){
+            $data = NbfiBrandModel::orderBy('id', 'desc')->first()->id;
+            $input = new NbfiBrandModel();
+            $table_affected = 'nbfibrandsmaintenance';
+
+        }
 
         $id = $data + 1;
 
-        $input = new EpcBrandModel();
         $input->id = $id;
         $input->brandNames = strtoupper($request->brandName);
         $input->status = 'Y';
@@ -464,7 +475,7 @@ class PostController extends Controller
         $log->dateTime = $date;
         $log->userID = $request->userID;
         $log->action_type = 'insert';
-        $log->table_affected = 'epcbrandsmaintenance';
+        $log->table_affected = $table_affected;
         $log->new_data = json_encode($request->all());
         $log->save();
 
@@ -575,5 +586,16 @@ class PostController extends Controller
 
         return PdfReport::of($title, $meta, $queryBuilder, $columns)->stream();
 
+    }
+
+    public function deleteDraft(Request $request){
+
+        if($request->company == "NBFI" || $request->company == "ASC" || $request->company == "CMC"){
+            $draft = DB::select('DELETE FROM pullOutBranchTblNBFI WHERE id = \''.$request->id.'\'');
+        }else if($request->company == "EPC" || $request->company == "AHLC"){
+            $draft = DB::select('DELETE FROM pullOutBranchTbl WHERE id = \''.$request->id.'\'');
+        }
+
+        return response()->json(['message'=>'Success'], 200);
     }
 }

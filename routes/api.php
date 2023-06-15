@@ -12,6 +12,7 @@ use App\Http\Controllers\UpdateAdminController;
 use App\Http\Controllers\AgingPullOutController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\FetchDashboardController;
 use Barryvdh\DomPDF\Facade\Pdf;
 /*
 |--------------------------------------------------------------------------
@@ -24,12 +25,17 @@ use Barryvdh\DomPDF\Facade\Pdf;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+    Route::post('/logout', [AuthController::class, 'Logout']);
 });
 
 Route::post('/login', [AuthController::class, 'Login']);
-// Route::post('/register', [AuthController::class, 'Register']);
+Route::post('/register', [AuthController::class, 'Register']);
+Route::get('/sendVerificationCode', [RegisterController::class, 'sendVerificationCode']);
+Route::get('/confirmCode', [RegisterController::class, 'confirmCode']);
 
 Route::get('/users',[FetchController::class, 'users']);
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -53,6 +59,7 @@ Route::get('/users',[FetchController::class, 'users']);
     Route::post('/addNewBrand', [PostController::class, 'addNewBrand']);
     Route::post('/addNewDriver', [PostController::class, 'addNewDriver']);
     Route::post('/addNewReason', [PostController::class, 'addNewReason']);
+    Route::post('/deleteDraft', [PostController::class, 'deleteDraft']);
 
     Route::get('/fetchPullOutReq', [FetchController::class, 'fetchPullOutRequest']);
     Route::get('/fetchReasonLabel', [FetchController::class, 'getReasons']);
@@ -107,11 +114,17 @@ Route::get('/users',[FetchController::class, 'users']);
     Route::post('/updateDriver', [UpdateAdminController::class, 'updateDriver']);
     Route::post('/updateReason', [UpdateAdminController::class, 'updateReason']);
 
+    Route::get('/fetchDashboardToday', [FetchDashboardController::class, 'fetchDashboardToday']);
+    Route::get('/fetchDashboardUnprocessed', [FetchDashboardController::class, 'fetchDasboardUnprocessed']);
+    Route::get('/fetchDashboardApproved', [FetchDashboardController::class, 'fetchDashboardApproved']);
+    Route::get('/fetchDashboardDenied', [FetchDashboardController::class, 'fetchDashboardDenied']);
+
     //Importing csv file
     Route::post('/branchImport', [ImportController::class, 'branchImport']);
     Route::post('/itemsImport', [ImportController::class, 'itemsImport']);
 
     Route::post('/agingController', [AgingPullOutController::class, 'agingController']);
+
 Route::middleware('auth')->group(function () {
 
 

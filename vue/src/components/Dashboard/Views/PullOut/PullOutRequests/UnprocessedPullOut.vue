@@ -208,7 +208,7 @@ export default {
           },
         })
         .then((response) => {
-          console.log("Pull Out Request", response.data);
+          console.log("Pull Out Request Unprocessed", response.data);
           this.tableData = response.data;
         })
         .catch((error) => {

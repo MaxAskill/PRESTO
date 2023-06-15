@@ -32,7 +32,13 @@
         >
       </div>
       <div class="col-1 px-1">
-        <p-button type="info" class="btn-margin">Upload</p-button>
+        <p-button
+          type="info"
+          class="btn-margin"
+          data-bs-toggle="modal"
+          data-bs-target="#uploadbranchmodal"
+          >Upload</p-button
+        >
       </div>
     </div>
     <div class="row mx-2">
@@ -95,6 +101,7 @@
       </p-pagination>
     </div>
     <AddBranchModal :company="company" :chainCodeList="chainCodeList"></AddBranchModal>
+    <UploadBranchModal></UploadBranchModal>
   </div>
 </template>
 <script>
@@ -105,6 +112,7 @@ import PPagination from "../../../../UIComponents/Pagination.vue";
 import axiosClient from "../../../../../axios";
 import PSwitch from "src/components/UIComponents/Switch.vue";
 import AddBranchModal from "../Maintenance/ModalMaintenance/AddBranchModal.vue";
+import UploadBranchModal from "./ModalMaintenance/UploadBranchModal.vue";
 import axios from "axios";
 
 Vue.use(Table);
@@ -118,6 +126,7 @@ export default {
     PPagination,
     PSwitch,
     AddBranchModal,
+    UploadBranchModal,
   },
   mounted() {
     this.fetchData();

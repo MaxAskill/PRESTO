@@ -2,6 +2,8 @@
   <div
     class="modal fade"
     id="uploaditemmodal"
+    data-bs-backdrop="static"
+    data-bs-keyboard="false"
     tabindex="-1"
     aria-labelledby="uploaditemmodalLabel"
     aria-hidden="true"
@@ -15,7 +17,8 @@
         </div>
         <div class="modal-body">
           <div class="upload-style">
-            <input type="file" accept=".csv" />
+            <input type="file" accept=".csv" class="upload-input-style" />
+            <p class="upload-text-style">Drop a file here to click to upload</p>
           </div>
         </div>
         <div class="modal-footer px-5">
@@ -86,9 +89,23 @@ export default {
   border-color: #9ca3af;
   border-radius: 0.5rem;
   border-width: 2px;
-  padding-top: 10vh;
-  padding-left: 15vw;
+  padding-top: 12vh;
+  padding-left: 10vw;
   padding-right: 10vw;
-  padding-bottom: 10vh;
+  padding-bottom: 12vh;
+}
+.upload-input-style {
+  text-transform: uppercase;
+  color: #ef4444;
+  font-weight: 700;
+  border-radius: 5px;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #9ca3af;
+}
+.upload-text-style {
+  color: #4b5563;
+  font-size: 13px;
+  margin-top: 15px;
 }
 </style>

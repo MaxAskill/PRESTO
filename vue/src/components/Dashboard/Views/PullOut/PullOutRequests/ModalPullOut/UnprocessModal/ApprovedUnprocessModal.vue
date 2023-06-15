@@ -12,7 +12,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5 text-weight-bold" id="approvedunprocessLabel">
-            BRANCH NAME
+            {{ transferredData.branchName }}
           </h1>
         </div>
         <div class="modal-body">
@@ -21,7 +21,7 @@
               <div class="col-12 pull-left">
                 <fg-input
                   label="Name of Sales Representative / Promodiser"
-                  v-model="promodiser"
+                  v-model="transferredData.name"
                 ></fg-input>
               </div>
               <div class="col-6">
@@ -58,12 +58,14 @@
           >
             Close
           </button>
-          <button type="button" class="btn btn-primary">Generate Letter</button>
+          <button type="button" class="btn btn-primary" @click="generateLetter">
+            Generate Letter
+          </button>
         </div>
       </div>
     </div>
+    <UnprocessModal></UnprocessModal>
   </div>
-  <UnprocessModal></UnprocessModal>
 </template>
 <script>
 import Vue from "vue";
@@ -77,6 +79,7 @@ Vue.use(Select);
 Vue.use(Option);
 Vue.use(DatePicker);
 export default {
+  props: ["transferredData", "itemData"],
   components: {
     UnprocessModal,
   },
@@ -106,7 +109,65 @@ export default {
       dateEnded: "",
     };
   },
+  mounted() {
+    this.assignPromoName();
+  },
   methods: {
+    generateLetter() {
+      console.log("DATE START:", this.dateStarted, "DATE END:", this.dateEnded);
+      var tempDateStart =
+        this.dateStarted.toString().split(" ")[1] +
+        " " +
+        this.dateStarted.toString().split(" ")[2] +
+        ", " +
+        this.dateStarted.toString().split(" ")[3];
+      console.log("Date Start: ", tempDateStart);
+
+      var tempDateEnd =
+        this.dateEnded.toString().split(" ")[1] +
+        " " +
+        this.dateEnded.toString().split(" ")[2] +
+        ", " +
+        this.dateEnded.toString().split(" ")[3];
+      console.log("Date End: ", tempDateEnd);
+      // axiosClient
+      //   .post("/updateBranchStatus", {
+      //     company: sessionStorage.getItem("Company"),
+      //     id: this.transferredData.plID,
+      //     // name: this.userName,
+      //     status: "approved",
+      //     userID: sessionStorage.getItem("UserID"),
+      //   })
+      //   .then((response) => {
+      //     console.log("Success:", response.data);
+      window.open(
+        "http://192.168.0.7:40/api/generatePDF?name=" +
+          this.transferredData.name +
+          "&plID=" +
+          this.transferredData.plID +
+          "&dateStart=" +
+          tempDateStart +
+          "&dateEnd=" +
+          tempDateEnd +
+          "&email=" +
+          this.transferredData.promoEmail +
+          "&userID=" +
+          sessionStorage.getItem("UserID") +
+          "&company=" +
+          sessionStorage.getItem("Company"),
+        "_blank"
+      );
+      setTimeout(() => {
+        window.location.reload();
+      }, 3000); // Reload after 3 seconds
+      // })
+      // .catch((error) => {
+      //   console.error(error);
+      // });
+    },
+    assignPromoName() {
+      this.promodiser = this.transferredData.name;
+    },
     closeModal() {
       this.promodiser = "";
     },

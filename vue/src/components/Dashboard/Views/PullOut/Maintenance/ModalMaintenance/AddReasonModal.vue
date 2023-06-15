@@ -2,6 +2,8 @@
   <div
     class="modal fade"
     id="addreasonmodal"
+    data-bs-backdrop="static"
+    data-bs-keyboard="false"
     tabindex="-1"
     aria-labelledby="addreasonmodalLabel"
     aria-hidden="true"
@@ -33,7 +35,7 @@
           >
             Close
           </button>
-          <button type="button" class="btn btn-primary">Save</button>
+          <button type="button" class="btn btn-primary" @click="submit">Save</button>
         </div>
       </div>
     </div>
@@ -44,6 +46,7 @@
 import Vue from "vue";
 import { Table, TableColumn, Select, Option } from "element-ui";
 import axiosClient from "../../../../../../axios";
+import axios from "axios";
 
 Vue.use(Table);
 Vue.use(TableColumn);
@@ -69,6 +72,22 @@ export default {
   methods: {
     closeModal() {
       this.newReason.reason = "";
+    },
+    submit() {
+      axiosClient
+        .post("/addNewReason", {
+          reasonLabel: this.newReason.reason,
+          userID: sessionStorage.getItem("UserID"),
+        })
+        .then((response) => {
+          console.log("Success Add Reason", response.data);
+          setTimeout(() => {
+            window.location.reload();
+          }, 3000); // Reload after 3 seconds
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     },
   },
 };

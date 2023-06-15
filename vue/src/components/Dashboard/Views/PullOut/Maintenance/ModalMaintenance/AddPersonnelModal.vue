@@ -2,6 +2,8 @@
   <div
     class="modal fade"
     id="addpersonnelmodal"
+    data-bs-backdrop="static"
+    data-bs-keyboard="false"
     tabindex="-1"
     aria-labelledby="addpersonnelmodalLabel"
     aria-hidden="true"
@@ -42,7 +44,7 @@
           >
             Close
           </button>
-          <button type="button" class="btn btn-primary">Save</button>
+          <button type="button" class="btn btn-primary" @click="submit">Save</button>
         </div>
       </div>
     </div>
@@ -53,6 +55,7 @@
 import Vue from "vue";
 import { Table, TableColumn, Select, Option } from "element-ui";
 import axiosClient from "../../../../../../axios";
+import axios from "axios";
 
 Vue.use(Table);
 Vue.use(TableColumn);
@@ -80,6 +83,23 @@ export default {
     closeModal() {
       this.newPersonnel.name = "";
       this.newPersonnel.position = "";
+    },
+    submit() {
+      axiosClient
+        .post("/addNewDriver", {
+          name: this.newPersonnel.name,
+          position: this.newPersonnel.position,
+          userID: sessionStorage.getItem("UserID"),
+        })
+        .then((response) => {
+          console.log("Success Add Personnel", response.data);
+          setTimeout(() => {
+            window.location.reload();
+          }, 3000); // Reload after 3 seconds
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     },
   },
 };

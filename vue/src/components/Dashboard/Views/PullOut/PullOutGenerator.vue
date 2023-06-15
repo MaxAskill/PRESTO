@@ -196,7 +196,6 @@
                     v-show="newItem.id === boxLabel.id"
                   >
                     <div class="col-sm-12 d-flex mt-2" v-if="newItem.id == showItemInput">
-                      {{ newItem }}
                       <input
                         type="text"
                         v-model="newItemInput"
@@ -288,9 +287,13 @@
                           </button>
                           {{ item.code }}
                         </th>
-                        <td class="cell px-3">{{ item.description }}</td>
-                        <td class="cell px-3">{{ item.categorybrand }}</td>
-                        <td class="cell">
+                        <td class="cell px-3" style="width: 700px">
+                          {{ item.description }}
+                        </td>
+                        <td class="cell px-3" style="width: 300px">
+                          {{ item.categorybrand }}
+                        </td>
+                        <td class="cell" style="width: 50px">
                           <input
                             type="number"
                             @blur="handleQuantity(item.id)"
@@ -298,7 +301,7 @@
                             class="table-input-box"
                           />
                         </td>
-                        <td class="cell">
+                        <td class="cell" style="width: 150px">
                           <el-select
                             class="table-select-box"
                             size="large"
@@ -332,11 +335,14 @@
             type="submit"
             class="btn btn-warning btn-fill btn-wd"
             @click.prevent="draft"
+            v-show="isDenied"
           >
             Draft
           </button>
           <button
             type="submit"
+            data-bs-target="#transactionReceipt"
+            data-bs-toggle="modal"
             class="btn btn-info btn-fill btn-wd"
             @click.prevent="submit"
           >
@@ -351,6 +357,7 @@
         @closeModal="transferredData"
       ></EditBoxLabelModal>
     </div>
+    <TransactionReceiptModal></TransactionReceiptModal>
   </div>
 </template>
 <script>
@@ -367,10 +374,20 @@ import PProgress from "src/components/UIComponents/Progress.vue";
 import PSwitch from "src/components/UIComponents/Switch.vue";
 import Vue from "vue";
 import NotificationTemplate from "../Components/NotificationTemplate";
+import NotifAddBoxLabel from "../Components/Notification/NotifSuccessAddBoxLabel.vue";
+import NotifAddItem from "../Components/Notification/NotifSuccessAddItem.vue";
+import NotifDeleteBoxLabel from "../Components/Notification/NotifSuccessDeleteBoxLabel.vue";
+import NotifDeleteItem from "../Components/Notification/NotifSuccessDeleteItem.vue";
+import NotifDraftSave from "../Components/Notification/NotifSuccessDraftSave.vue";
+import NotifItemChangeBoxLabel from "../Components/Notification/NotifSuccessItemChangeBoxLabel.vue";
+import NotifItemQuantity from "../Components/Notification/NotifSuccessItemQuantity.vue";
+import NotifRenameBoxLabel from "../Components/Notification/NotifSuccessRenameBoxLabel.vue";
+import NotifSubmitTransaction from "../Components/Notification/NotifSuccessSubmitTransaction.vue";
 import Swal from "sweetalert2";
 import { Table, TableColumn } from "element-ui";
 import axiosClient from "../../../../axios";
 import EditBoxLabelModal from "./PullOutRequests/ModalPullOut/EditBoxLabelModal.vue";
+import TransactionReceiptModal from "./PullOutRequests/ModalPullOut/TransactionReceiptModal.vue";
 
 Vue.use(Table);
 Vue.use(TableColumn);
@@ -392,7 +409,17 @@ export default {
     Collapse,
     Card,
     NotificationTemplate,
+    NotifAddBoxLabel,
+    NotifAddItem,
+    NotifDeleteBoxLabel,
+    NotifDeleteItem,
+    NotifDraftSave,
+    NotifItemChangeBoxLabel,
+    NotifItemQuantity,
+    NotifRenameBoxLabel,
+    NotifSubmitTransaction,
     EditBoxLabelModal,
+    TransactionReceiptModal,
   },
   data() {
     return {
@@ -463,6 +490,7 @@ export default {
       ],
       uniqueItemss: [],
       duplicateItemss: [],
+      isDenied: true,
     };
   },
   mounted() {
@@ -493,6 +521,9 @@ export default {
             this.newTransaction.chainCode = response.data[0].chainCode;
             this.newTransaction.transactionType = response.data[0].transactionType;
 
+            if (response.data[0].status == "denied") {
+              this.isDenied = false;
+            }
             axiosClient
               .get("/fetchEditDraftItem", {
                 params: {
@@ -601,6 +632,8 @@ export default {
       this.newTransaction.items = this.newTransaction.items.filter(
         (item) => item.code !== code || item.boxLabel !== boxLabel
       );
+
+      this.notifyVue("DeleteItem", "bottom", "right");
 
       // alert("Your data: " + JSON.stringify(data));
 
@@ -720,16 +753,47 @@ export default {
         });
     },
     handleQuantity() {
-      this.notifyVue("bottom", "right");
+      this.notifyVue("ItemQuantity", "bottom", "right");
     },
-    notifyVue(verticalAlign, horizontalAlign) {
-      const color = Math.floor(Math.random() * 4 + 1);
+    notifyVue(notify, verticalAlign, horizontalAlign) {
+      var notification = "";
+      let notifType = "";
+
+      if (notify === "AddBoxLabel") {
+        notification = NotifAddBoxLabel;
+        notifType = "success";
+      } else if (notify === "AddItem") {
+        notification = NotifAddItem;
+        notifType = "success";
+      } else if (notify === "DeleteBoxLabel") {
+        notification = NotifDeleteBoxLabel;
+        notifType = "danger";
+      } else if (notify === "DeleteItem") {
+        notification = NotifDeleteItem;
+        notifType = "danger";
+      } else if (notify === "DraftSave") {
+        notification = NotifDraftSave;
+        notifType = "success";
+      } else if (notify === "ChangeBoxLabel") {
+        notification = NotifItemChangeBoxLabel;
+        notifType = "success";
+      } else if (notify === "ItemQuantity") {
+        notification = NotifItemQuantity;
+        notifType = "success";
+      } else if (notify === "RenameBoxLabel") {
+        notification = NotifRenameBoxLabel;
+        notifType = "success";
+      } else {
+        notification = NotifSubmitTransaction;
+        notifType = "success";
+      }
+
       this.$notify({
-        component: NotificationTemplate,
-        // icon: 'nc-icon nc-app',
+        component: notification,
+        // icon: "nc-icon nc-bell-55",
         horizontalAlign: horizontalAlign,
         verticalAlign: verticalAlign,
-        type: "success",
+        type: notifType,
         props: {
           customValue: "Success",
         },
@@ -760,7 +824,7 @@ export default {
         .catch((error) => {
           console.error(error);
         });
-      this.notifyVue("bottom", "right");
+      // this.notifyVue("bottom", "right");
       this.isChainCode = false;
     },
     fetchChainName() {
@@ -839,7 +903,7 @@ export default {
             this.isAddItem = true;
             this.newItemInput = "";
             this.showItemInput = "";
-            this.notifyVue("bottom", "right");
+            this.notifyVue("AddItem", "bottom", "right");
           }
         })
         .catch((error) => {
@@ -902,13 +966,14 @@ export default {
       this.newTransaction.boxLabels.push(tempBoxLabel);
       this.newItemInputBox.push(tempItem);
       this.newBoxLabel = "";
-      this.notifyVue("bottom", "right");
-      console.log("Console:", this.newTransaction.boxLabels);
+      // this.notifyVue("AddBoxLabel", "bottom", "right");
+      // console.log("Console:", this.newTransaction.boxLabels);
       //Disable the above select buttons
       this.isCompany = true;
       this.isChainCode = true;
       this.isBranchName = true;
       this.isTransactionType = true;
+      this.notifyVue("AddBoxLabel", "bottom", "right");
     },
     cancelBoxLabel() {
       this.isNewBoxLabel = false;
@@ -1142,6 +1207,7 @@ export default {
           item.code !== uniqueItems[0].code || item.boxLabel !== uniqueItems[0].boxLabel
       );
       this.newTransaction.items.push(uniqueItems[0]);
+      this.notifyVue("ChangeBoxLabel", "bottom", "right");
     },
   },
 };

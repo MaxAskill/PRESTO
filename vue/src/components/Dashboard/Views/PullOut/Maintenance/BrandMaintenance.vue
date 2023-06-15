@@ -77,7 +77,7 @@
       >
       </p-pagination>
     </div>
-    <AddBrandModal></AddBrandModal>
+    <AddBrandModal :transferredData="company"></AddBrandModal>
   </div>
 </template>
 <script>

@@ -267,22 +267,22 @@ class FetchController extends Controller
 
         if($request->company == "EPC" || $request->company == "AHLC"){
             $data = DB::table('pullOutBranchTbl as a')
-                // ->join('companyTbl as b', 'a.company', '=', 'b.id')
+                ->join('users as b', 'a.promoEmail', '=', 'b.email')
                 ->select('a.id as plID','a.branchName', 'a.transactionType',
                 DB::raw('CONCAT(MONTHNAME(a.dateTime), " ", DATE_FORMAT(a.dateTime, "%d, %Y")) as date'),
-                DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'))
+                DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'), 'b.name', 'a.promoEmail')
                 ->distinct()
-                ->where('status', 'unprocessed')
+                ->where('a.status', 'unprocessed')
                 ->orderBy('a.dateTime', 'desc')
                 ->get();
         }else if($request->company == "NBFI" || $request->company == "ASC" || $request->company == "CMC"){
             $data = DB::table('pullOutBranchTblNBFI as a')
-                // ->join('companyTbl as b', 'a.company', '=', 'b.id')
+                ->join('users as b', 'a.promoEmail', '=', 'b.email')
                 ->select('a.id as plID','a.branchName', 'a.transactionType',
                 DB::raw('CONCAT(MONTHNAME(a.dateTime), " ", DATE_FORMAT(a.dateTime, "%d, %Y")) as date'),
-                DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'))
+                DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'), 'b.name', 'a.promoEmail')
                 ->distinct()
-                ->where('status', 'unprocessed')
+                ->where('a.status', 'unprocessed')
                 ->orderBy('a.dateTime', 'desc')
                 ->get();
         }
@@ -333,7 +333,6 @@ class FetchController extends Controller
 
         if($request->company == "EPC" || $request->company == "AHLC"){
             $data = DB::table('pullOutBranchTbl as a')
-                ->join('companyTbl as b', 'a.company', '=', 'b.id')
                 ->select('a.id as plID','a.branchName', 'a.transactionType',
                 DB::raw('CONCAT(MONTHNAME(a.dateTime), " ", DATE_FORMAT(a.dateTime, "%d, %Y")) as date'),
                 DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'),
@@ -344,7 +343,6 @@ class FetchController extends Controller
                 ->get();
         }else if($request->company == "NBFI" || $request->company == "CMC" || $request->company == "ASC"){
             $data = DB::table('pullOutBranchTblNBFI as a')
-                ->join('companyTbl as b', 'a.company', '=', 'b.id')
                 ->select('a.id as plID','a.branchName', 'a.transactionType',
                 DB::raw('CONCAT(MONTHNAME(a.dateTime), " ", DATE_FORMAT(a.dateTime, "%d, %Y")) as date'),
                 DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'),
@@ -362,22 +360,18 @@ class FetchController extends Controller
 
         if($request->company == "EPC" || $request->company == "AHLC"){
             $data = DB::table('pullOutBranchTbl as a')
-                ->join('companyTbl as b', 'a.company', '=', 'b.id')
                 ->select('a.id as plID','a.branchName', 'a.transactionType',
                 DB::raw('CONCAT(MONTHNAME(a.dateTime), " ", DATE_FORMAT(a.dateTime, "%d, %Y")) as date'),
                 DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'))
                 ->where('status', 'denied')
-                ->distinct()
                 ->orderBy('a.dateTime', 'desc')
                 ->get();
         }else if($request->company == "NBFI" || $request->company == "CMC" || $request->company == "ASC"){
             $data = DB::table('pullOutBranchTblNBFI as a')
-                ->join('companyTbl as b', 'a.company', '=', 'b.id')
                 ->select('a.id as plID','a.branchName', 'a.transactionType',
                 DB::raw('CONCAT(MONTHNAME(a.dateTime), " ", DATE_FORMAT(a.dateTime, "%d, %Y")) as date'),
                 DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'))
                 ->where('status', 'denied')
-                ->distinct()
                 ->orderBy('a.dateTime', 'desc')
                 ->get();
         }
@@ -519,7 +513,7 @@ class FetchController extends Controller
         if($company == 'NBFI' || $company == 'ASC' || $company == 'CMC'){
             $data = DB::table('pullOutBranchTblNBFI as a')
                     // ->join('companyTbl as b', 'a.company', '=', 'b.id')
-                    ->select('a.id as plID', 'a.chainCode', 'a.branchName', 'a.transactionType',
+                    ->select('a.id as plID', 'a.chainCode', 'a.branchName', 'a.company', 'a.transactionType',
                         DB::raw('CONCAT(MONTHNAME(a.dateTime), " ", DATE_FORMAT(a.dateTime, "%d, %Y")) as date'),
                         DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'), 'status')
                     ->where('status', '!=', 'draft')
@@ -529,7 +523,7 @@ class FetchController extends Controller
         } else if($company == 'EPC' || $company == 'AHLC'){
             $data = DB::table('pullOutBranchTbl as a')
                     // ->join('companyTbl as b', 'a.company', '=', 'b.id')
-                    ->select('a.id as plID', 'a.chainCode', 'a.branchName', 'a.transactionType',
+                    ->select('a.id as plID', 'a.chainCode', 'a.branchName', 'a.company', 'a.transactionType',
                         DB::raw('CONCAT(MONTHNAME(a.dateTime), " ", DATE_FORMAT(a.dateTime, "%d, %Y")) as date'),
                         DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'), 'status')
                     ->where('status', '!=', 'draft')
@@ -594,7 +588,7 @@ class FetchController extends Controller
             $data = DB::table('pullOutBranchTblNBFI')
                     ->select('id', 'chainCode', 'branchName', 'company', 'transactionType',
                         DB::raw('CONCAT(MONTHNAME(dateTime), " ", DATE_FORMAT(dateTime, "%d, %Y")) as date'),
-                        DB::raw('DATE_FORMAT(dateTime, "%h:%i %p") as time'))
+                        DB::raw('DATE_FORMAT(dateTime, "%h:%i %p") as time'), 'status')
                     ->where('id', $request->plID)
                     ->get();
 
@@ -602,7 +596,7 @@ class FetchController extends Controller
             $data = DB::table('pullOutBranchTbl as a')
                     ->select('id', 'chainCode', 'branchName', 'company', 'transactionType',
                         DB::raw('CONCAT(MONTHNAME(dateTime), " ", DATE_FORMAT(dateTime, "%d, %Y")) as date'),
-                        DB::raw('DATE_FORMAT(dateTime, "%h:%i %p") as time'))
+                        DB::raw('DATE_FORMAT(dateTime, "%h:%i %p") as time'), 'status')
                     ->where('id', $request->plID)
                     ->get();
 

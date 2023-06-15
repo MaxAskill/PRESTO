@@ -19,7 +19,7 @@ module.exports = {
     ]
   },
   pwa: {
-    name: 'Vue Paper Dashboard PRO',
+    name: 'PRESTO',
     themeColor: '#66615B',
     msTileColor: '#66615B',
     appleMobileWebAppCapable: 'yes',

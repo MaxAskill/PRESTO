@@ -2,6 +2,8 @@
   <div
     class="modal fade"
     id="addbrandmodal"
+    data-bs-backdrop="static"
+    data-bs-keyboard="false"
     tabindex="-1"
     aria-labelledby="addbrandmodalLabel"
     aria-hidden="true"
@@ -33,7 +35,7 @@
           >
             Close
           </button>
-          <button type="button" class="btn btn-primary">Save</button>
+          <button type="button" class="btn btn-primary" @click="submit">Save</button>
         </div>
       </div>
     </div>
@@ -51,6 +53,7 @@ Vue.use(Select);
 Vue.use(Option);
 export default {
   watch: {},
+  props: ["transferredData"],
   computed: {
     /***
      * Searches through table data and returns a paginated array.
@@ -69,6 +72,24 @@ export default {
   methods: {
     closeModal() {
       this.newBrand.brandName = "";
+    },
+    submit() {
+      // console.log("Brand", this.transferredData);
+      axiosClient
+        .post("/addNewBrand", {
+          brandName: this.newBrand.brandName,
+          company: this.transferredData,
+          userID: sessionStorage.getItem("UserID"),
+        })
+        .then((response) => {
+          console.log("Success Add Brand:", response.data);
+          setTimeout(() => {
+            window.location.reload();
+          }, 3000); // Reload after 3 seconds
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     },
   },
 };

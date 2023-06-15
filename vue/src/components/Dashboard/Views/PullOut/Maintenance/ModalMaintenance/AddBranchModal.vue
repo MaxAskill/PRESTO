@@ -2,6 +2,8 @@
   <div
     class="modal fade"
     id="addbranchmodal"
+    data-bs-backdrop="static"
+    data-bs-keyboard="false"
     tabindex="-1"
     aria-labelledby="addbranchmodalLabel"
     aria-hidden="true"
@@ -40,17 +42,33 @@
                     >
                     </el-option>
                   </el-select>
-                  <!-- <label v-show="isValid.company" class="label-font"
-                    >Company is required.</label
-                  > -->
                 </fg-input>
               </div>
-              <div class="col-12">
+              <div class="col-6">
                 <fg-input
                   label="Branch Name"
                   placeholder="Branch Name"
                   v-model="newBranch.branchName"
                 ></fg-input>
+              </div>
+              <div class="col-6">
+                <fg-input label="Company">
+                  <el-select
+                    class="select-default"
+                    size="large"
+                    placeholder="Select Company"
+                    v-model="newBranch.company"
+                  >
+                    <el-option
+                      v-for="option in companyList"
+                      class="select-default"
+                      :value="option.shortName"
+                      :label="option.shortName"
+                      :key="option.id"
+                    >
+                    </el-option>
+                  </el-select>
+                </fg-input>
               </div>
             </div>
           </form>
@@ -100,8 +118,10 @@ export default {
         branchCode: "",
         chainCode: "",
         branchName: "",
+        company: "",
       },
       chainCodeList: [],
+      companyList: [],
     };
   },
   mounted() {
@@ -117,7 +137,8 @@ export default {
           chainCode: this.newBranch.chainCode,
           branchName: this.newBranch.branchName,
           userID: sessionStorage.getItem("UserID"),
-          company: sessionStorage.getItem("Company"),
+          companyType: this.newBranch.company,
+          company: this.company,
         })
         .then((response) => {
           console.log("Response:", response.data);
@@ -144,6 +165,15 @@ export default {
         .then((response) => {
           console.log("Success Chain Code Response:", response.data);
           this.chainCodeList = response.data;
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+      axiosClient
+        .get("/fetchCompany")
+        .then((response) => {
+          console.log("Success Company List Response:", response.data);
+          this.companyList = response.data;
         })
         .catch((error) => {
           console.error(error);

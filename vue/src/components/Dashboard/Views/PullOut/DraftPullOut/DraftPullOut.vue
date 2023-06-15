@@ -30,37 +30,24 @@
             :label="column.label"
           >
           </el-table-column>
-          <el-table-column
-            :width="120"
-            align="center"
-            class-name="td-actions"
-            label="Status"
-          >
+          <el-table-column :min-width="120" class-name="td-actions" label="Actions">
             <template slot-scope="props">
               <p-button
-                v-if="props.row.status === 'Active'"
                 type="success"
                 size="sm"
+                icon
                 @click="handleEdit(props.$index, props.row)"
               >
-                Active
+                <i class="fa fa-edit"></i>
               </p-button>
               <p-button
-                v-else
                 type="danger"
                 size="sm"
-                @click="handleEdit(props.$index, props.row)"
+                icon
+                @click="handleDelete(props.$index, props.row)"
               >
-                Inactive
+                <i class="fa fa-times"></i>
               </p-button>
-              <!-- <p-button
-                    type="danger"
-                    size="sm"
-                    icon
-                    @click="handleDelete(props.$index, props.row)"
-                  >
-                    <i class="fa fa-times"></i>
-                  </p-button> -->
             </template>
           </el-table-column>
         </el-table>
@@ -96,6 +83,7 @@ import { Table, TableColumn, Select, Option } from "element-ui";
 import PButton from "../../../../UIComponents/Button.vue";
 import PPagination from "../../../../UIComponents/Pagination.vue";
 import axiosClient from "../../../../../axios";
+import axios from "axios";
 
 Vue.use(Table);
 Vue.use(TableColumn);
@@ -163,7 +151,15 @@ export default {
         total: 0,
       },
       searchQuery: "",
-      propsToSearch: ["chainCode", "branchCode", "branchName", "status"],
+      propsToSearch: [
+        "plID",
+        "branchCode",
+        "branchName",
+        "status",
+        "transactionType",
+        "date",
+        "time",
+      ],
       tableColumns: [
         {
           prop: "plID",
@@ -246,10 +242,26 @@ export default {
       // alert(`Your want to edit ${row.status}`);
     },
     handleDelete(index, row) {
-      let indexToDelete = this.tableData.findIndex((tableRow) => tableRow.id === row.id);
+      console.log("ID:", row.plID, row.company);
+
+      let indexToDelete = this.tableData.findIndex(
+        (tableRow) => tableRow.plID === row.plID
+      );
       if (indexToDelete >= 0) {
         this.tableData.splice(indexToDelete, 1);
       }
+
+      axiosClient
+        .post("/deleteDraft", {
+          id: row.plID,
+          company: row.company,
+        })
+        .then((response) => {
+          console.log("Success Delete:", response.data);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     },
   },
 };

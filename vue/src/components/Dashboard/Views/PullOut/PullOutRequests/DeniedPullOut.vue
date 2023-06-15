@@ -17,7 +17,7 @@
           </el-option>
         </el-select>
       </div>
-      <div class="col-10 pl">
+      <div class="col-8 pl">
         <fg-input
           class="input-md"
           placeholder="Search"
@@ -25,6 +25,17 @@
           addon-right-icon="nc-icon nc-zoom-split"
         >
         </fg-input>
+      </div>
+      <div class="col-2 pl">
+        <button
+          :disabled="checkedBranch.length == 0"
+          data-bs-target="#exportDenied"
+          data-bs-toggle="modal"
+          @click="clickExport"
+          class="ml-2 whitespace-nowrap bg-transparent text-sm hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border-2 border-blue-500 hover:border-transparent rounded"
+        >
+          Export Excel
+        </button>
       </div>
     </div>
     <div class="row mx-2">
@@ -51,6 +62,15 @@
             </p-button>
           </template>
         </el-table-column>
+        <el-table-column :width="120" class-name="td-actions" label="Check">
+          <template slot-scope="props">
+            <p-checkbox
+              :checked="false"
+              v-model="checkedBranch[props.row.plID]"
+              :value="props.row.plID"
+            ></p-checkbox>
+          </template>
+        </el-table-column>
       </el-table>
     </div>
     <div class="d-flex justify-content-end pagination-info">
@@ -73,6 +93,7 @@
       @closeModal="closeModal"
     >
     </denied-modal>
+    <ExportDeniedModal @exportTransfer="exportExcel($event)"></ExportDeniedModal>
   </div>
 </template>
 <script>
@@ -81,6 +102,9 @@ import Vue from "vue";
 import { Table, TableColumn, Select, Option } from "element-ui";
 import PPagination from "../../../../UIComponents/Pagination.vue";
 import axiosClient from "../../../../../axios";
+// import XLSX from "../../../node_modules/xlsx/dist/xlsx.full.min.js";
+import XLSX from "../../../../../../node_modules/xlsx/dist/xlsx.full.min.js";
+import ExportDeniedModal from "./ModalPullOut/ExportDeniedModal.vue";
 
 Vue.use(Table);
 Vue.use(TableColumn);
@@ -90,6 +114,7 @@ export default {
   components: {
     PPagination,
     DeniedModal,
+    ExportDeniedModal,
   },
   mounted() {
     this.fetchData();
@@ -139,6 +164,7 @@ export default {
   },
   data() {
     return {
+      checkedBranch: [],
       transferredData: "",
       itemData: "",
       pagination: {
@@ -180,6 +206,70 @@ export default {
     };
   },
   methods: {
+    exportExcel(x) {
+      var dataArray = "";
+      const selectedItems = [];
+      if (!x) {
+        for (const item in this.checkedBranch) {
+          if (this.checkedBranch[item]) {
+            selectedItems.push(parseInt(item));
+          }
+        }
+      } else {
+        for (const item in this.tableData) {
+          selectedItems.push(parseInt(this.tableData[item].plID));
+        }
+      }
+      axiosClient
+        .get("/fetchAllItemsRequest", {
+          params: {
+            company: sessionStorage.getItem("Company"),
+            plID: selectedItems,
+          },
+        })
+        .then((response) => {
+          console.log("Selected Item Request", response.data);
+          this.excelBranch = response.data;
+          console.log("Selected items:", this.excelBranch);
+          dataArray = this.excelBranch.map((obj) => [
+            obj.branchName,
+            obj.brand,
+            obj.transactionType,
+            obj.boxLabel,
+            obj.itemCode,
+            obj.quantity,
+            obj.date,
+            obj.time,
+          ]);
+          console.log("sda", dataArray);
+
+          const currentDate = new Date();
+          const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+          const currentDateString = currentDate
+            .toLocaleDateString("en-PH", options)
+            .replace(/\//g, "-");
+          console.log(currentDateString);
+
+          dataArray = [this.headerRow, ...dataArray];
+          const workbook = XLSX.utils.book_new();
+          const worksheet = XLSX.utils.aoa_to_sheet(dataArray);
+
+          XLSX.utils.book_append_sheet(workbook, worksheet, "Raw Data");
+          const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+          const blob = new Blob([excelBuffer], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          });
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = currentDateString + "_RawData(Approved Pull-Out).xlsx";
+          link.click();
+          window.URL.revokeObjectURL(url);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    },
     openModal(data) {
       this.transferredData = data;
       console.log("Branch Data: ", this.transferredData.plID);
@@ -218,6 +308,9 @@ export default {
     },
     handleLike(index, row) {
       alert(`Your want to like ${row.branchName}`);
+    },
+    clickExport() {
+      console.log(this.checkedBranch);
     },
   },
 };

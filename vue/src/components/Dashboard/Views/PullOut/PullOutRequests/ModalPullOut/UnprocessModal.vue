@@ -15,10 +15,91 @@
             <h1 class="modal-title fs-5 text-weight-bold" id="unprocessModalLabel">
               {{ transferredData.branchName }}
             </h1>
+            <div class="col-12 pl">
+              <fg-input
+                class="input-md"
+                placeholder="Search"
+                v-model="searchQuery"
+                addon-right-icon="nc-icon nc-zoom-split"
+              >
+              </fg-input>
+            </div>
           </div>
           <div class="modal-body">
             <div class="col-sm-12 mt-2">
-              <el-table class="table-striped" :data="itemData" border style="width: 100%">
+              <table
+                class="table table-bordered table-hover table-responsive-sm table-font-size font-weight-normal"
+              >
+                <thead>
+                  <tr>
+                    <th scope="col" class="nowrap">Item Code</th>
+                    <th scope="col" class="nowrap">Category/Brand</th>
+                    <th scope="col" class="nowrap">Box Number</th>
+                    <th scope="col" class="nowrap">Box Label</th>
+                    <th scope="col" class="nowrap">Quantity</th>
+                    <th scope="col" class="nowrap">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="item in queriedData" :key="item.id">
+                    <th scope="row" style="width: 200px" class="px-3">
+                      {{ item.itemCode }}
+                    </th>
+                    <td style="width: 100px" class="cell-unprocess">
+                      {{ item.brand }}
+                    </td>
+                    <td style="width: 100px" class="cell-unprocess">
+                      {{ item.boxNumber }}
+                    </td>
+                    <td style="width: 200px" class="cell-unprocess">
+                      {{ item.boxLabel }}
+                    </td>
+                    <!-- <td class="cell px-3">{{ item.quantity }}</td> -->
+                    <td style="width: 50px" class="cell-unprocess">
+                      <input
+                        type="number"
+                        min="1"
+                        @blur="handleQuantity()"
+                        v-model="item.quantity"
+                        class="table-input-box"
+                        required="true"
+                        message="you can give score -10 to +10 only"
+                      />
+                    </td>
+                    <td style="width: 100px" class="cell-unprocess">
+                      <p-button type="danger" size="sm" icon @click="handleDelete(item)">
+                        <i class="fa fa-times"></i>
+                      </p-button>
+                    </td>
+                    <!-- <td class="cell">
+                      <input
+                        type="number"
+                        @blur="handleQuantity(item.id)"
+                        v-model="item.quantity"
+                        class="table-input-box"
+                      />
+                    </td>
+                    <td class="cell">
+                      <el-select
+                        class="table-select-box"
+                        size="large"
+                        v-model="item.boxLabel"
+                        @change="editBoxLabel(item.code, item.quantity, item.boxLabel)"
+                      >
+                        <el-option
+                          v-for="boxLabel in newTransaction.boxLabels"
+                          class="table-select-box"
+                          :value="boxLabel.boxLabel"
+                          :label="boxLabel.boxLabel"
+                          :key="boxLabel.id"
+                        >
+                        </el-option>
+                      </el-select>
+                    </td> -->
+                  </tr>
+                </tbody>
+              </table>
+              <!-- <el-table class="table-striped" :data="itemData" border style="width: 100%">
                 <el-table-column
                   v-for="column in tableColumns"
                   :key="column.label"
@@ -52,7 +133,21 @@
                     </p-button>
                   </template>
                 </el-table-column>
-              </el-table>
+              </el-table> -->
+              <div class="d-flex justify-content-end pagination-info">
+                <p class="category p-margin">
+                  Showing {{ from + 1 }} to {{ to }} of {{ total }} entries
+                </p>
+              </div>
+              <div class="d-flex justify-content-center">
+                <p-pagination
+                  class="pull-right"
+                  v-model="pagination.currentPage"
+                  :per-page="pagination.perPage"
+                  :total="pagination.total"
+                >
+                </p-pagination>
+              </div>
             </div>
           </div>
           <div class="modal-footer mrgn-footer">
@@ -77,18 +172,23 @@
         </div>
       </div>
     </div>
-    <DeniedUnprocessModal></DeniedUnprocessModal>
-    <ApprovedUnprocessModal></ApprovedUnprocessModal>
+    <DeniedUnprocessModal :transferredData="transferredData"></DeniedUnprocessModal>
+    <ApprovedUnprocessModal
+      :transferredData="transferredData"
+      :itemData="itemData"
+    ></ApprovedUnprocessModal>
   </div>
 </template>
 <script>
 import Vue from "vue";
 import { Table, TableColumn, Select, Option } from "element-ui";
 import axiosClient from "../../../../../../axios";
-import NotificationTemplate from "../../../Components/Notification/NotificationSuccessfulRename.vue";
+import NotifItemQuantity from "../../../Components/Notification/NotifSuccessItemQuantity.vue";
+import NotifDeleteItem from "../../../Components/Notification/NotifSuccessDeleteItem.vue";
 import { createPopper } from "@popperjs/core/lib/popper-lite.js";
 import DeniedUnprocessModal from "./UnprocessModal/DeniedUnprocessModal.vue";
 import ApprovedUnprocessModal from "./UnprocessModal/ApprovedUnprocessModal.vue";
+import PPagination from "../../../../../UIComponents/Pagination.vue";
 
 Vue.use(Table);
 Vue.use(TableColumn);
@@ -100,9 +200,11 @@ export default {
   // },
   props: ["transferredData", "itemData"],
   components: {
-    NotificationTemplate,
+    NotifItemQuantity,
     DeniedUnprocessModal,
     ApprovedUnprocessModal,
+    PPagination,
+    NotifDeleteItem,
   },
 
   mounted() {
@@ -126,6 +228,47 @@ export default {
      * Do the search and the pagination on the server and display the data retrieved from server instead.
      * @returns {computed.pagedData}
      */
+    pagedData() {
+      return this.itemData.slice(this.from, this.to);
+    },
+    /***
+     * Searches through table data and returns a paginated array.
+     * Note that this should not be used for table with a lot of data as it might be slow!
+     * Do the search and the pagination on the server and display the data retrieved from server instead.
+     * @returns {computed.pagedData}
+     */
+    queriedData() {
+      if (!this.searchQuery) {
+        this.pagination.total = this.itemData.length;
+        return this.pagedData;
+      }
+      let result = this.itemData.filter((row) => {
+        let isIncluded = false;
+        for (let key of this.propsToSearch) {
+          let rowValue = row[key].toString().toLowerCase();
+          if (rowValue.includes && rowValue.includes(this.searchQuery.toLowerCase())) {
+            isIncluded = true;
+          }
+        }
+        return isIncluded;
+      });
+      this.pagination.total = result.length;
+      return result.slice(this.from, this.to);
+    },
+    to() {
+      let highBound = this.from + this.pagination.perPage;
+      if (this.total < highBound) {
+        highBound = this.total;
+      }
+      return highBound;
+    },
+    from() {
+      return this.pagination.perPage * (this.pagination.currentPage - 1);
+    },
+    total() {
+      this.pagination.total = this.itemData.length;
+      return this.itemData.length;
+    },
     popperInstance() {
       return createPopper(this.button, this.popover, {
         placement: "left",
@@ -144,6 +287,14 @@ export default {
 
   data() {
     return {
+      pagination: {
+        perPage: 5,
+        currentPage: 1,
+        perPageOptions: [5, 10, 25, 50],
+        total: 0,
+      },
+      searchQuery: "",
+      propsToSearch: ["itemCode", "brand", "boxNumber", "boxLabel", "quantity"],
       tableColumns: [
         {
           prop: "brand",
@@ -179,16 +330,25 @@ export default {
   },
   methods: {
     handleQuantity() {
-      this.notifyVue("bottom", "right");
+      this.notifyVue("ItemQuantity", "bottom", "right");
     },
-    notifyVue(verticalAlign, horizontalAlign) {
-      const color = Math.floor(Math.random() * 4 + 1);
+    notifyVue(notify, verticalAlign, horizontalAlign) {
+      var notification = "";
+      let notifType = "";
+
+      if (notify === "ItemQuantity") {
+        notification = NotifItemQuantity;
+        notifType = "success";
+      } else {
+        notification = NotifDeleteItem;
+        notifType = "danger";
+      }
       this.$notify({
-        component: NotificationTemplate,
+        component: notification,
         // icon: 'nc-icon nc-app',
         horizontalAlign: horizontalAlign,
         verticalAlign: verticalAlign,
-        type: "success",
+        type: notifType,
         props: {
           customValue: "Success Add Box",
         },
@@ -197,9 +357,11 @@ export default {
     handleEdit(index, row) {
       alert(`Your want to edit ${row.id}`);
     },
-    handleDelete(index, row) {
-      let indexToDelete = this.itemData.findIndex((tableRow) => tableRow.id === row.id);
-      console.log("ID to be deleted", row.id);
+    handleDelete(item) {
+      console.log("ID to be deleted", item);
+
+      let indexToDelete = this.itemData.findIndex((tableRow) => tableRow.id === item.id);
+      console.log("ID to be deleted", indexToDelete);
       if (indexToDelete >= 0) {
         this.itemData.splice(indexToDelete, 1);
         console.log("Delete ID: ", this.itemData);
@@ -208,12 +370,13 @@ export default {
       axiosClient
         .post("/updateStatus", {
           company: sessionStorage.getItem("Company"),
-          id: row.id,
+          id: item.id,
           status: "deleted",
           userID: sessionStorage.getItem("UserID"),
         })
         .then((response) => {
           console.log("Success Delete: ", response.data);
+          this.notifyVue("DeleteItem", "bottom", "right");
         })
         .catch((error) => {
           console.error(error);
@@ -311,5 +474,23 @@ export default {
 .popoverPanel[data-popper-placement^="left"] > .popoverArrow::before {
   border-top: 1px solid rgba(0, 0, 0, 0.2);
   border-right: 1px solid rgba(0, 0, 0, 0.2);
+}
+.cell-unprocess {
+  display: table-cell !important;
+  padding: 0px !important;
+}
+// td {
+//   display: table-cell !important;
+//   padding: 0px !important;
+//   /* background-color: #111111 !important; */
+// }
+.table-input-box {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 14px;
+  border: 1px solid transparent;
+  transition: border-color 0.3s ease-in-out;
+  background-color: transparent;
 }
 </style>

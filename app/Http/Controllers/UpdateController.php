@@ -127,15 +127,20 @@ class UpdateController extends Controller
 
         $date = now()->timezone('Asia/Manila'); // GETTING THE TIME ZONE IN PH
 
+        $name = DB::table('users')
+                    ->select('name')
+                    ->where('id', $request->userID)
+                    ->first()->name;
+
         if($request->company == "EPC"){
             //setting the name who edit the item
-            $editBy = DB::select('UPDATE pullOutBranchTbl SET status = \''.$request->status.'\', editedBy = \''.$request->name.'\', updated_at = \''.$date.'\'  WHERE id = \''.$request->id.'\' ');
+            $editBy = DB::select('UPDATE pullOutBranchTbl SET status = \''.$request->status.'\', editedBy = \''.$name.'\', updated_at = \''.$date.'\'  WHERE id = \''.$request->id.'\' ');
             $old_data = PullOutBranchModel::find($request->id);
             $table_affected = 'pullOutItemsTbl';
 
         } else if($request->company == "NBFI"){
             //setting the name who edit the item
-            $editBy = DB::select('UPDATE pullOutBranchTblNBFI SET status = \''.$request->status.'\', editedBy = \''.$request->name.'\', updated_at = \''.$date.'\'  WHERE id = \''.$request->id.'\' ');
+            $editBy = DB::select('UPDATE pullOutBranchTblNBFI SET status = \''.$request->status.'\', editedBy = \''.$name.'\', updated_at = \''.$date.'\'  WHERE id = \''.$request->id.'\' ');
             $old_data = PullOutBranchModelNBFI::find($request->id);
             $table_affected = 'pullOutItemsTblNBFI';
         }

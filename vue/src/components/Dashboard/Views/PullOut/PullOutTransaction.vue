@@ -30,39 +30,39 @@
             :label="column.label"
           >
           </el-table-column>
-          <!-- <el-table-column
-            :width="120"
-            align="center"
-            class-name="td-actions"
-            label="Status"
-          >
+          <el-table-column :width="120" class-name="td-actions" label="Status">
             <template slot-scope="props">
-              <p-button
-                v-if="props.row.status === 'Active'"
+              <!-- {{ props.row.status }} -->
+              <badge
+                v-if="props.row.status === 'approved'"
+                slot="header"
                 type="success"
-                size="sm"
-                @click="handleEdit(props.$index, props.row)"
+                >{{ props.row.status }}</badge
               >
-                Active
-              </p-button>
-              <p-button
+              <badge
+                v-else-if="props.row.status === 'unprocessed'"
+                slot="header"
+                type="warning"
+                >{{ props.row.status }}</badge
+              >
+              <!-- <badge v-else slot="header" type="success" @click="openModal(props.row)">{{
+                props.row.status
+              }}</badge> -->
+              <!-- <p-button
                 v-else
                 type="danger"
                 size="sm"
-                @click="handleEdit(props.$index, props.row)"
+                data-bs-toggle="modal"
+                data-bs-target="#approvedModal"
+                @click="openModal(props.row)"
               >
-                Inactive
+                {{ props.row.status }}
               </p-button> -->
-          <!-- <p-button
-                    type="danger"
-                    size="sm"
-                    icon
-                    @click="handleDelete(props.$index, props.row)"
-                  >
-                    <i class="fa fa-times"></i>
-                  </p-button> -->
-          <!-- </template>
-          </el-table-column> -->
+              <button v-else class="denied-btn" @click="denied(props.row)">
+                {{ props.row.status }}
+              </button>
+            </template>
+          </el-table-column>
         </el-table>
       </div>
       <div class="d-flex justify-content-end pagination-info">
@@ -97,6 +97,7 @@ import { Table, TableColumn, Select, Option } from "element-ui";
 import PButton from "../../../UIComponents/Button.vue";
 import PPagination from "../../../UIComponents/Pagination.vue";
 import axiosClient from "../../../../axios";
+import { Badge } from "src/components/UIComponents";
 
 Vue.use(Table);
 Vue.use(TableColumn);
@@ -107,6 +108,7 @@ export default {
   components: {
     PButton,
     PPagination,
+    Badge,
   },
   mounted() {
     this.fetchData();
@@ -169,38 +171,41 @@ export default {
         {
           prop: "plID",
           label: "Transaction ID",
-          minWidth: 150,
+          minWidth: 100,
         },
         {
           prop: "branchName",
           label: "Branch Name",
-          minWidth: 150,
+          minWidth: 200,
         },
         {
           prop: "transactionType",
           label: "Transaction Type",
-          minWidth: 200,
+          minWidth: 150,
         },
         {
           prop: "date",
           label: "Creation Date",
-          minWidth: 200,
+          minWidth: 100,
         },
         {
           prop: "time",
           label: "Creation Time",
-          minWidth: 200,
-        },
-        {
-          prop: "status",
-          label: "Status",
-          minWidth: 200,
+          minWidth: 100,
         },
       ],
       tableData: [],
     };
   },
   methods: {
+    denied(row) {
+      console.log("Company", row);
+      location.href =
+        "http://192.168.0.7:4040/#/pull-out/requisition-form?transactionID=" +
+        row.plID +
+        "&company=" +
+        row.company;
+    },
     fetchData() {
       axiosClient
         .get("/fetchUserRequestTransactionList", {
@@ -246,6 +251,8 @@ export default {
       // alert(`Your want to edit ${row.status}`);
     },
     handleDelete(index, row) {
+      console.log("ID:", row.id, row.company);
+
       let indexToDelete = this.tableData.findIndex((tableRow) => tableRow.id === row.id);
       if (indexToDelete >= 0) {
         this.tableData.splice(indexToDelete, 1);
@@ -285,5 +292,13 @@ export default {
 }
 .last-btn {
   margin-left: 10px;
+}
+.denied-btn {
+  background-color: #ef8157;
+  font-size: 10px;
+  border-radius: 10px;
+  border: none;
+  text-transform: uppercase;
+  color: white;
 }
 </style>

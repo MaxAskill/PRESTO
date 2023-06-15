@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -41,27 +43,40 @@ class AuthController extends Controller
     }
     public function Register(Request $request)
     {
-        $data = $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|email|string|unique:users,email',
-            'password' => [
-                'required',
-                'confirmed',
-                Password::min(8)->mixedCase()->numbers()->symbols()
-            ]
-        ]);
+        // $data = $request->validate([
+        //     'name' => 'required|string',
+        //     'email' => 'required|email|string|unique:users,email',
+        //     'password' => [
+        //         'required',
+        //         'confirmed',
+        //         Password::min(8)->mixedCase()->numbers()->symbols()
+        //     ]
+        // ]);
 
         /** @var \App\Models\User $user */
         $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => bcrypt($data['password'])
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'company' => $request->company,
+            'position' => $request->position,
+            'status' => 'Active'
         ]);
-        $token = $user->createToken('main')->plainTextToken;
+        // $token = $user->createToken('main')->plainTextToken;
+
+        return response()->json(['message' => 'Success Registered']);
+    }
+    public function Logout()
+    {
+        /** @var User $user */
+        $user = Auth::user();
+        // Revoke the token that was used to authenticate the current request...
+        $user->currentAccessToken()->delete();
+        // $user = Auth::user()->token();
+        // $user->revoke();
 
         return response([
-            'user' => $user,
-            'token' => $token
+            'success' => true
         ]);
     }
 }
