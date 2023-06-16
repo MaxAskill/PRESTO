@@ -17,7 +17,7 @@
           </el-option>
         </el-select>
       </div>
-      <div class="col-8 pl">
+      <div class="col-8 px-1">
         <fg-input
           class="input-md"
           placeholder="Search"
@@ -26,14 +26,15 @@
         >
         </fg-input>
       </div>
-      <div class="col-2 pl">
-        <button
+      <div class="col-2 pl whitespace-nowrap">
+        <PButton
+          type="primary"
           data-bs-target="#exportApproved"
           data-bs-toggle="modal"
-          class="ml-2 whitespace-nowrap bg-transparent text-sm hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border-2 border-blue-500 hover:border-transparent rounded"
+          class="btn-margin"
         >
           Export Excel
-        </button>
+        </PButton>
       </div>
     </div>
     <div class="row mx-2">
@@ -62,15 +63,8 @@
         </el-table-column>
         <el-table-column :width="120" class-name="td-actions" label="Check All">
           <template slot-scope="props">
-            <!-- <p-button
-              type="info"
-              size="sm"
-              icon
-              @click="handleLike(props.$index, props.row)"
-            >
-              <i class="fa fa-file-text-o"></i>
-            </p-button> -->
             <p-checkbox
+              @click="clickExport"
               :checked="false"
               v-model="checkedBranch[props.row.plID]"
               :value="props.row.plID"
@@ -99,13 +93,17 @@
       @closeModal="closeModal"
     >
     </ApprovedModal>
-    <ExportApprovedModal @exportTransfer="exportExcel($event)"></ExportApprovedModal>
+    <ExportApprovedModal
+      :disableBtn="disableExportBtn"
+      @exportTransfer="exportExcel($event)"
+    ></ExportApprovedModal>
   </div>
 </template>
 <script>
 import ApprovedModal from "./ModalPullOut/ApprovedModal.vue";
 import Vue from "vue";
 import { Table, TableColumn, Select, Option } from "element-ui";
+import PButton from "../../../../UIComponents/Button.vue";
 import PPagination from "../../../../UIComponents/Pagination.vue";
 import axiosClient from "../../../../../axios";
 import XLSX from "../../../../../../node_modules/xlsx/dist/xlsx.full.min.js";
@@ -117,6 +115,7 @@ Vue.use(Select);
 Vue.use(Option);
 export default {
   components: {
+    PButton,
     PPagination,
     ApprovedModal,
     ExportApprovedModal,
@@ -169,7 +168,8 @@ export default {
   },
   data() {
     return {
-      checkedBranch: {},
+      disableExportBtn: true,
+      checkedBranch: [],
       transferredData: "",
       itemData: "",
       pagination: {
@@ -210,6 +210,14 @@ export default {
       tableData: [],
     };
   },
+  watch: {
+    checkedBranch: {
+      handler(newValue, oldValue) {
+        this.removedUncheckedBranch();
+      },
+      deep: true,
+    },
+  },
   methods: {
     exportExcel(x) {
       var dataArray = "";
@@ -225,7 +233,6 @@ export default {
           selectedItems.push(parseInt(this.tableData[item].plID));
         }
       }
-      console.log("Selected Items:", selectedItems);
       axiosClient
         .get("/fetchAllItemsRequest", {
           params: {
@@ -311,6 +318,16 @@ export default {
         .catch((error) => {
           console.error(error);
         });
+    },
+    removedUncheckedBranch() {
+      let temp = false;
+      for (const item in this.checkedBranch) {
+        if (this.checkedBranch[item]) {
+          temp = true;
+        }
+      }
+      if (temp) this.disableExportBtn = false;
+      else this.disableExportBtn = true;
     },
   },
 };

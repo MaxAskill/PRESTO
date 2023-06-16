@@ -54,11 +54,16 @@
             class="btn btn-secondary"
             data-bs-target="#approvedModal"
             data-bs-toggle="modal"
-            @click.prevent="closeModal()"
           >
             Close
           </button>
-          <button type="button" class="btn btn-primary" @click="generateLetter">
+          <button
+            :disabled="isDisabled"
+            type="button"
+            class="btn btn-primary"
+            data-bs-dismiss="modal"
+            @click="generateLetter"
+          >
             Generate Letter
           </button>
         </div>
@@ -94,7 +99,6 @@ export default {
   },
   data() {
     return {
-      promodiser: "",
       pickerOptions: {
         shortcuts: [
           {
@@ -107,21 +111,27 @@ export default {
       },
       dateStarted: "",
       dateEnded: "",
+      isDisabled: true,
     };
   },
-  mounted() {
-    this.assignPromoName();
+  watch: {
+    "transferredData.name": function (val, oldVal) {
+      this.validateGenerate();
+    },
+    dateStarted: "validateGenerate",
+    dateEnded: "validateGenerate",
   },
   methods: {
     generateLetter() {
-      console.log("DATE START:", this.dateStarted, "DATE END:", this.dateEnded);
+      // console.log("Transferred Data:", this.transferredData);
+      // console.log("DATE START:", this.dateStarted, "DATE END:", this.dateEnded);
       var tempDateStart =
         this.dateStarted.toString().split(" ")[1] +
         " " +
         this.dateStarted.toString().split(" ")[2] +
         ", " +
         this.dateStarted.toString().split(" ")[3];
-      console.log("Date Start: ", tempDateStart);
+      // console.log("Date Start: ", tempDateStart);
 
       var tempDateEnd =
         this.dateEnded.toString().split(" ")[1] +
@@ -129,17 +139,8 @@ export default {
         this.dateEnded.toString().split(" ")[2] +
         ", " +
         this.dateEnded.toString().split(" ")[3];
-      console.log("Date End: ", tempDateEnd);
-      // axiosClient
-      //   .post("/updateBranchStatus", {
-      //     company: sessionStorage.getItem("Company"),
-      //     id: this.transferredData.plID,
-      //     // name: this.userName,
-      //     status: "approved",
-      //     userID: sessionStorage.getItem("UserID"),
-      //   })
-      //   .then((response) => {
-      //     console.log("Success:", response.data);
+      // console.log("Date End: ", tempDateEnd);
+
       window.open(
         "http://192.168.0.7:40/api/generatePDF?name=" +
           this.transferredData.name +
@@ -160,16 +161,11 @@ export default {
       setTimeout(() => {
         window.location.reload();
       }, 3000); // Reload after 3 seconds
-      // })
-      // .catch((error) => {
-      //   console.error(error);
-      // });
     },
-    assignPromoName() {
-      this.promodiser = this.transferredData.name;
-    },
-    closeModal() {
-      this.promodiser = "";
+    validateGenerate() {
+      if (this.transferredData.name && this.dateStarted && this.dateEnded)
+        this.isDisabled = false;
+      else this.isDisabled = true;
     },
   },
 };

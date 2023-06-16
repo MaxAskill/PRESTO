@@ -357,7 +357,9 @@
         @closeModal="transferredData"
       ></EditBoxLabelModal>
     </div>
-    <TransactionReceiptModal></TransactionReceiptModal>
+    <TransactionReceiptModal
+      :transferTransactionID="transferTransactionID"
+    ></TransactionReceiptModal>
   </div>
 </template>
 <script>
@@ -480,7 +482,7 @@ export default {
       isNewBoxLabel: false,
       isNewItem: false,
       isRightCode: false,
-
+      transferTransactionID: "",
       itemss: [
         { id: 1, name: "Item 1" },
         { id: 2, name: "Item 2" },
@@ -1011,7 +1013,6 @@ export default {
           })
           .then((response) => {
             console.log("Success Branch Save: ", response.data);
-
             for (var x = 0; x < this.newTransaction.items.length; x++) {
               axiosClient
                 .post("/updatePullOutItemRequest", {
@@ -1063,6 +1064,7 @@ export default {
           })
           .then((response) => {
             console.log("Success Branch Save: ", response.data);
+            this.transferTransactionID = response.data.id;
 
             for (var x = 0; x < this.newTransaction.items.length; x++) {
               axiosClient

@@ -16,49 +16,52 @@
           </h1>
         </div>
         <div class="modal-body">
-          <form>
-            <div class="row">
-              <div class="col-12 pull-left">
-                <fg-input
-                  label="Name of Sales Representative / Promodiser"
-                  v-model="transferredData.name"
-                ></fg-input>
-              </div>
-              <div class="col-6">
-                <fg-input label="Date Started">
-                  <el-date-picker
-                    v-model="dateStarted"
-                    type="date"
-                    placeholder="Select a Day"
-                    :picker-options="pickerOptions"
-                  >
-                  </el-date-picker>
-                </fg-input>
-              </div>
-              <div class="col-6">
-                <fg-input label="Date Ended">
-                  <el-date-picker
-                    v-model="dateEnded"
-                    type="date"
-                    placeholder="Select a Day"
-                    :picker-options="pickerOptions"
-                  >
-                  </el-date-picker>
-                </fg-input>
-              </div>
+          <div class="row">
+            <div class="col-12 pull-left">
+              <fg-input
+                label="Name of Sales Representative / Promodiser"
+                v-model="transferredData.name"
+              ></fg-input>
             </div>
-          </form>
+            <div class="col-6">
+              <fg-input label="Date Started">
+                <el-date-picker
+                  v-model="dateStarted"
+                  type="date"
+                  placeholder="Select a Day"
+                  :picker-options="pickerOptions"
+                >
+                </el-date-picker>
+              </fg-input>
+            </div>
+            <div class="col-6">
+              <fg-input label="Date Ended">
+                <el-date-picker
+                  v-model="dateEnded"
+                  type="date"
+                  placeholder="Select a Day"
+                  :picker-options="pickerOptions"
+                >
+                </el-date-picker>
+              </fg-input>
+            </div>
+          </div>
         </div>
         <div class="modal-footer px-5">
           <button
             class="btn btn-secondary"
             data-bs-target="#unprocessModal"
             data-bs-toggle="modal"
-            @click.prevent="closeModal()"
           >
             Close
           </button>
-          <button type="button" class="btn btn-primary" @click="generateLetter">
+          <button
+            :disabled="isDisabled"
+            type="button"
+            class="btn btn-primary"
+            data-bs-dismiss="modal"
+            @click="generateLetter"
+          >
             Generate Letter
           </button>
         </div>
@@ -72,6 +75,7 @@ import Vue from "vue";
 import { DatePicker, Table, TableColumn, Select, Option } from "element-ui";
 import axiosClient from "../../../../../../../axios";
 import UnprocessModal from "../UnprocessModal.vue";
+import axios from "axios";
 
 Vue.use(Table);
 Vue.use(TableColumn);
@@ -94,7 +98,6 @@ export default {
   },
   data() {
     return {
-      promodiser: "",
       pickerOptions: {
         shortcuts: [
           {
@@ -107,10 +110,15 @@ export default {
       },
       dateStarted: "",
       dateEnded: "",
+      isDisabled: true,
     };
   },
-  mounted() {
-    this.assignPromoName();
+  watch: {
+    "transferredData.name": function (val, oldVal) {
+      this.validateGenerate();
+    },
+    dateStarted: "validateGenerate",
+    dateEnded: "validateGenerate",
   },
   methods: {
     generateLetter() {
@@ -130,46 +138,65 @@ export default {
         ", " +
         this.dateEnded.toString().split(" ")[3];
       console.log("Date End: ", tempDateEnd);
-      // axiosClient
-      //   .post("/updateBranchStatus", {
-      //     company: sessionStorage.getItem("Company"),
-      //     id: this.transferredData.plID,
-      //     // name: this.userName,
-      //     status: "approved",
-      //     userID: sessionStorage.getItem("UserID"),
-      //   })
-      //   .then((response) => {
-      //     console.log("Success:", response.data);
-      window.open(
-        "http://192.168.0.7:40/api/generatePDF?name=" +
-          this.transferredData.name +
-          "&plID=" +
-          this.transferredData.plID +
-          "&dateStart=" +
-          tempDateStart +
-          "&dateEnd=" +
-          tempDateEnd +
-          "&email=" +
-          this.transferredData.promoEmail +
-          "&userID=" +
-          sessionStorage.getItem("UserID") +
-          "&company=" +
-          sessionStorage.getItem("Company"),
-        "_blank"
-      );
-      setTimeout(() => {
-        window.location.reload();
-      }, 3000); // Reload after 3 seconds
-      // })
-      // .catch((error) => {
-      //   console.error(error);
-      // });
+
+      console.log("Item Data:", this.itemData);
+
+      for (var x = 0; x < this.itemData.length; x++) {
+        axiosClient
+          .post("/updateItemQuantity", {
+            company: sessionStorage.getItem("Company"),
+            id: this.itemData[x].id,
+            boxNumber: this.itemData[x].boxNumber,
+            boxLabel: this.itemData[x].boxLabel,
+            quantity: this.itemData[x].quantity,
+            userID: sessionStorage.getItem("UserID"),
+          })
+          .then((response) => {
+            console.log("Success Save", response.data);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      }
+      axiosClient
+        .post("/updateBranchStatus", {
+          company: sessionStorage.getItem("Company"),
+          id: this.transferredData.plID,
+          // name: this.userName,
+          status: "approved",
+          userID: sessionStorage.getItem("UserID"),
+        })
+        .then((response) => {
+          console.log("Success:", response.data);
+          window.open(
+            "http://192.168.0.7:40/api/generatePDF?name=" +
+              this.transferredData.name +
+              "&plID=" +
+              this.transferredData.plID +
+              "&dateStart=" +
+              tempDateStart +
+              "&dateEnd=" +
+              tempDateEnd +
+              "&email=" +
+              this.transferredData.promoEmail +
+              "&userID=" +
+              sessionStorage.getItem("UserID") +
+              "&company=" +
+              sessionStorage.getItem("Company"),
+            "_blank"
+          );
+          setTimeout(() => {
+            window.location.reload();
+          }, 3000); // Reload after 3 seconds
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     },
-    assignPromoName() {
-      this.promodiser = this.transferredData.name;
-    },
-    closeModal() {
-      this.promodiser = "";
+    validateGenerate() {
+      if (this.transferredData.name && this.dateStarted && this.dateEnded)
+        this.isDisabled = false;
+      else this.isDisabled = true;
     },
   },
 };

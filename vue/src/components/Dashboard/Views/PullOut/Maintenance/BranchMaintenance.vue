@@ -180,7 +180,7 @@ export default {
       companyType: "NBFI",
       chainCodeList: "",
       pagination: {
-        perPage: 15,
+        perPage: 10,
         currentPage: 1,
         perPageOptions: [5, 10, 25, 50],
         total: 0,
@@ -286,7 +286,9 @@ export default {
     margin-right: 5px;
   }
 }
-
+.el-select-w {
+  width: 100%;
+}
 .nav-center {
   display: flex;
   justify-content: center; /* Center horizontally */
@@ -300,10 +302,6 @@ export default {
 }
 .p-margin {
   margin-bottom: 0px;
-}
-.el-select-w {
-  width: 91%;
-  margin-right: 10px;
 }
 .first-btn {
   padding-left: 4px;

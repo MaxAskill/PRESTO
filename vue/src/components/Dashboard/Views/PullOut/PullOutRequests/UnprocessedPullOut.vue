@@ -70,6 +70,7 @@
     <UnprocessModal
       :transferredData="transferredData"
       :itemData="itemData"
+      :listBoxLabel="listBoxLabel"
       @closeModal="closeModal"
     ></UnprocessModal>
   </div>
@@ -175,6 +176,7 @@ export default {
         },
       ],
       tableData: [],
+      listBoxLabel: [],
     };
   },
   methods: {
@@ -192,6 +194,21 @@ export default {
         .then((response) => {
           console.log("Success Item Response:", response.data);
           this.itemData = response.data;
+          this.listBoxLabel = [];
+          this.itemData.forEach((obj) => {
+            const index = this.listBoxLabel.findIndex(
+              (savedObj) => savedObj.boxNumber === obj.boxNumber
+            );
+            if (index === -1) {
+              this.listBoxLabel.push({
+                boxNumber: obj.boxNumber,
+                boxLabel: obj.boxLabel,
+              });
+              // console.log(`Object ${obj.boxNumber} saved.`);
+            }
+          });
+
+          console.log("Box", this.listBoxLabel);
         })
         .catch((error) => {
           console.error(error);

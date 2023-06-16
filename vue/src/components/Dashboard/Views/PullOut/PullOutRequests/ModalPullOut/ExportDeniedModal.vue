@@ -26,6 +26,7 @@
             Export All Entries
           </button>
           <button
+            :disabled="disableBtn"
             type="button"
             class="btn btn-info"
             data-bs-dismiss="modal"
@@ -49,7 +50,7 @@ Vue.use(TableColumn);
 Vue.use(Select);
 Vue.use(Option);
 export default {
-  props: [],
+  props: ["disableBtn"],
   components: {},
   watch: {},
   computed: {

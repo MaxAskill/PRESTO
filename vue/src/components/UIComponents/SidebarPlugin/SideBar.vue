@@ -68,7 +68,7 @@ export default {
     },
     logo: {
       type: String,
-      default: "static/img/vue-logo.png",
+      default: "static/img/logo.png",
       description: "Sidebar Logo",
     },
     sidebarLinks: {

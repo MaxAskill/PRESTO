@@ -17,7 +17,7 @@
           </el-option>
         </el-select>
       </div>
-      <div class="col-8 pl">
+      <div class="col-8 px-1">
         <fg-input
           class="input-md"
           placeholder="Search"
@@ -26,16 +26,15 @@
         >
         </fg-input>
       </div>
-      <div class="col-2 pl">
-        <button
-          :disabled="checkedBranch.length == 0"
+      <div class="col-2 pl whitespace-nowrap">
+        <PButton
+          type="primary"
           data-bs-target="#exportDenied"
           data-bs-toggle="modal"
-          @click="clickExport"
-          class="ml-2 whitespace-nowrap bg-transparent text-sm hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border-2 border-blue-500 hover:border-transparent rounded"
+          class="btn-margin"
         >
           Export Excel
-        </button>
+        </PButton>
       </div>
     </div>
     <div class="row mx-2">
@@ -65,6 +64,7 @@
         <el-table-column :width="120" class-name="td-actions" label="Check">
           <template slot-scope="props">
             <p-checkbox
+              @click="clickExport"
               :checked="false"
               v-model="checkedBranch[props.row.plID]"
               :value="props.row.plID"
@@ -93,16 +93,19 @@
       @closeModal="closeModal"
     >
     </denied-modal>
-    <ExportDeniedModal @exportTransfer="exportExcel($event)"></ExportDeniedModal>
+    <ExportDeniedModal
+      :disableBtn="disableExportBtn"
+      @exportTransfer="exportExcel($event)"
+    ></ExportDeniedModal>
   </div>
 </template>
 <script>
 import DeniedModal from "./ModalPullOut/DeniedModal.vue";
 import Vue from "vue";
 import { Table, TableColumn, Select, Option } from "element-ui";
+import PButton from "../../../../UIComponents/Button.vue";
 import PPagination from "../../../../UIComponents/Pagination.vue";
 import axiosClient from "../../../../../axios";
-// import XLSX from "../../../node_modules/xlsx/dist/xlsx.full.min.js";
 import XLSX from "../../../../../../node_modules/xlsx/dist/xlsx.full.min.js";
 import ExportDeniedModal from "./ModalPullOut/ExportDeniedModal.vue";
 
@@ -112,6 +115,7 @@ Vue.use(Select);
 Vue.use(Option);
 export default {
   components: {
+    PButton,
     PPagination,
     DeniedModal,
     ExportDeniedModal,
@@ -164,6 +168,7 @@ export default {
   },
   data() {
     return {
+      disableExportBtn: true,
       checkedBranch: [],
       transferredData: "",
       itemData: "",
@@ -204,6 +209,14 @@ export default {
       ],
       tableData: [],
     };
+  },
+  watch: {
+    checkedBranch: {
+      handler(newValue, oldValue) {
+        this.removedUncheckedBranch();
+      },
+      deep: true,
+    },
   },
   methods: {
     exportExcel(x) {
@@ -306,11 +319,15 @@ export default {
           console.error(error);
         });
     },
-    handleLike(index, row) {
-      alert(`Your want to like ${row.branchName}`);
-    },
-    clickExport() {
-      console.log(this.checkedBranch);
+    removedUncheckedBranch() {
+      let temp = false;
+      for (const item in this.checkedBranch) {
+        if (this.checkedBranch[item]) {
+          temp = true;
+        }
+      }
+      if (temp) this.disableExportBtn = false;
+      else this.disableExportBtn = true;
     },
   },
 };
@@ -320,5 +337,8 @@ export default {
   button.btn {
     margin-right: 5px;
   }
+}
+.btn-margin {
+  margin: 0px 0px;
 }
 </style>

@@ -14,8 +14,8 @@
         <div class="modal-body text-center">
           <p>
             Your transaction has been processed successfully.<br /><br />Transaction
-            Number<br /><span class="tr_num">00</span><br /><br />Please save the
-            transaction number before closing this window.
+            Number<br /><span class="tr_num">{{ transferTransactionID }}</span
+            ><br /><br />Please save the transaction number before closing this window.
           </p>
         </div>
         <div class="modal-footer d-flex justify-content-center">
@@ -33,7 +33,7 @@ import axiosClient from "../../../../../../axios";
 import axios from "axios";
 
 export default {
-  props: [],
+  props: ["transferTransactionID"],
   components: {},
   watch: {},
   computed: {

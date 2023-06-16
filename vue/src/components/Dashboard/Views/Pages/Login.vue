@@ -1,6 +1,5 @@
 <template>
   <div class="login-page">
-    <app-navbar></app-navbar>
     <div class="wrapper wrapper-full-page">
       <div class="full-page login-page section-image">
         <!--   you can change the color of the filter page using: data-color="blue | azure | green | orange | red | purple" -->
@@ -8,7 +7,7 @@
           <div class="container">
             <div class="col-lg-4 col-md-6 ml-auto mr-auto">
               <form @submit.prevent="login">
-                <card type="login">
+                <card type="login" class="m-0 p-0 pb-2">
                   <div
                     v-if="errorMsg"
                     class="alert alert-danger alert-dismissible fade show"
@@ -28,9 +27,9 @@
                   <h3 slot="header" class="header text-center">Login</h3>
 
                   <fg-input
-                    v-model="form.username"
+                    v-model="form.email"
                     addon-left-icon="nc-icon nc-single-02"
-                    placeholder="First Name..."
+                    placeholder="E-mail"
                   ></fg-input>
 
                   <fg-input
@@ -44,17 +43,24 @@
 
                   <div class="d-flex justify-content-between">
                     <p-checkbox> Remember Me </p-checkbox>
-                    <a slot="footer" class="forgotPass">Forgot Your Password? </a>
+                    <!-- <a slot="footer" class="forgotPass">Forgot Your Password? </a> -->
+                    <router-link class="forgotPass" to="/login/forgot_password"
+                      >Forgot Your Password?
+                    </router-link>
                   </div>
-                  <p-button
-                    native-type="submit"
-                    slot="footer"
-                    type="warning"
-                    round
-                    block
-                    class="mb-3"
-                    >Log In</p-button
-                  >
+                  <div class="card-footer pt-2 p-0 d-flex flex-column">
+                    <p-button
+                      native-type="submit"
+                      type="warning"
+                      round
+                      block
+                      class="mb-10px"
+                      >Log In
+                    </p-button>
+                    <router-link class="registerBTN text-center" to="/register"
+                      >Create an Account
+                    </router-link>
+                  </div>
                 </card>
               </form>
             </div>
@@ -71,7 +77,6 @@
 </template>
 <script>
 import { Card, Checkbox, Button } from "src/components/UIComponents";
-import AppNavbar from "./Layout/AppNavbar";
 // import AppFooter from './Layout/AppFooter'
 
 import axiosClient from "../../../../axios";
@@ -79,23 +84,14 @@ import axiosClient from "../../../../axios";
 export default {
   components: {
     Card,
-    AppNavbar,
-    // AppFooter,
     [Checkbox.name]: Checkbox,
     [Button.name]: Button,
   },
   methods: {
-    toggleNavbar() {
-      document.body.classList.toggle("nav-open");
-    },
-    closeMenu() {
-      document.body.classList.remove("nav-open");
-      document.body.classList.remove("off-canvas-sidebar");
-    },
     login() {
       axiosClient
         .post("/login", {
-          email: this.form.username,
+          email: this.form.email,
           password: this.form.password,
         })
         .then((response) => {
@@ -106,7 +102,13 @@ export default {
             sessionStorage.setItem("Position", response.data.user.position);
             sessionStorage.setItem("Company", response.data.company[0].shortName);
             sessionStorage.setItem("Email", response.data.user.email);
-            this.$router.push({ name: "Overview" });
+            if (response.data.user.position == "Admin") {
+              this.$router.push({ name: "Overview" });
+            } else if (response.data.user.position == "Agent") {
+              this.$router.push({ name: "Pull-Out Requests" });
+            } else if (response.data.user.position == "User") {
+              this.$router.push({ name: "Pull-Out Requisition Form" });
+            }
           } else {
             this.errorMsg =
               "Your account is temporarily unavailable. Kindly contact your Administrator.";
@@ -122,14 +124,11 @@ export default {
   data() {
     return {
       form: {
-        username: "",
+        email: "",
         password: "",
       },
       errorMsg: "",
     };
-  },
-  beforeDestroy() {
-    this.closeMenu();
   },
 };
 </script>
@@ -144,5 +143,18 @@ export default {
 .forgotPass:hover {
   color: black !important;
   cursor: pointer;
+}
+.registerBTN {
+  font-size: 14px !important;
+  text-decoration-line: none !important;
+  color: gray !important;
+}
+.registerBTN:hover {
+  color: black !important;
+  text-decoration-line: underline !important;
+  cursor: pointer;
+}
+.mb-10px {
+  margin-bottom: 10px !important;
 }
 </style>

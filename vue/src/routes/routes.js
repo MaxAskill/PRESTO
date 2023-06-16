@@ -14,6 +14,9 @@ import TimeLine from '../components/Dashboard/Views/Pages/TimeLinePage.vue'
 import Login from '../components/Dashboard/Views/Pages/Login.vue'
 import Register from '../components/Dashboard/Views/Pages/Register.vue'
 import OTPForm from '../components/Dashboard/Views/Pages/OTPRegister/OTPRegister.vue'
+import ForgotPassword from '../components/Dashboard/Views/Pages/ForgotPassword/ForgotPassword.vue'
+import LoginOTPForm from '../components/Dashboard/Views/Pages/ForgotPassword/OTPLogin.vue'
+import ResetPasswordForm from '../components/Dashboard/Views/Pages/ForgotPassword/ResetPasswordForm.vue'
 import Lock from '../components/Dashboard/Views/Pages/Lock.vue'
 
 // Components pages
@@ -183,7 +186,7 @@ let pullOutMenu = {
       meta: {requiresAuth: true},
     },
     {
-      path: 'pillout-transaction',
+      path: 'pullout-transaction',
       name: 'Pull-Out Transaction',
       component: PullOutTransaction,
       meta: {requiresAuth: true},
@@ -281,9 +284,27 @@ const routes = [
     meta: { isGuest: true}
   },
   {
-    path: '/register/otpform',
+    path: '/register/otp_form',
     name: 'OTPForm',
     component: OTPForm,
+    meta: { isGuest: true}
+  },
+  {
+    path: '/login/forgot_password',
+    name: 'ForgotPassword',
+    component: ForgotPassword,
+    meta: { isGuest: true}
+  },
+  {
+    path: '/login/otp_form',
+    name: 'LoginOTPForm',
+    component: LoginOTPForm,
+    meta: { isGuest: true}
+  },
+  {
+    path: '/login/reset_password',
+    name: 'ResetPassword',
+    component: ResetPasswordForm,
     meta: { isGuest: true}
   },
   componentsMenu,

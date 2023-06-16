@@ -1,6 +1,5 @@
 <template>
   <div class="register-page">
-    <app-navbar></app-navbar>
     <div class="wrapper wrapper-full-page">
       <div class="full-page register-page section-image" filter-color="black">
         <div class="content">
@@ -23,23 +22,28 @@
                     addon-left-icon="nc-icon nc-email-85"
                     placeholder="Email..."
                   ></fg-input>
-                  <fg-input>
+                  <div class="input-group d-flex">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text">
+                        <i class="nc-icon nc-bank"></i>
+                      </span>
+                    </div>
                     <el-select
                       :disabled="isUser"
-                      id="company"
-                      class="select-default"
+                      suffix-icon="nc-icon nc-key-25"
+                      class="select-default flex-grow-1 sign-select"
                       size="large"
                       placeholder="Select Company"
                       v-model="form.company"
                     >
                       <el-option value="" hidden></el-option>
-                      <el-option :value="NBFI">NBFI</el-option>
-                      <el-option :value="ASC">ASC</el-option>
-                      <el-option :value="CMC">CMC</el-option>
-                      <el-option :value="EPC">EPC</el-option>
-                      <el-option :value="AHLC">AHLC</el-option>
+                      <el-option value="NBFI"></el-option>
+                      <el-option value="ASC"></el-option>
+                      <el-option value="CMC"></el-option>
+                      <el-option value="EPC"></el-option>
+                      <el-option value="AHLC"></el-option>
                     </el-select>
-                  </fg-input>
+                  </div>
                   <fg-input
                     v-model="form.password"
                     addon-left-icon="nc-icon nc-key-25"
@@ -53,12 +57,10 @@
                     type="password"
                   ></fg-input>
 
-                  <a slot="footer" class="linkLogin" @click="directToLogin"
-                    >Already Registered?
-                  </a>
-                  <p-button native-type="submit" slot="footer" type="info" round
-                    >Register
-                  </p-button>
+                  <div class="card-footer my-2">
+                    <a class="linkLogin" @click="directToLogin">Already Registered? </a>
+                    <p-button native-type="submit" type="info" round>Register </p-button>
+                  </div>
                 </card>
               </form>
             </div>
@@ -74,8 +76,6 @@
   </div>
 </template>
 <script>
-import AppNavbar from "./Layout/AppNavbar";
-// import AppFooter from './Layout/AppFooter'
 import { Card, Checkbox, Button, InfoSection } from "src/components/UIComponents";
 import { Select, Option } from "element-ui";
 import axiosClient from "../../../../axios";
@@ -83,8 +83,6 @@ import axiosClient from "../../../../axios";
 export default {
   components: {
     Card,
-    AppNavbar,
-    // AppFooter,
     InfoSection,
     [Checkbox.name]: Checkbox,
     [Button.name]: Button,
@@ -107,13 +105,6 @@ export default {
   methods: {
     directToLogin() {
       this.$router.push({ name: "Login" });
-    },
-    toggleNavbar() {
-      document.body.classList.toggle("nav-open");
-    },
-    closeMenu() {
-      document.body.classList.remove("nav-open");
-      document.body.classList.remove("off-canvas-sidebar");
     },
     register() {
       switch (this.form.company) {
@@ -181,9 +172,6 @@ export default {
       }
     },
   },
-  beforeDestroy() {
-    this.closeMenu();
-  },
 };
 </script>
 <style lang="scss">
@@ -196,8 +184,9 @@ export default {
   color: black !important;
   cursor: pointer;
 }
-#company:hover {
-  background-color: white !important;
-  cursor: not-allowed !important;
+.sign-select .el-input__inner {
+  border-left: none !important;
+  border-top-left-radius: 0px !important;
+  border-bottom-left-radius: 0px !important;
 }
 </style>

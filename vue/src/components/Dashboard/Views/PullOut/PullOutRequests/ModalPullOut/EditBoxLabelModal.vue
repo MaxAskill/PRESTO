@@ -10,7 +10,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5 text-weight-bold" id="exampleModalLabel">
-            LIST OF BOX LABEL {{ newItemInputBox }}
+            LIST OF BOX LABEL
           </h1>
         </div>
         <div class="modal-body">

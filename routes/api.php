@@ -35,7 +35,9 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::post('/login', [AuthController::class, 'Login']);
 Route::post('/register', [AuthController::class, 'Register']);
 Route::get('/sendVerificationCode', [RegisterController::class, 'sendVerificationCode']);
+Route::get('/sendForgotVerificationCode', [RegisterController::class, 'sendForgotVerificationCode']);
 Route::get('/confirmCode', [RegisterController::class, 'confirmCode']);
+Route::post('/updatePasswordUser', [RegisterController::class, 'updatePasswordUser']);
 
 Route::get('/users',[FetchController::class, 'users']);
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

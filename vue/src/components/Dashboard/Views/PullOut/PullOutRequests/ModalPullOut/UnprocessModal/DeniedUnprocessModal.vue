@@ -16,21 +16,19 @@
           </h1>
         </div>
         <div class="modal-body">
-          <form>
-            <div class="col-12 pull-left">
-              <!-- <fg-input label="Reason" placeholder="Reason" v-model="reason"></fg-input> -->
-              <el-select class="table-select-box" size="large" v-model="reason">
-                <el-option
-                  v-for="reasonLabel in reasonLabelList"
-                  class="table-select-box"
-                  :value="reasonLabel.reasonLabel"
-                  :label="reasonLabel.reasonLabel"
-                  :key="reasonLabel.id"
-                >
-                </el-option>
-              </el-select>
-            </div>
-          </form>
+          <div class="">
+            <!-- <fg-input label="Reason" placeholder="Reason" v-model="reason"></fg-input> -->
+            <el-select class="denied-select-box" size="large" v-model="reason">
+              <el-option
+                v-for="reasonLabel in reasonLabelList"
+                class="denied-select-box"
+                :value="reasonLabel.reasonLabel"
+                :label="reasonLabel.reasonLabel"
+                :key="reasonLabel.id"
+              >
+              </el-option>
+            </el-select>
+          </div>
         </div>
         <div class="modal-footer px-5">
           <button
@@ -41,7 +39,15 @@
           >
             Cancel
           </button>
-          <button type="button" class="btn btn-primary" @click="submit">Send</button>
+          <button
+            :disabled="isDisabled"
+            type="button"
+            class="btn btn-primary"
+            data-bs-dismiss="modal"
+            @click="submit"
+          >
+            Send
+          </button>
         </div>
       </div>
     </div>
@@ -77,10 +83,14 @@ export default {
     return {
       reason: "",
       reasonLabelList: [],
+      isDisabled: true,
     };
   },
   mounted() {
     this.fetchData();
+  },
+  watch: {
+    reason: "validateGenerate",
   },
   methods: {
     cancelModal() {
@@ -117,6 +127,10 @@ export default {
           console.error(error);
         });
     },
+    validateGenerate() {
+      if (this.reason) this.isDisabled = false;
+      else this.isDisabled = true;
+    },
   },
 };
 </script>
@@ -124,5 +138,20 @@ export default {
 <style>
 .form-group {
   text-align: left !important;
+}
+
+.denied-select-box {
+  /* border: 5px solid green !important; */
+  transition: border-color 0.3s ease-in-out;
+  /* background-color: yellow; */
+  border-radius: 0px !important;
+  background-color: transparent !important;
+}
+
+.denied-select-box.el-select .el-input input {
+  border-radius: 5px !important;
+  color: #ffffff !important;
+  border: 5px solid transparent !important;
+  background-color: #5c5c58 !important;
 }
 </style>

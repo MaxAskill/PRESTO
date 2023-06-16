@@ -30,7 +30,27 @@
           :label="column.label"
         >
         </el-table-column>
-        <el-table-column :width="120" class-name="td-actions" label="">
+        <el-table-column :min-width="100" class-name="td-actions" label="Status">
+          <template slot-scope="props">
+            <p-button
+              v-if="props.row.status === 'Active'"
+              type="success"
+              size="sm"
+              @click="handleEdit(props.$index, props.row)"
+            >
+              Active
+            </p-button>
+            <p-button
+              v-else
+              type="danger"
+              size="sm"
+              @click="handleEdit(props.$index, props.row)"
+            >
+              Inactive
+            </p-button>
+          </template>
+        </el-table-column>
+        <!-- <el-table-column :width="120" class-name="td-actions" label="">
           <template slot-scope="props">
             <p-button
               type="success"
@@ -49,7 +69,7 @@
               <i class="fa fa-times"></i>
             </p-button>
           </template>
-        </el-table-column>
+        </el-table-column> -->
       </el-table>
     </div>
     <div class="d-flex justify-content-end pagination-info">
@@ -137,7 +157,7 @@ export default {
   data() {
     return {
       pagination: {
-        perPage: 5,
+        perPage: 10,
         currentPage: 1,
         perPageOptions: [5, 10, 25, 50],
         total: 0,
@@ -150,11 +170,11 @@ export default {
           label: "Reason",
           minWidth: 200,
         },
-        {
-          prop: "status",
-          label: "Status",
-          minWidth: 100,
-        },
+        // {
+        //   prop: "status",
+        //   label: "Status",
+        //   minWidth: 100,
+        // },
       ],
       tableData: [],
     };
@@ -172,7 +192,27 @@ export default {
         });
     },
     handleEdit(index, row) {
-      alert(`Your want to edit ${row.branchName}`);
+      // alert(`Your want to edit ${row.branchName}`);
+      var tempStatus = "";
+      if (row.status === "Active") {
+        row.status = "Inactive";
+        tempStatus = "Inactive";
+      } else {
+        row.status = "Active";
+        tempStatus = "Active";
+      }
+      axiosClient
+        .post("/updateReason", {
+          id: row.id,
+          status: tempStatus,
+          userID: sessionStorage.getItem("UserID"),
+        })
+        .then((response) => {
+          console.log("Success Update Reason");
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     },
     handleDelete(index, row) {
       let indexToDelete = this.tableData.findIndex((tableRow) => tableRow.id === row.id);

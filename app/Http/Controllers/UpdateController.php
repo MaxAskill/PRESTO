@@ -19,12 +19,18 @@ class UpdateController extends Controller
     public function updateItemQuantity(Request $request){
 
         $date = now()->timezone('Asia/Manila'); // GETTING THE TIME ZONE IN PH
+        $name = DB::table('users')
+                    ->select('name')
+                    ->where('id', $request->userID)
+                    ->first()->name;
 
         if($request->company == "EPC"){
             $old_data = PullOutItemModel::find($request->id);
 
             //setting the name who edit the item
-            $editBy = DB::select('UPDATE pullOutItemsTbl SET editedBy = \''.$request->name.'\', updated_at = \''.$date.'\', status = "edited"  WHERE id = \''.$request->id.'\' ');
+            $editBy = DB::select('UPDATE pullOutItemsTbl SET editedBy = \''.$name.'\',
+                            updated_at = \''.$date.'\', boxNumber = \''.$request->boxNumber.'\',
+                            boxLabel = \''.$request->boxLabel.'\', status = "edited"  WHERE id = \''.$request->id.'\' ');
 
             $itemCode = DB::table('pullOutItemsTbl')
                         ->select('itemCode')
@@ -47,8 +53,9 @@ class UpdateController extends Controller
             $old_data = PullOutItemModelNBFI::find($request->id);
 
             //setting the name who edit the item
-            $editBy = DB::select('UPDATE pullOutItemsTblNBFI SET editedBy = \''.$request->name.'\', updated_at = \''.$date.'\', status = "edited"  WHERE id = \''.$request->id.'\' ');
-
+            $editBy = DB::select('UPDATE pullOutItemsTblNBFI SET editedBy = \''.$name.'\',
+            updated_at = \''.$date.'\', boxNumber = \''.$request->boxNumber.'\',
+            boxLabel = \''.$request->boxLabel.'\', status = "edited"  WHERE id = \''.$request->id.'\' ');
             $itemCode = DB::table('pullOutItemsTblNBFI')
                         ->select('itemCode')
                         ->where('id', $request->id)
@@ -79,7 +86,7 @@ class UpdateController extends Controller
         $log->new_data = json_encode($request->all());
         $log->save();
 
-        return response()->json($data);
+        return response()->json($request->boxLabel);
     }
 
     public function updateStatus(Request $request){

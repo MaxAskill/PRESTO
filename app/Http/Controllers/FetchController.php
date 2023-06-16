@@ -333,22 +333,22 @@ class FetchController extends Controller
 
         if($request->company == "EPC" || $request->company == "AHLC"){
             $data = DB::table('pullOutBranchTbl as a')
+                ->join('users as b', 'a.promoEmail', '=', 'b.email')
                 ->select('a.id as plID','a.branchName', 'a.transactionType',
                 DB::raw('CONCAT(MONTHNAME(a.dateTime), " ", DATE_FORMAT(a.dateTime, "%d, %Y")) as date'),
-                DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'),
-                'status')
-                ->where('status', 'approved')
+                DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'), 'b.name', 'a.promoEmail')
                 ->distinct()
+                ->where('a.status', 'approved')
                 ->orderBy('a.dateTime', 'desc')
                 ->get();
         }else if($request->company == "NBFI" || $request->company == "CMC" || $request->company == "ASC"){
             $data = DB::table('pullOutBranchTblNBFI as a')
+                ->join('users as b', 'a.promoEmail', '=', 'b.email')
                 ->select('a.id as plID','a.branchName', 'a.transactionType',
                 DB::raw('CONCAT(MONTHNAME(a.dateTime), " ", DATE_FORMAT(a.dateTime, "%d, %Y")) as date'),
-                DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'),
-                'status')
-                ->where('status', 'approved')
+                DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'), 'b.name', 'a.promoEmail')
                 ->distinct()
+                ->where('a.status', 'approved')
                 ->orderBy('a.dateTime', 'desc')
                 ->get();
         }

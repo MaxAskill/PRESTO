@@ -132,7 +132,7 @@ export default [
     },
     {
       name: 'Pull-Out Transactions',
-      path: '/pull-out/pillout-transaction',
+      path: '/pull-out/pullout-transaction',
       access: 'User'
     },
     {

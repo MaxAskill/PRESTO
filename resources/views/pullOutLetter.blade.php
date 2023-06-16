@@ -47,7 +47,7 @@
         </div>';
         }
 
-        if($company == "ASC"){
+        else if($company == "ASC"){
             echo '<div>
             <div class="relative w-full">
                 <div class="absolute top-0 left-0">
@@ -71,8 +71,8 @@
                     </div>
                 </div>
             </div>';
-        }else{
-            if($chainCode == "RDS"){
+        }
+            else if($company == "RDS"){
                 echo '<div>
                 <div class="relative w-full">
                     <div class="absolute top-0 left-0">
@@ -80,7 +80,7 @@
                     </div>
                 </div>
             </div>';
-            }else{
+            }else if($company == "EPC"){
                 echo '<div>
                 <div class="relative w-full">
                     <div class="absolute top-0 left-0">
@@ -89,14 +89,13 @@
                 </div>
             </div>';
             }
-        }
         // echo '<img src="'.$src.'" class="h-24" alt="logo">';
     ?>
 
 
     <br><br><br><br><br><br><br><br>
     <p>Date: {{ $date }} </p>
-    <p>Branch Name: {{ $branchName }} </p>
+    <p>Branch Name: {{ $branchName }}</p>
     <p>Subject: PULL-OUT LETTER </p><br><br>
 
 
