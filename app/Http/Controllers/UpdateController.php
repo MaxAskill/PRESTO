@@ -168,20 +168,21 @@ class UpdateController extends Controller
 
     public function updatePullOutBranchRequest(Request $request){
 
+        $date = now()->timezone('Asia/Manila'); // GETTING THE TIME ZONE IN PH
         if($request->companyType == "NBFI" || $request->companyType == "CMC" || $request->companyType == "ASC"){
             $data = DB::select('UPDATE pullOutBranchTblNBFI
                                 SET chainCode = \''.$request->chainCode.'\',
                                 company = \''.$request->companyType.'\',
                                 branchName = \''.$request->branchName.'\',
                                 transactionType = \''.$request->transactionType.'\',
-                                status = \''.$request->status.'\' WHERE id = \''.$request->id.'\'');
+                                status = \''.$request->status.'\', dateTime = \''.$date.'\' WHERE id = \''.$request->id.'\'');
         } else if($request->companyType == "EPC" || $request->companyType == "AHLC"){
             $data = DB::select('UPDATE pullOutBranchTbl
                                 SET chainCode = \''.$request->chainCode.'\',
                                 company = \''.$request->companyType.'\',
                                 branchName = \''.$request->branchName.'\',
                                 transactionType = \''.$request->transactionType.'\',
-                                status = \''.$request->status.'\' WHERE id = \''.$request->id.'\'');
+                                status = \''.$request->status.'\', dateTime = \''.$date.'\' WHERE id = \''.$request->id.'\'');
         }
 
         return response()->json($data);

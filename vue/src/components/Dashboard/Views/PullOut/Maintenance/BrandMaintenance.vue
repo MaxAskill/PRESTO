@@ -180,7 +180,6 @@ export default {
           },
         })
         .then((response) => {
-          console.log("Brand Response:", response.data);
           this.tableData = response.data;
         })
         .catch((error) => {
@@ -206,7 +205,7 @@ export default {
           company: this.company,
         })
         .then((response) => {
-          console.log("Success Update Brand");
+          // console.log("Success Update Brand");
         })
         .catch((error) => {
           console.error(error);

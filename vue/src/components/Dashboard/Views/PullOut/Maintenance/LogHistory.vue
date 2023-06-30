@@ -169,7 +169,6 @@ export default {
           },
         })
         .then((response) => {
-          console.log("Pull Out Request", response.data);
           this.tableData = response.data;
         })
         .catch((error) => {

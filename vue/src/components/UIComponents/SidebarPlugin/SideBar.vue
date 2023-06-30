@@ -2,15 +2,17 @@
   <div class="sidebar" :data-color="backgroundColor" :data-active-color="activeColor">
     <div class="logo">
       <a
-        class="simple-text logo-mini"
+        class="simple-text logo-mini user-select-none"
         aria-label="sidebar mini logo"
-        href="http://192.168.0.7:4040/"
+        @click="logoDashboard"
       >
         <div class="logo-img">
           <img :src="logo" alt="" />
         </div>
       </a>
-      <a class="simple-text logo-normal" href="http://192.168.0.7:4040/"> PRESTO </a>
+      <a class="simple-text logo-normal user-select-none" @click="logoDashboard">
+        PRESTO
+      </a>
     </div>
     <div class="sidebar-wrapper" ref="sidebarScrollArea">
       <slot> </slot>
@@ -90,6 +92,10 @@ export default {
   methods: {
     async initScrollBarAsync() {
       this.positionEmployee = sessionStorage.getItem("Position");
+
+      if (this.positionEmployee == "Approver") {
+        this.positionEmployee = "Agent";
+      }
       // console.log("SideBar: ", this.sidebarLinks);
       let isWindows = navigator.platform.startsWith("Win");
       if (!isWindows) {
@@ -97,6 +103,18 @@ export default {
       }
       // const PerfectScroll = await import('perfect-scrollbar')
       // PerfectScroll.initialize(this.$refs.sidebarScrollArea)
+    },
+    logoDashboard() {
+      if (this.positionEmployee == "Admin") {
+        window.location.href = "http://192.168.0.7:4040/#/admin/overview";
+      } else if (
+        this.positionEmployee == "Agent" ||
+        this.positionEmployee == "Approver"
+      ) {
+        window.location.href = "http://192.168.0.7:4040/#/pull-out/requests";
+      } else if (this.positionEmployee == "User") {
+        window.location.href = "http://192.168.0.7:4040/#/pull-out/requisition-form";
+      }
     },
   },
   mounted() {
@@ -117,7 +135,8 @@ export default {
         return this.sidebarLinks.filter(
           (link) => link.access === "User" || link.access === "All"
         );
-      } else if (userPosition === "Agent") {
+      } else if (userPosition === "Agent" || userPosition === "Approver") {
+        console.log("Approver");
         return this.sidebarLinks.filter(
           (link) => link.access === "Agent" || link.access === "All"
         );

@@ -1,5 +1,5 @@
 <template>
-  <footer class="footer">
+  <!-- <footer class="footer">
     <div class="container-fluid">
       <nav class="pull-left">
         <ul>
@@ -25,7 +25,7 @@
         >
       </div>
     </div>
-  </footer>
+  </footer> -->
 </template>
 <script>
 export default {};

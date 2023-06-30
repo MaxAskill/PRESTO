@@ -17,25 +17,25 @@
         </div>
         <div class="modal-body">
           <div class="upload-style">
-            <input type="file" accept=".csv" class="upload-input-style" />
+            <input type="file" accept=".csv" class="upload-input-style" ref="fileInput" />
             <p class="upload-text-style">Drop a file here to click to upload</p>
           </div>
         </div>
         <div class="modal-footer px-5">
-          <button
-            type="button"
-            class="btn btn-secondary"
-            data-bs-dismiss="modal"
-            @click.prevent="closeModal()"
-          >
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
             Close
           </button>
-          <button type="button" class="btn btn-primary">Save</button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            @click.prevent="handleFileInputChange()"
+          >
+            Save
+          </button>
         </div>
       </div>
     </div>
   </div>
-  <!-- </div> -->
 </template>
 <script>
 import Vue from "vue";
@@ -56,25 +56,26 @@ export default {
      * @returns {computed.pagedData}
      */
   },
-  data() {
-    // return {
-    //   newBranch: {
-    //     branchCode: "",
-    //     chainCode: "",
-    //     branchName: "",
-    //   },
-    //   chainCodeList: [
-    //     { id: 1, code: "0001" },
-    //     { id: 2, code: "0002" },
-    //     { id: 3, code: "0003" },
-    //   ],
-    // };
-  },
+  data() {},
   methods: {
-    closeModal() {
-      // this.newBranch.branchCode = "";
-      // this.newBranch.chainCode = "";
-      // this.newBranch.branchName = "";
+    handleFileInputChange() {
+      const selectedFile = this.$refs.fileInput.files[0];
+      // Do something with the selected file
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+
+      axiosClient
+        .post("/itemsImport", formData)
+        .then((response) => {
+          // console.log("Success:", response.data);
+
+          setTimeout(() => {
+            window.location.reload();
+          }, 3000); // Reload after 3 seconds
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     },
   },
 };

@@ -193,7 +193,6 @@ export default {
           },
         })
         .then((response) => {
-          console.log("Item Response:", response.data);
           this.tableData = response.data;
         })
         .catch((error) => {

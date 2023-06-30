@@ -100,7 +100,6 @@ export default {
       axiosClient
         .get("/fetchReasonLabel")
         .then((response) => {
-          console.log("GET REASONS", response.data);
           this.reasonLabelList = response.data;
         })
         .catch((error) => {
@@ -118,7 +117,7 @@ export default {
           reason: this.reason,
         })
         .then((response) => {
-          console.log("Success Denied", response.data);
+          // console.log("Success Denied", response.data);
           setTimeout(() => {
             window.location.reload();
           }, 3000); // Reload after 3 seconds

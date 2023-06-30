@@ -1,7 +1,7 @@
 <template>
   <div class="user">
     <div class="photo">
-      <img src="static/img/faces/face-2.jpg" alt="user avatar" />
+      <img src="static/img/faces/user-icon.png" alt="user avatar" />
     </div>
     <div class="info">
       <a data-toggle="collapse" :aria-expanded="!isClosed" @click="toggleMenu" href="#">
@@ -14,7 +14,7 @@
       <div>
         <collapse-transition>
           <ul class="nav nav-menu" v-show="!isClosed">
-            <li>
+            <!-- <li>
               <a href="#">
                 <span class="sidebar-mini-icon">Mp</span>
                 <span class="sidebar-normal">My Profile</span>
@@ -25,7 +25,7 @@
                 <span class="sidebar-mini-icon">Ep</span>
                 <span class="sidebar-normal">Edit Profile</span>
               </a>
-            </li>
+            </li> -->
             <li>
               <a href="#" @click="logout">
                 <span class="sidebar-mini-icon">L</span>
@@ -76,7 +76,7 @@ export default {
     },
     logout() {
       axiosClient.post("/logout").then((response) => {
-        console.log(response);
+        // console.log(response);
         sessionStorage.removeItem("UserID");
         sessionStorage.removeItem("Token");
         sessionStorage.removeItem("Position");

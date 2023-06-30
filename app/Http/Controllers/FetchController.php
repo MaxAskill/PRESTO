@@ -268,9 +268,11 @@ class FetchController extends Controller
         if($request->company == "EPC" || $request->company == "AHLC"){
             $data = DB::table('pullOutBranchTbl as a')
                 ->join('users as b', 'a.promoEmail', '=', 'b.email')
+                ->join('companyTbl as c', 'a.company', '=', 'c.shortName')
                 ->select('a.id as plID','a.branchName', 'a.transactionType',
+                DB::raw('CONCAT(c.name, " (", c.shortName,")") as company'),
                 DB::raw('CONCAT(MONTHNAME(a.dateTime), " ", DATE_FORMAT(a.dateTime, "%d, %Y")) as date'),
-                DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'), 'b.name', 'a.promoEmail')
+                DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'), 'b.name', 'a.promoEmail', 'c.shortName')
                 ->distinct()
                 ->where('a.status', 'unprocessed')
                 ->orderBy('a.dateTime', 'desc')
@@ -278,11 +280,44 @@ class FetchController extends Controller
         }else if($request->company == "NBFI" || $request->company == "ASC" || $request->company == "CMC"){
             $data = DB::table('pullOutBranchTblNBFI as a')
                 ->join('users as b', 'a.promoEmail', '=', 'b.email')
+                ->join('companyTbl as c', 'a.company', '=', 'c.shortName')
                 ->select('a.id as plID','a.branchName', 'a.transactionType',
+                DB::raw('CONCAT(c.name, " (", c.shortName ,")") as company'),
                 DB::raw('CONCAT(MONTHNAME(a.dateTime), " ", DATE_FORMAT(a.dateTime, "%d, %Y")) as date'),
-                DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'), 'b.name', 'a.promoEmail')
+                DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'), 'b.name', 'a.promoEmail', 'c.shortName')
                 ->distinct()
                 ->where('a.status', 'unprocessed')
+                ->orderBy('a.dateTime', 'desc')
+                ->get();
+        }
+
+        return response()->json($data);
+    }
+
+    public function fetchPullOutRequestEndorsement(Request $request){
+
+        if($request->company == "EPC" || $request->company == "AHLC"){
+            $data = DB::table('pullOutBranchTbl as a')
+                ->join('users as b', 'a.promoEmail', '=', 'b.email')
+                ->join('companyTbl as c', 'a.company', '=', 'c.shortName')
+                ->select('a.id as plID','a.branchName', 'a.transactionType',
+                DB::raw('CONCAT(c.name, " (", c.shortName,")") as company'),
+                DB::raw('CONCAT(MONTHNAME(a.dateTime), " ", DATE_FORMAT(a.dateTime, "%d, %Y")) as date'),
+                DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'), 'b.name', 'a.promoEmail', 'a.editedBy', 'c.shortName')
+                ->distinct()
+                ->where('a.status', 'endorsement')
+                ->orderBy('a.dateTime', 'desc')
+                ->get();
+        }else if($request->company == "NBFI" || $request->company == "ASC" || $request->company == "CMC"){
+            $data = DB::table('pullOutBranchTblNBFI as a')
+                ->join('users as b', 'a.promoEmail', '=', 'b.email')
+                ->join('companyTbl as c', 'a.company', '=', 'c.shortName')
+                ->select('a.id as plID','a.branchName', 'a.transactionType',
+                DB::raw('CONCAT(c.name, " (", c.shortName ,")") as company'),
+                DB::raw('CONCAT(MONTHNAME(a.dateTime), " ", DATE_FORMAT(a.dateTime, "%d, %Y")) as date'),
+                DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'), 'b.name', 'a.promoEmail', 'a.editedBy', 'c.shortName')
+                ->distinct()
+                ->where('a.status', 'endorsement')
                 ->orderBy('a.dateTime', 'desc')
                 ->get();
         }
@@ -309,21 +344,57 @@ class FetchController extends Controller
 
         if($request->company == "EPC" || $request->company == "AHLC"){
             $data = DB::table('pullOutItemsTbl')
-                    ->select('id','plID', 'boxNumber', 'boxLabel', 'brand', 'itemCode', 'quantity', 'editedBy')
+                    ->select('id','plID', 'boxNumber', 'boxLabel', 'brand', 'itemCode', 'quantity', 'editedBy', 'amount')
                     ->where('status', '!=', 'deleted')
                     ->where('plID', '=', $request->plID)
                     ->orderBy('boxLabel')
                     ->get();
-            return response()->json($data);
+
+            //GETTING THE BOX COUNT
+            $box = DB::table('pullOutItemsTbl')
+                    ->select('boxLabel')
+                    ->where('plID', $request->plID)
+                    ->groupBy('boxLabel')
+                    ->get();
+
+            $boxCount = $box->count();
+            $totalItems = $data->count();
+            $totalAmount = 0;
+            foreach ($data as $item){
+                $item->amount = number_format($item->amount, 2, '.', ',');
+                $totalAmount = $totalAmount + floatval($item->amount);
+            }
+
+            $totalAmount = number_format($totalAmount, 2, '.', ',');
+
+            $singleData = ['totalAmount' => $totalAmount, 'boxCount' => $boxCount, 'totalItems' => $totalItems];
+            return response()->json([$data, $singleData]);
 
         }else if ($request->company == "NBFI" || $request->company == "CMC" || $request->company == "ASC") {
             $data = DB::table('pullOutItemsTblNBFI')
-                    ->select('id','plID', 'boxNumber', 'boxLabel', 'brand', 'itemCode', 'quantity', 'editedBy')
+                    ->select('id','plID', 'boxNumber', 'boxLabel', 'brand', 'itemCode', 'quantity', 'editedBy', 'amount')
                     ->where('status', '!=', 'deleted')
                     ->where('plID', '=', $request->plID)
                     ->orderBy('boxLabel')
                     ->get();
-            return response()->json($data);
+
+            //GETTING THE BOX COUNT
+            $box = DB::table('pullOutItemsTblNBFI')
+                    ->select('boxLabel')
+                    ->where('plID', $request->plID)
+                    ->groupBy('boxLabel')
+                    ->get();
+
+            $boxCount = $box->count();
+            $totalItems = $data->count();
+            $totalAmount = 0;
+            foreach ($data as $item){
+                $item->amount = number_format($item->amount, 2, '.', ',');
+                $totalAmount = $totalAmount + floatval($item->amount);
+            }
+            $totalAmount = number_format($totalAmount, 2, '.', ',');
+            $singleData = ['totalAmount' => $totalAmount, 'boxCount' => $boxCount, 'totalItems' => $totalItems];
+            return response()->json([$data, $singleData]);
 
         }
 
@@ -362,7 +433,7 @@ class FetchController extends Controller
             $data = DB::table('pullOutBranchTbl as a')
                 ->select('a.id as plID','a.branchName', 'a.transactionType',
                 DB::raw('CONCAT(MONTHNAME(a.dateTime), " ", DATE_FORMAT(a.dateTime, "%d, %Y")) as date'),
-                DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'))
+                DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'), 'company')
                 ->where('status', 'denied')
                 ->orderBy('a.dateTime', 'desc')
                 ->get();
@@ -370,7 +441,7 @@ class FetchController extends Controller
             $data = DB::table('pullOutBranchTblNBFI as a')
                 ->select('a.id as plID','a.branchName', 'a.transactionType',
                 DB::raw('CONCAT(MONTHNAME(a.dateTime), " ", DATE_FORMAT(a.dateTime, "%d, %Y")) as date'),
-                DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'))
+                DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'), 'company')
                 ->where('status', 'denied')
                 ->orderBy('a.dateTime', 'desc')
                 ->get();
@@ -474,7 +545,7 @@ class FetchController extends Controller
     public function fetchCompany(Request $request){
 
         $company = DB::table('companyTbl')
-                    ->select('id', 'shortName')
+                    ->select('id', 'shortName', 'name')
                     ->get();
 
         return response()->json($company);
@@ -483,26 +554,25 @@ class FetchController extends Controller
     public function fetchUserRequestDraft(Request $request){
 
         $company = $request->company;
-        // if($company == 'NBFI' || $company == 'ASC' || $company == 'CMC'){
-            $data1 = DB::table('pullOutBranchTblNBFI as a')
-                    // ->join('companyTbl as b', 'a.company', '=', 'b.id')
+        $data1 = DB::table('pullOutBranchTblNBFI as a')
                     ->select('a.id as plID', 'a.chainCode', 'a.branchName', 'company', 'a.transactionType',
                         DB::raw('CONCAT(MONTHNAME(a.dateTime), " ", DATE_FORMAT(a.dateTime, "%d, %Y")) as date'),
-                        DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'))
+                        DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'), 'status',
+                        'dateTime')
                     ->where('status', 'draft')
-                    ->where('promoEmail', $request->promoEmail)
-                    ->orderBy('a.dateTime', 'desc');
-        // } else if($company == 'EPC' || $company == 'AHLC'){
-            $data2 = DB::table('pullOutBranchTbl as a')
-                    // ->join('companyTbl as b', 'a.company', '=', 'b.id')
-                    ->select('a.id as plID', 'a.chainCode', 'a.branchName', 'company', 'a.transactionType',
-                        DB::raw('CONCAT(MONTHNAME(a.dateTime), " ", DATE_FORMAT(a.dateTime, "%d, %Y")) as date'),
-                        DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'))
-                    ->where('status', 'draft')
-                    ->where('promoEmail', $request->promoEmail)
-                    ->orderBy('a.dateTime', 'desc');
-        // }
-            $data = $data1->union($data2)->get();
+                    ->where('promoEmail', $request->promoEmail);
+
+        $data2 = DB::table('pullOutBranchTbl as a')
+                ->select('a.id as plID', 'a.chainCode', 'a.branchName', 'company', 'a.transactionType',
+                    DB::raw('CONCAT(MONTHNAME(a.dateTime), " ", DATE_FORMAT(a.dateTime, "%d, %Y")) as date'),
+                    DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'), 'status',
+                    'dateTime')
+                ->where('status', 'draft')
+                ->where('promoEmail', $request->promoEmail);
+
+        $data = $data1->union($data2)
+                    ->orderBy('dateTime', 'desc') // Order by the dummy column
+                    ->get();
 
         return response()->json($data);
     }
@@ -510,53 +580,89 @@ class FetchController extends Controller
     public function fetchUserRequestTransactionList(Request $request){
 
         $company = $request->company;
-        if($company == 'NBFI' || $company == 'ASC' || $company == 'CMC'){
-            $data = DB::table('pullOutBranchTblNBFI as a')
-                    // ->join('companyTbl as b', 'a.company', '=', 'b.id')
-                    ->select('a.id as plID', 'a.chainCode', 'a.branchName', 'a.company', 'a.transactionType',
-                        DB::raw('CONCAT(MONTHNAME(a.dateTime), " ", DATE_FORMAT(a.dateTime, "%d, %Y")) as date'),
-                        DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'), 'status')
-                    ->where('status', '!=', 'draft')
-                    ->where('promoEmail', $request->promoEmail)
-                    ->orderBy('a.dateTime', 'desc')
-                    ->get();
-        } else if($company == 'EPC' || $company == 'AHLC'){
-            $data = DB::table('pullOutBranchTbl as a')
-                    // ->join('companyTbl as b', 'a.company', '=', 'b.id')
-                    ->select('a.id as plID', 'a.chainCode', 'a.branchName', 'a.company', 'a.transactionType',
-                        DB::raw('CONCAT(MONTHNAME(a.dateTime), " ", DATE_FORMAT(a.dateTime, "%d, %Y")) as date'),
-                        DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'), 'status')
-                    ->where('status', '!=', 'draft')
-                    ->where('promoEmail', $request->promoEmail)
-                    ->orderBy('a.dateTime', 'desc')
-                    ->get();
-        }
+
+        $data1 = DB::table('pullOutBranchTblNBFI as a')
+            ->select('a.id as plID', 'a.chainCode', 'a.branchName', 'company', 'a.transactionType',
+                DB::raw('CONCAT(MONTHNAME(a.dateTime), " ", DATE_FORMAT(a.dateTime, "%d, %Y")) as date'),
+                DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'), 'status',
+                'dateTime')
+            ->where('status', '!=','draft')
+            ->where('promoEmail', $request->promoEmail);
+
+        $data2 = DB::table('pullOutBranchTbl as a')
+            ->select('a.id as plID', 'a.chainCode', 'a.branchName', 'company', 'a.transactionType',
+                DB::raw('CONCAT(MONTHNAME(a.dateTime), " ", DATE_FORMAT(a.dateTime, "%d, %Y")) as date'),
+                DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'), 'status',
+                'dateTime')
+            ->where('status', '!=', 'draft')
+            ->where('promoEmail', $request->promoEmail);
+
+
+        $data = $data1->union($data2)
+            ->orderBy('dateTime', 'desc') // Order by the dummy column
+            ->get();
+
+        // if($company == 'NBFI' || $company == 'ASC' || $company == 'CMC'){
+        //     $data = DB::table('pullOutBranchTblNBFI as a')
+        //             // ->join('companyTbl as b', 'a.company', '=', 'b.id')
+        //             ->select('a.id as plID', 'a.chainCode', 'a.branchName', 'a.company', 'a.transactionType',
+        //                 DB::raw('CONCAT(MONTHNAME(a.dateTime), " ", DATE_FORMAT(a.dateTime, "%d, %Y")) as date'),
+        //                 DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'), 'status')
+        //             ->where('status', '!=', 'draft')
+        //             ->where('promoEmail', $request->promoEmail)
+        //             ->orderBy('a.dateTime', 'desc')
+        //             ->get();
+        // } else if($company == 'EPC' || $company == 'AHLC'){
+        //     $data = DB::table('pullOutBranchTbl as a')
+        //             // ->join('companyTbl as b', 'a.company', '=', 'b.id')
+        //             ->select('a.id as plID', 'a.chainCode', 'a.branchName', 'a.company', 'a.transactionType',
+        //                 DB::raw('CONCAT(MONTHNAME(a.dateTime), " ", DATE_FORMAT(a.dateTime, "%d, %Y")) as date'),
+        //                 DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'), 'status')
+        //             ->where('status', '!=', 'draft')
+        //             ->where('promoEmail', $request->promoEmail)
+        //             ->orderBy('a.dateTime', 'desc')
+        //             ->get();
+        // }
 
         return response()->json($data);
     }
 
     public function fetchSameItem(Request $request){
 
-        // $styleCode = substr($request->ItemNo, -3);
-
-
         $company = $request->company;
         if($company == "NBFI" || $company == "ASC" || $company == "CMC"){
+           if($request->StyleCode === ' '){
             $data = DB::table('nbfi_items')
-                ->select('ItemNo', 'ItemDescription', 'Size', 'StyleCode')
-                ->where('ItemDescription', $request->ItemDescription)
-                ->where('StyleCode', $request->StyleCode)
-                ->groupBy('ItemNo', 'ItemDescription', 'Size', 'StyleCode')
-                ->get();
+                    ->select('ItemNo', 'ItemDescription', 'Size', 'StyleCode', 'ChildColor as Color')
+                    ->where('ItemDescription', $request->ItemDescription)
+                    ->groupBy('ItemNo', 'ItemDescription', 'Size', 'StyleCode', 'ChildColor')
+                    ->get();
+           }else{
+            $data = DB::table('nbfi_items')
+                        ->select('ItemNo', 'ItemDescription', 'Size', 'StyleCode', 'ChildColor as Color')
+                        ->where('ItemDescription', $request->ItemDescription)
+                        ->where('StyleCode', $request->StyleCode)
+                        ->groupBy('ItemNo', 'ItemDescription', 'Size', 'StyleCode', 'ChildColor')
+                        ->get();
+           }
 
         }else {
+           if($request->StyleCode === ' '){
+
             $data = DB::table('epc_items')
-                ->select('ItemNo', 'ItemDescription', 'Size', 'StyleCode')
-                ->where('ItemDescription', $request->ItemDescription)
-                ->where('StyleCode', $request->StyleCode)
-                ->groupBy('ItemNo', 'ItemDescription', 'Size', 'StyleCode')
-                ->get();
-                }
+                        ->select('ItemNo', 'ItemDescription', 'Size', 'StyleCode', 'ChildColor as Color')
+                        ->where('ItemDescription', $request->ItemDescription)
+                        ->groupBy('ItemNo', 'ItemDescription', 'Size', 'StyleCode', 'ChildColor')
+                        ->get();
+            }else{
+            $data = DB::table('epc_items')
+                        ->select('ItemNo', 'ItemDescription', 'Size', 'StyleCode', 'ChildColor as Color')
+                        ->where('ItemDescription', $request->ItemDescription)
+                        ->where('StyleCode', $request->StyleCode)
+                        ->groupBy('ItemNo', 'ItemDescription', 'Size', 'StyleCode', 'ChildColor')
+                        ->get();
+            }
+        }
         return response()->json($data);
 
     }
@@ -579,6 +685,28 @@ class FetchController extends Controller
                     ->get();
         }
 
+        return response()->json($data);
+    }
+
+    public function fetchChainCodeRegister(Request $request){
+
+        $company = $request->company;
+        // if($company == "NBFI" || $company == "ASC" || $company == "CMC"){
+            $data1 = DB::table('nbfibranchmaintenance')
+                    ->select('chainCode');
+                    // ->where('company', $company)
+                    // ->distinct()
+                    // ->get();
+
+        // }else {
+            $data2 = DB::table('epcbranchmaintenance')
+                    ->select('chainCode');
+                    // ->where('company', $company)
+                    // ->distinct()
+                    // ->get();
+        // }
+
+        $data = $data1->union($data2)->distinct()->get();
         return response()->json($data);
     }
 
@@ -609,19 +737,20 @@ class FetchController extends Controller
         if($company == 'NBFI' || $company == 'ASC' || $company == 'CMC'){
             $data = DB::table('pullOutItemsTblNBFI as a')
                     ->join('nbfi_items as b', 'a.itemCode', '=', 'b.ItemNo')
-                    ->select('plID', 'boxNumber', 'boxLabel', 'itemCode as code', 'b.ItemDescription as description', 'a.brand as categorybrand', 'quantity', 'amount', 'status',
+                    ->select('plID', 'boxNumber', 'boxLabel', 'itemCode as code', DB::raw('CONCAT(b.ItemDescription) AS description'),
+                                'b.Size as size', 'b.ChildColor as color','a.brand as categorybrand', 'quantity', 'amount', 'status',
                         DB::raw('CONCAT(MONTHNAME(dateTime), " ", DATE_FORMAT(dateTime, "%d, %Y")) as date'),
-                        DB::raw('DATE_FORMAT(dateTime, "%h:%i %p") as time'))
+                        DB::raw('DATE_FORMAT(dateTime, "%h:%i %p") as time'), 'b.Size')
                     ->where('plID', $request->plID)
                     ->get();
             return response()->json($data);
 
         } else if($company == 'EPC' || $company == 'AHLC'){
             $data = DB::table('pullOutItemsTbl as a')
-                    // ->join('epc_items as b', 'a.itemCode', '=', 'b.ItemNo')
-                    ->select('plID', 'boxNumber', 'boxLabel', 'a.itemCode', 'a.brand', 'quantity', 'amount', 'status',
+                    ->join('epc_items as b', 'a.itemCode', '=', 'b.ItemNo')
+                    ->select('plID', 'boxNumber', 'boxLabel', 'a.itemCode as code', DB::raw('CONCAT(b.ItemDescription, "-", b.Size) AS description'), 'a.brand as categorybrand', 'quantity', 'amount', 'status',
                         DB::raw('CONCAT(MONTHNAME(dateTime), " ", DATE_FORMAT(dateTime, "%d, %Y")) as date'),
-                        DB::raw('DATE_FORMAT(dateTime, "%h:%i %p") as time'))
+                        DB::raw('DATE_FORMAT(dateTime, "%h:%i %p") as time'), 'b.Size')
                     ->where('plID', $request->plID)
                     ->get();
             return response()->json($data);
@@ -630,5 +759,51 @@ class FetchController extends Controller
 
     }
 
+    public function fetchNewAmount(Request $request){
 
+        if($request->company == "NBFI"){
+            $amount = DB::table('nbfi_items')
+                        ->select('EffectivePrice')
+                        ->where('ItemNo', $request->itemCode)
+                        ->first();
+
+            $totalAmount = floatval($amount->EffectivePrice) * floatval($request->quantity);
+        }else{
+            $amount = DB::table('epc_items')
+                        ->select('EffectivePrice')
+                        ->where('ItemNo', $request->itemCode)
+                        ->first();
+            $totalAmount = floatval($amount->EffectivePrice) * floatval($request->quantity);
+
+        }
+
+        return response()->json(number_format($totalAmount, 2, '.', ','));
+    }
+    public function usersMaintenance(){
+
+        $data = DB::table('users as a')
+                    ->leftJoin('userBranchMaintenance as b', 'a.id', '=', 'b.userID')
+                    ->select('a.id', 'a.name', 'email', 'b.company', 'chainCode', 'branchName', DB::raw('CONCAT(MONTHNAME(a.created_at), " ", DATE_FORMAT(a.created_at, "%d, %Y")) as date'))
+                    ->where('position', 'User')
+                    ->get();
+
+        foreach ($data as $item){
+            if($item->chainCode == null){
+                $item->chainCode = 'N/A';
+                $item->branchName = 'N/A';
+                $item->company = 'N/A';
+            }
+        }
+        return response()->json($data);
+
+    }
+    public function fetchPromoBranchInfo(Request $request){
+
+        $data = DB::table('userBranchMaintenance')
+                    ->select('company', 'chainCode', 'branchName')
+                    ->where('userID', $request->userID)
+                    ->get();
+                    
+        return response()->json($data);
+    }
 }

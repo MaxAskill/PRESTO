@@ -32,6 +32,7 @@
                 style="width: 100%"
               >
                 <el-table-column
+                  class="el-table-mod"
                   v-for="column in tableColumns"
                   :key="column.label"
                   :min-width="column.minWidth"
@@ -65,7 +66,7 @@
               data-bs-target="#regenerateApproved"
               data-bs-toggle="modal"
             >
-              REGENERATE LETTER
+              GENERATE LETTER
             </button>
           </div>
         </div>
@@ -178,14 +179,14 @@ export default {
       propsToSearch: ["itemCode", "brand", "boxNumber", "boxLabel", "quantity"],
       tableColumns: [
         {
+          prop: "itemCode",
+          label: "Item Code",
+          minWidth: 175,
+        },
+        {
           prop: "brand",
           label: "Brand",
           minWidth: 200,
-        },
-        {
-          prop: "boxLabel",
-          label: "Box Label",
-          minWidth: 250,
         },
         {
           prop: "boxNumber",
@@ -193,13 +194,18 @@ export default {
           minWidth: 125,
         },
         {
-          prop: "itemCode",
-          label: "Item Code",
-          minWidth: 175,
+          prop: "boxLabel",
+          label: "Box Label",
+          minWidth: 250,
         },
         {
           prop: "quantity",
           label: "Quantity",
+          minWidth: 100,
+        },
+        {
+          prop: "amount",
+          label: "Amount",
           minWidth: 100,
         },
       ],
@@ -207,3 +213,10 @@ export default {
   },
 };
 </script>
+
+<style>
+.el-table-mod {
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+}
+</style>

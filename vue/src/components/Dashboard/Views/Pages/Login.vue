@@ -42,7 +42,7 @@
                   <br />
 
                   <div class="d-flex justify-content-between">
-                    <p-checkbox> Remember Me </p-checkbox>
+                    <p-checkbox v-model="form.remember"> Remember Me </p-checkbox>
                     <!-- <a slot="footer" class="forgotPass">Forgot Your Password? </a> -->
                     <router-link class="forgotPass" to="/login/forgot_password"
                       >Forgot Your Password?
@@ -93,10 +93,10 @@ export default {
         .post("/login", {
           email: this.form.email,
           password: this.form.password,
+          remember: this.form.remember,
         })
         .then((response) => {
           if (response.data.user.status == "Active") {
-            console.log("Response", response.data);
             sessionStorage.setItem("UserID", response.data.user.id);
             sessionStorage.setItem("Token", response.data.token);
             sessionStorage.setItem("Position", response.data.user.position);
@@ -104,7 +104,10 @@ export default {
             sessionStorage.setItem("Email", response.data.user.email);
             if (response.data.user.position == "Admin") {
               this.$router.push({ name: "Overview" });
-            } else if (response.data.user.position == "Agent") {
+            } else if (
+              response.data.user.position == "Agent" ||
+              response.data.user.position == "Approver"
+            ) {
               this.$router.push({ name: "Pull-Out Requests" });
             } else if (response.data.user.position == "User") {
               this.$router.push({ name: "Pull-Out Requisition Form" });
@@ -116,7 +119,6 @@ export default {
         })
         .catch((err) => {
           this.errorMsg = err.response.data.message;
-          console.log(err.response.data.message);
           console.error(err.response.data.message);
         });
     },
@@ -126,6 +128,7 @@ export default {
       form: {
         email: "",
         password: "",
+        remember: false,
       },
       errorMsg: "",
     };

@@ -73,7 +73,6 @@ export default {
           },
         })
         .then((response) => {
-          console.log("HASH CODE:", response.data);
           sessionStorage.setItem("HashCode", response.data);
           sessionStorage.setItem("Email", this.email);
 

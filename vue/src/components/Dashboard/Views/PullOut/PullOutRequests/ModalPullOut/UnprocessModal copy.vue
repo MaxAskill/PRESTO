@@ -41,7 +41,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="item in queriedData" :key="item.id">
+                  <tr v-for="(item, index) in queriedData" :key="item.id">
                     <th scope="row" style="width: 200px" class="px-3">
                       {{ item.itemCode }}
                     </th>
@@ -52,7 +52,29 @@
                       {{ item.boxNumber }}
                     </td>
                     <td style="width: 200px" class="cell-unprocess">
-                      {{ item.boxLabel }}
+                      <!-- {{ item.boxLabel }} -->
+                      <!-- <el-select
+                        class="table-select-box"
+                        size="large"
+                        v-model="item.boxLabel"
+                        @change="editBoxLabel(item.code, item.quantity, item.boxLabel)"
+                      > -->
+                      <el-select
+                        class="table-select-box"
+                        size="large"
+                        @visible-change="getBoxLabels"
+                        @change="changeBoxNumber(item)"
+                        v-model="item.boxLabel"
+                      >
+                        <el-option
+                          v-for="boxLabel in listBoxLabel"
+                          class="table-select-box"
+                          :value="boxLabel.boxLabel"
+                          :label="boxLabel.boxLabel"
+                          :key="boxLabel.id"
+                        >
+                        </el-option>
+                      </el-select>
                     </td>
                     <!-- <td class="cell px-3">{{ item.quantity }}</td> -->
                     <td style="width: 50px" class="cell-unprocess">
@@ -71,69 +93,9 @@
                         <i class="fa fa-times"></i>
                       </p-button>
                     </td>
-                    <!-- <td class="cell">
-                      <input
-                        type="number"
-                        @blur="handleQuantity(item.id)"
-                        v-model="item.quantity"
-                        class="table-input-box"
-                      />
-                    </td>
-                    <td class="cell">
-                      <el-select
-                        class="table-select-box"
-                        size="large"
-                        v-model="item.boxLabel"
-                        @change="editBoxLabel(item.code, item.quantity, item.boxLabel)"
-                      >
-                        <el-option
-                          v-for="boxLabel in newTransaction.boxLabels"
-                          class="table-select-box"
-                          :value="boxLabel.boxLabel"
-                          :label="boxLabel.boxLabel"
-                          :key="boxLabel.id"
-                        >
-                        </el-option>
-                      </el-select>
-                    </td> -->
                   </tr>
                 </tbody>
               </table>
-              <!-- <el-table class="table-striped" :data="itemData" border style="width: 100%">
-                <el-table-column
-                  v-for="column in tableColumns"
-                  :key="column.label"
-                  :min-width="column.minWidth"
-                  :prop="column.prop"
-                  :label="column.label"
-                >
-                </el-table-column>
-                <el-table-column :min-width="120" class-name="td-actions" label="Actions">
-                  <template slot-scope="props">
-                    <p-button
-                      type="success"
-                      size="sm"
-                      icon
-                      @click="toggle === false ? handleClick($event) : handleHide($event)"
-                    >
-                      <i class="fa fa-edit"></i>
-                    </p-button>
-                    <div class="popoverPanel">
-                      <div class="popoverArrow" data-popper-arrow></div>
-                      <div class="popoverBody">The is popover content</div>
-                    </div>
-
-                    <p-button
-                      type="danger"
-                      size="sm"
-                      icon
-                      @click="handleDelete(props.$index, props.row)"
-                    >
-                      <i class="fa fa-times"></i>
-                    </p-button>
-                  </template>
-                </el-table-column>
-              </el-table> -->
               <div class="d-flex justify-content-end pagination-info">
                 <p class="category p-margin">
                   Showing {{ from + 1 }} to {{ to }} of {{ total }} entries
@@ -154,6 +116,8 @@
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
               Close
             </button>
+            <button type="submit" class="btn btn-warning btn-fill btn-wd">Edit</button>
+
             <button
               class="btn btn-danger"
               data-bs-target="#deniedunprocess"
@@ -198,8 +162,9 @@ export default {
   // mounted() {
   //   this.fetchData();
   // },
-  props: ["transferredData", "itemData"],
+  props: ["transferredData", "itemData", "listBoxLabel"],
   components: {
+    [Select.name]: Select,
     NotifItemQuantity,
     DeniedUnprocessModal,
     ApprovedUnprocessModal,
@@ -326,10 +291,38 @@ export default {
       button: null,
       popover: null,
       toggle: false,
+      // listBoxLabel: [],
     };
   },
   methods: {
+    changeBoxNumber(item) {
+      console.log("Edit Labels:", item);
+      const matchingObject = this.listBoxLabel.find(
+        (obj) => obj.boxLabel === item.boxLabel
+      );
+      console.log("Edit matchingObject:", matchingObject);
+
+      if (matchingObject) {
+        item.boxNumber = matchingObject.boxNumber;
+        item.boxLabel = matchingObject.boxLabel;
+      }
+
+      console.log("Edit Labels:", item);
+    },
+    getBoxLabels() {
+      // this.itemData.forEach((obj) => {
+      //   const index = this.listBoxLabel.findIndex(
+      //     (savedObj) => savedObj.boxNumber === obj.boxNumber
+      //   );
+      //   if (index === -1) {
+      //     this.listBoxLabel.push(obj);
+      //     // console.log(`Object ${obj.boxNumber} saved.`);
+      //   }
+      // });
+      // console.log("Edit Labels:", this.listBoxLabel);
+    },
     handleQuantity() {
+      // this.getBoxLabels();
       this.notifyVue("ItemQuantity", "bottom", "right");
     },
     notifyVue(notify, verticalAlign, horizontalAlign) {
@@ -358,43 +351,44 @@ export default {
       alert(`Your want to edit ${row.id}`);
     },
     handleDelete(item) {
-      console.log("ID to be deleted", item);
+      // console.log("ID to be deleted", item);
 
       let indexToDelete = this.itemData.findIndex((tableRow) => tableRow.id === item.id);
-      console.log("ID to be deleted", indexToDelete);
+      // console.log("ID to be deleted", indexToDelete);
       if (indexToDelete >= 0) {
         this.itemData.splice(indexToDelete, 1);
-        console.log("Delete ID: ", this.itemData);
+        this.notifyVue("DeleteItem", "bottom", "right");
+        // console.log("Delete ID: ", this.itemData);
       }
 
-      axiosClient
-        .post("/updateStatus", {
-          company: sessionStorage.getItem("Company"),
-          id: item.id,
-          status: "deleted",
-          userID: sessionStorage.getItem("UserID"),
-        })
-        .then((response) => {
-          console.log("Success Delete: ", response.data);
-          this.notifyVue("DeleteItem", "bottom", "right");
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+      // axiosClient
+      //   .post("/updateStatus", {
+      //     company: sessionStorage.getItem("Company"),
+      //     id: item.id,
+      //     status: "deleted",
+      //     userID: sessionStorage.getItem("UserID"),
+      //   })
+      //   .then((response) => {
+      //     // console.log("Success Delete: ", response.data);
+      //     this.notifyVue("DeleteItem", "bottom", "right");
+      //   })
+      //   .catch((error) => {
+      //     // console.error(error);
+      //   });
     },
     insertElement(btn, tip) {
       this.button = btn;
       this.popover = tip;
-      console.log("insertElement: ", this.popover, this.button);
+      // console.log("insertElement: ", this.popover, this.button);
     },
 
     handleClick(e) {
-      console.log("handleClick: ", this.popover);
+      // console.log("handleClick: ", this.popover);
       if (this.button === null && this.popover === null) {
-        console.log("true!");
+        // console.log("true!");
         this.insertElement(e.target, document.querySelector(".popoverPanel"));
       }
-      console.log(this.popover);
+      // console.log(this.popover);
       this.popover.setAttribute("data-show", "");
       this.popperInstance.update();
       this.toggle = true;
@@ -491,6 +485,20 @@ export default {
   padding: 14px;
   border: 1px solid transparent;
   transition: border-color 0.3s ease-in-out;
+  background-color: transparent;
+}
+
+.table-select-box {
+  /* border: 5px solid green !important; */
+  transition: border-color 0.3s ease-in-out;
+  /* background-color: yellow; */
+  // border-radius: 0px !important;
+  background-color: transparent !important;
+}
+
+.table-select-box.el-select .el-input input {
+  border-radius: 0px !important;
+  border: 5px solid transparent !important;
   background-color: transparent;
 }
 </style>

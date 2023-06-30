@@ -16,6 +16,7 @@ class FetchAdminController extends Controller
                 DB::raw('DATE_FORMAT(created_at, "%h:%i %p") as creation_time'),
                 DB::raw('CONCAT(MONTHNAME(updated_at), " ", DATE_FORMAT(updated_at, "%d, %Y")) as updated_date'),
                 DB::raw('DATE_FORMAT(updated_at, "%h:%i %p") as updated_time'),)
+                ->orderBy('created_at', 'desc')
                 ->get();
 
         return response()->json($data);
@@ -203,5 +204,31 @@ class FetchAdminController extends Controller
                         ->distinct()
                         ->get();
         }
+    }
+
+    public function fetchUserRequestTransactionList(Request $request){
+
+        $company = $request->company;
+        if($company == 'NBFI' || $company == 'ASC' || $company == 'CMC'){
+            $data = DB::table('pullOutBranchTblNBFI as a')
+                    ->join('users as b', 'a.promoEmail', '=', 'b.email')
+                    ->select('a.id as plID', 'a.chainCode', 'a.branchName', 'a.company', 'a.transactionType',
+                        DB::raw('CONCAT(MONTHNAME(a.dateTime), " ", DATE_FORMAT(a.dateTime, "%d, %Y")) as date'),
+                        DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'), 'a.status', 'b.name')
+                    ->where('a.status', '!=', 'draft')
+                    ->orderBy('a.dateTime', 'desc')
+                    ->get();
+        } else if($company == 'EPC' || $company == 'AHLC'){
+            $data = DB::table('pullOutBranchTbl as a')
+                    ->join('users as b', 'a.promoEmail', '=', 'b.email')
+                    ->select('a.id as plID', 'a.chainCode', 'a.branchName', 'a.company', 'a.transactionType',
+                        DB::raw('CONCAT(MONTHNAME(a.dateTime), " ", DATE_FORMAT(a.dateTime, "%d, %Y")) as date'),
+                        DB::raw('DATE_FORMAT(a.dateTime, "%h:%i %p") as time'), 'a.status', 'b.name')
+                    ->where('a.status', '!=', 'draft')
+                    ->orderBy('a.dateTime', 'desc')
+                    ->get();
+        }
+
+        return response()->json($data);
     }
 }

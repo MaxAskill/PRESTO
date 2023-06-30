@@ -138,7 +138,24 @@ export default [
     {
       name: 'Pull-Out Requests',
       path: '/pull-out/requests',
-      access: 'Agent'
+      access: 'Agent',
+
+    },
+    {
+      name: 'All Pull-Out Requests',
+      path: '/pull-out/all-requests',
+      access: 'Admin'
+    },
+    {
+      name: 'For Approval Transaction',
+      path: '/pull-out/approval-transaction',
+      access: 'Admin'
+    },
+    {
+      name: 'Promodiser\'s Account',
+      path: '/pull-out/promodisers-account',
+      access: 'Agent',
+
     },
     {
       name: 'Maintenance',

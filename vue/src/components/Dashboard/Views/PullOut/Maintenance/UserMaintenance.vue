@@ -182,7 +182,12 @@ export default {
   },
   data() {
     return {
-      positions: [{ position: "Admin" }, { position: "Agent" }, { position: "User" }],
+      positions: [
+        { position: "Admin" },
+        { position: "Agent" },
+        { position: "Approver" },
+        { position: "User" },
+      ],
       pagination: {
         perPage: 8,
         currentPage: 1,
@@ -228,7 +233,7 @@ export default {
       axiosClient
         .get("/fetchUsersMaintenance")
         .then((response) => {
-          console.log("Users: ", response.data);
+          // console.log("Users: ", response.data);
           this.tableData = response.data;
         })
         .catch((error) => {
@@ -253,15 +258,13 @@ export default {
           position: row.position,
         })
         .then((response) => {
-          console.log("Success Update User Account");
+          // console.log("Success Update User Account");
         })
         .catch((error) => {
           console.error(error);
         });
     },
     handleEditPosition(index, row) {
-      // alert(`Your want to edit ${row.branchName}`);
-
       axiosClient
         .post("/updateUserAcc", {
           id: row.id,
@@ -270,7 +273,7 @@ export default {
           position: row.position,
         })
         .then((response) => {
-          console.log("Success Update User Account");
+          // console.log("Success Update User Account");
         })
         .catch((error) => {
           console.error(error);

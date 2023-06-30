@@ -49,7 +49,6 @@
       </div>
     </div>
   </div>
-  <!-- </div> -->
 </template>
 <script>
 import Vue from "vue";
@@ -92,7 +91,7 @@ export default {
           userID: sessionStorage.getItem("UserID"),
         })
         .then((response) => {
-          console.log("Success Add Personnel", response.data);
+          // console.log("Success Add Personnel", response.data);
           setTimeout(() => {
             window.location.reload();
           }, 3000); // Reload after 3 seconds

@@ -45,6 +45,9 @@ const PullOutFormDraft = () => import(/* webpackChunkName: "tables" */ '../compo
 const PullOutRequests = () => import(/* webpackChunkName: "tables" */ '../components/Dashboard/Views/PullOut/PullOutRequests.vue');
 const Maintenance = () => import(/* webpackChunkName: "tables" */ '../components/Dashboard/Views/PullOut/Maintenance.vue');
 const PullOutTransaction = () => import(/* webpackChunkName: "tables" */ '../components/Dashboard/Views/PullOut/PullOutTransaction.vue');
+const AllPullOutTransaction = () => import(/* webpackChunkName: "tables" */ '../components/Dashboard/Views/PullOut/AdminPullOutTransaction.vue');
+const ApprovalPullOutTransaction = () => import(/* webpackChunkName: "tables" */ '../components/Dashboard/Views/PullOut/ApprovalTransaction.vue');
+const PromoAccount = () => import(/* webpackChunkName: "tables" */ '../components/Dashboard/Views/PullOut/PromoAccount.vue');
 // Maps pages
 const GoogleMaps = () => import(/* webpackChunkName: "maps" */ '../components/Dashboard/Views/Maps/GoogleMaps.vue')
 const FullScreenMap = () => import(/* webpackChunkName: "maps" */ '../components/Dashboard/Views/Maps/FullScreenMap.vue')
@@ -189,6 +192,24 @@ let pullOutMenu = {
       path: 'pullout-transaction',
       name: 'Pull-Out Transaction',
       component: PullOutTransaction,
+      meta: {requiresAuth: true},
+    },
+    {
+      path: 'all-requests',
+      name: 'All Pull-Out Requests',
+      component: AllPullOutTransaction,
+      meta: {requiresAuth: true},
+    },
+    {
+      path: 'approval-transaction',
+      name: 'For Approval Transaction',
+      component: ApprovalPullOutTransaction,
+      meta: {requiresAuth: true},
+    },
+    {
+      path: 'promodisers-account',
+      name: 'Promodiser\'s Account',
+      component: PromoAccount,
       meta: {requiresAuth: true},
     },
     {
@@ -373,7 +394,7 @@ const router = new VueRouter({
             console.log("Position", user);
             if(user == "Admin"){
               return next({path: '/admin/overview'});
-            }else if(user == "Agent"){
+            }else if(user == "Agent" || user == "Approver"){
               return next({path: '/pull-out/requests'});
             }else if(user == "User"){
               return next({path: '/pull-out/requisition-form'});

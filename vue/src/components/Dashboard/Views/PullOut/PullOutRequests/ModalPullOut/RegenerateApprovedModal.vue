@@ -123,15 +123,12 @@ export default {
   },
   methods: {
     generateLetter() {
-      // console.log("Transferred Data:", this.transferredData);
-      // console.log("DATE START:", this.dateStarted, "DATE END:", this.dateEnded);
       var tempDateStart =
         this.dateStarted.toString().split(" ")[1] +
         " " +
         this.dateStarted.toString().split(" ")[2] +
         ", " +
         this.dateStarted.toString().split(" ")[3];
-      // console.log("Date Start: ", tempDateStart);
 
       var tempDateEnd =
         this.dateEnded.toString().split(" ")[1] +
@@ -139,7 +136,6 @@ export default {
         this.dateEnded.toString().split(" ")[2] +
         ", " +
         this.dateEnded.toString().split(" ")[3];
-      // console.log("Date End: ", tempDateEnd);
 
       window.open(
         "http://192.168.0.7:40/api/generatePDF?name=" +

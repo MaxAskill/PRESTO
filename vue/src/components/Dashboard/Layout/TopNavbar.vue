@@ -1,5 +1,5 @@
 <template>
-  <navbar v-model="showNavbar">
+  <navbar v-model="showNavbar" class="navbar-mod">
     <div class="navbar-wrapper">
       <div class="navbar-minimize">
         <button
@@ -14,10 +14,10 @@
       <div class="navbar-toggle">
         <navbar-toggle-button @click.native="toggleSidebar"> </navbar-toggle-button>
       </div>
-      <a class="navbar-brand" href="#pablo">PRESTO</a>
+      <a class="navbar-brand" href="#">{{ headerName }}</a>
     </div>
 
-    <template slot="navbar-menu">
+    <!-- <template slot="navbar-menu">
       <form>
         <div class="input-group no-border">
           <input type="text" value="" class="form-control" placeholder="Search..." />
@@ -70,7 +70,7 @@
           </a>
         </li>
       </ul>
-    </template>
+    </template> -->
   </navbar>
 </template>
 <script>
@@ -81,6 +81,7 @@ export default {
     Navbar,
     NavbarToggleButton,
   },
+  props: ["headerName"],
   data() {
     return {
       activeNotifications: false,
@@ -99,6 +100,7 @@ export default {
     },
     toggleSidebar() {
       this.$sidebar.displaySidebar(!this.$sidebar.showSidebar);
+      // this.$sidebar.displaySidebar(false);
     },
     hideSidebar() {
       this.$sidebar.displaySidebar(false);
@@ -112,4 +114,8 @@ export default {
   },
 };
 </script>
-<style></style>
+<style>
+.navbar-mod {
+  border-bottom: 0px solid transparent !important;
+}
+</style>

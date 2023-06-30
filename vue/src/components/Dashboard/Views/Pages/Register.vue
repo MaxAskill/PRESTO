@@ -22,26 +22,28 @@
                     addon-left-icon="nc-icon nc-email-85"
                     placeholder="Email..."
                   ></fg-input>
-                  <div class="input-group d-flex">
+                  <div class="input-group d-flex" v-if="showCompany">
                     <div class="input-group-prepend">
                       <span class="input-group-text">
                         <i class="nc-icon nc-bank"></i>
                       </span>
                     </div>
                     <el-select
-                      :disabled="isUser"
                       suffix-icon="nc-icon nc-key-25"
                       class="select-default flex-grow-1 sign-select"
                       size="large"
                       placeholder="Select Company"
                       v-model="form.company"
+                      :disabled="true"
                     >
-                      <el-option value="" hidden></el-option>
-                      <el-option value="NBFI"></el-option>
-                      <el-option value="ASC"></el-option>
-                      <el-option value="CMC"></el-option>
-                      <el-option value="EPC"></el-option>
-                      <el-option value="AHLC"></el-option>
+                      <el-option
+                        v-for="option in companyList"
+                        class="select-default"
+                        :value="option.shortName"
+                        :label="option.name + ' (' + option.shortName + ') '"
+                        :key="option.id"
+                      >
+                      </el-option>
                     </el-select>
                   </div>
                   <fg-input
@@ -99,10 +101,38 @@ export default {
         password_confirmation: "",
         position: "",
       },
-      isUser: true,
+      companyList: "",
+      chainCodeList: "",
+      branchNameList: "",
+      showCompany: false,
     };
   },
+  mounted() {
+    this.fetchCompany();
+  },
   methods: {
+    fetchCompany() {
+      axiosClient
+        .get("/fetchCompany")
+        .then((response) => {
+          console.log("Company Response:", response.data);
+          this.companyList = response.data;
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    },
+    fetchChainCode() {
+      axiosClient
+        .get("/fetchChainCode")
+        .then((response) => {
+          console.log("Company Response:", response.data);
+          this.companyList = response.data;
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    },
     directToLogin() {
       this.$router.push({ name: "Login" });
     },
@@ -134,10 +164,6 @@ export default {
           },
         })
         .then((response) => {
-          // sessionStorage.setItem("UserID", response.data.user.id);
-          // sessionStorage.setItem("Token", response.data.token);
-          // sessionStorage.setItem("Position", response.data.user.position);
-          console.log("HASH CODE:", response.data);
           sessionStorage.setItem("Name", this.form.fullName);
           sessionStorage.setItem("Email", this.form.email);
           sessionStorage.setItem("Company", this.form.company);
@@ -151,7 +177,7 @@ export default {
         });
     },
     validateEmail() {
-      this.isUser = true;
+      this.showCompany = false;
       this.form.company = "";
 
       if (/^[\w.-]+@[a-zA-Z_-]+?\.[a-zA-Z]{2,3}$/.test(this.form.email)) {
@@ -165,9 +191,10 @@ export default {
           } else {
             this.form.company = "EPC";
           }
+          this.showCompany = true;
         } else {
-          this.isUser = false;
           this.form.position = "User";
+          this.showCompany = false;
         }
       }
     },

@@ -70,7 +70,6 @@ export default {
   methods: {
     fetchEmail() {
       this.email = sessionStorage.getItem("Email");
-      console.log("Email", this.email);
     },
     submit() {
       //Reset User's Password

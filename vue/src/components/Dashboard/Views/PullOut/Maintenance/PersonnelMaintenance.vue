@@ -165,7 +165,6 @@ export default {
       axiosClient
         .get("/fetchDriverMaintenance")
         .then((response) => {
-          console.log("Driver Response:", response.data);
           this.tableData = response.data;
         })
         .catch((error) => {
@@ -190,7 +189,7 @@ export default {
           userID: sessionStorage.getItem("UserID"),
         })
         .then((response) => {
-          console.log("Success Update Driver");
+          // console.log("Success Update Driver");
         })
         .catch((error) => {
           console.error(error);

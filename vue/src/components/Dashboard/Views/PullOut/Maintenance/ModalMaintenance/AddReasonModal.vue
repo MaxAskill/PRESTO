@@ -80,7 +80,7 @@ export default {
           userID: sessionStorage.getItem("UserID"),
         })
         .then((response) => {
-          console.log("Success Add Reason", response.data);
+          // console.log("Success Add Reason", response.data);
           setTimeout(() => {
             window.location.reload();
           }, 3000); // Reload after 3 seconds

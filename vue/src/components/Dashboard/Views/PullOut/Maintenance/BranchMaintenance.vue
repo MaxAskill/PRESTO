@@ -216,18 +216,8 @@ export default {
           },
         })
         .then((response) => {
-          console.log(
-            "BRANCH MAINTENANCE RESPONSE:",
-            response.data[0].chainCode,
-            response.data.length
-          );
           this.tableData = response.data;
 
-          // let objectChainCodeList = [];
-
-          // for (var x = 0; x < response.data.length; x++) {
-          //   objectChainCodeList.push(response.data[x].chainCode);
-          // }
           // Remove duplicates and sort based on 'id' property
           this.chainCodeList = [
             ...new Map(this.tableData.map((item) => [item.chainCode, item])).values(),
@@ -235,9 +225,6 @@ export default {
 
           // Sort the unique items based on 'id' property
           this.chainCodeList.sort((a, b) => a.chainCode - b.chainCode);
-
-          // Output the sorted unique items
-          console.log("ChainCode List:", this.chainCodeList[0].chainCode);
         })
         .catch((error) => {
           console.error(error);
@@ -253,9 +240,6 @@ export default {
         tempStatus = "Active";
       }
 
-      console.log("Branch ID:", row.id);
-      console.log("BranchCode:", row.branchCode);
-
       axiosClient
         .post("/updateBranch", {
           company: this.company,
@@ -264,12 +248,11 @@ export default {
           userID: sessionStorage.getItem("UserID"),
         })
         .then((response) => {
-          console.log("Success Update Branch:", response.data);
+          // console.log("Success Update Branch:", response.data);
         })
         .catch((error) => {
           console.error(error);
         });
-      // alert(`Your want to edit ${row.status}`);
     },
     handleDelete(index, row) {
       let indexToDelete = this.tableData.findIndex((tableRow) => tableRow.id === row.id);

@@ -54,13 +54,20 @@ class AuthController extends Controller
         // ]);
 
         /** @var \App\Models\User $user */
+
+        if($request->position == "Agent"){
+            $status = "Active";
+        }else{
+            $status = "Inactive";
+        }
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'company' => $request->company,
             'position' => $request->position,
-            'status' => 'Active'
+            'status' => $status
         ]);
         // $token = $user->createToken('main')->plainTextToken;
 

@@ -1,11 +1,27 @@
 <template>
   <div class="card">
     <div class="card-body">
-      <div class="card-header">
-        <h4 class="title">Pull-Out Transaction</h4>
-      </div>
-      <div class="row mx-1">
-        <div class="col-12">
+      <!-- <div class="card-header">
+        <h4 class="title">Pull-Out Transactions</h4>
+      </div> -->
+      <div class="row mx-2">
+        <div class="col-2 pl-0 pr-1">
+          <el-select
+            class="select-default"
+            v-model="pagination.perPage"
+            placeholder="Per page"
+          >
+            <el-option
+              class="select-default"
+              v-for="item in pagination.perPageOptions"
+              :key="item"
+              :label="item"
+              :value="item"
+            >
+            </el-option>
+          </el-select>
+        </div>
+        <div class="col-10 pl-1 pr-0">
           <fg-input
             class="input-md"
             placeholder="Search"
@@ -98,6 +114,7 @@ import PButton from "../../../UIComponents/Button.vue";
 import PPagination from "../../../UIComponents/Pagination.vue";
 import axiosClient from "../../../../axios";
 import { Badge } from "src/components/UIComponents";
+import linkName from "../../../../linkName";
 
 Vue.use(Table);
 Vue.use(TableColumn);
@@ -112,6 +129,11 @@ export default {
   },
   mounted() {
     this.fetchData();
+    if (window.resolveRouteChange) {
+      window.resolveRouteChange();
+      window.resolveRouteChange = null;
+    }
+    linkName.val = "Pull-Out Transactions";
   },
   computed: {
     pagedData() {
@@ -160,7 +182,7 @@ export default {
     return {
       company: "NBFI",
       pagination: {
-        perPage: 15,
+        perPage: 5,
         currentPage: 1,
         perPageOptions: [5, 10, 25, 50],
         total: 0,

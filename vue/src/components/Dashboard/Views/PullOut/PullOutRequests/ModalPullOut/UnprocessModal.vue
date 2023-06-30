@@ -37,6 +37,7 @@
                     <th scope="col" class="nowrap">Box Number</th>
                     <th scope="col" class="nowrap">Box Label</th>
                     <th scope="col" class="nowrap">Quantity</th>
+                    <th scope="col" class="nowrap">Amount</th>
                     <th scope="col" class="nowrap">Action</th>
                   </tr>
                 </thead>
@@ -78,11 +79,50 @@
                     </td>
                     <!-- <td class="cell px-3">{{ item.quantity }}</td> -->
                     <td style="width: 50px" class="cell-unprocess">
-                      <input
+                      <div class="btn-group btn-group-sm d-flex flex-row">
+                        <p-button
+                          type="default"
+                          round
+                          outline
+                          size="sm"
+                          @click="
+                            item.quantity > 0 ? item.quantity-- : 0, handleQuantity(item)
+                          "
+                        >
+                          <i class="nc-icon nc-simple-delete"></i>
+                        </p-button>
+                        <input
+                          type="text"
+                          @blur="handleQuantity(item)"
+                          v-model="item.quantity"
+                          class="table-input-box"
+                          style="width: 75px; text-align: center"
+                          @keypress="numberOnly"
+                        />
+                        <p-button
+                          type="default"
+                          round
+                          outline
+                          size="sm"
+                          @click="item.quantity++, handleQuantity(item)"
+                        >
+                          <i class="nc-icon nc-simple-add"></i>
+                        </p-button>
+                      </div>
+                      <!-- <input
                         type="number"
                         min="1"
-                        @blur="handleQuantity()"
+                        @blur="handleQuantity(item)"
                         v-model="item.quantity"
+                        class="table-input-box"
+                        required="true"
+                        message="you can give score -10 to +10 only"
+                      /> -->
+                    </td>
+                    <td style="width: 50px" class="cell-unprocess">
+                      <input
+                        :disabled="true"
+                        v-model="item.amount"
                         class="table-input-box"
                         required="true"
                         message="you can give score -10 to +10 only"
@@ -116,6 +156,15 @@
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
               Close
             </button>
+            <button
+              type="submit"
+              class="btn btn-warning"
+              @click="submit"
+              data-bs-dismiss="modal"
+            >
+              Edit
+            </button>
+
             <button
               class="btn btn-danger"
               data-bs-target="#deniedunprocess"
@@ -151,6 +200,7 @@ import { createPopper } from "@popperjs/core/lib/popper-lite.js";
 import DeniedUnprocessModal from "./UnprocessModal/DeniedUnprocessModal.vue";
 import ApprovedUnprocessModal from "./UnprocessModal/ApprovedUnprocessModal.vue";
 import PPagination from "../../../../../UIComponents/Pagination.vue";
+import axios from "axios";
 
 Vue.use(Table);
 Vue.use(TableColumn);
@@ -293,6 +343,15 @@ export default {
     };
   },
   methods: {
+    submit() {
+      console.log("Transaction Number:", this.transferredData.plID);
+      console.log("Company", this.transferredData.shortName);
+      location.href =
+        "http://192.168.0.7:4040/#/pull-out/requisition-form?transactionID=" +
+        this.transferredData.plID +
+        "&company=" +
+        this.transferredData.shortName;
+    },
     changeBoxNumber(item) {
       console.log("Edit Labels:", item);
       const matchingObject = this.listBoxLabel.find(
@@ -319,9 +378,25 @@ export default {
       // });
       // console.log("Edit Labels:", this.listBoxLabel);
     },
-    handleQuantity() {
+    handleQuantity(item) {
+      console.log("Quantity", item.itemCode);
+      axiosClient
+        .get("/fetchNewAmount", {
+          params: {
+            company: sessionStorage.getItem("Company"),
+            itemCode: item.itemCode,
+            quantity: item.quantity,
+          },
+        })
+        .then((response) => {
+          console.log("Success New Amount", response.data);
+          item.amount = response.data;
+        })
+        .catch((error) => {
+          console.error(error);
+        });
       // this.getBoxLabels();
-      this.notifyVue("ItemQuantity", "bottom", "right");
+      // this.notifyVue("ItemQuantity", "bottom", "right");
     },
     notifyVue(notify, verticalAlign, horizontalAlign) {
       var notification = "";
@@ -349,44 +424,21 @@ export default {
       alert(`Your want to edit ${row.id}`);
     },
     handleDelete(item) {
-      // console.log("ID to be deleted", item);
-
       let indexToDelete = this.itemData.findIndex((tableRow) => tableRow.id === item.id);
-      // console.log("ID to be deleted", indexToDelete);
       if (indexToDelete >= 0) {
         this.itemData.splice(indexToDelete, 1);
         this.notifyVue("DeleteItem", "bottom", "right");
-        // console.log("Delete ID: ", this.itemData);
       }
-
-      // axiosClient
-      //   .post("/updateStatus", {
-      //     company: sessionStorage.getItem("Company"),
-      //     id: item.id,
-      //     status: "deleted",
-      //     userID: sessionStorage.getItem("UserID"),
-      //   })
-      //   .then((response) => {
-      //     // console.log("Success Delete: ", response.data);
-      //     this.notifyVue("DeleteItem", "bottom", "right");
-      //   })
-      //   .catch((error) => {
-      //     // console.error(error);
-      //   });
     },
     insertElement(btn, tip) {
       this.button = btn;
       this.popover = tip;
-      // console.log("insertElement: ", this.popover, this.button);
     },
 
     handleClick(e) {
-      // console.log("handleClick: ", this.popover);
       if (this.button === null && this.popover === null) {
-        // console.log("true!");
         this.insertElement(e.target, document.querySelector(".popoverPanel"));
       }
-      // console.log(this.popover);
       this.popover.setAttribute("data-show", "");
       this.popperInstance.update();
       this.toggle = true;
@@ -398,6 +450,13 @@ export default {
       }
       this.popover.removeAttribute("data-show");
       this.toggle = false;
+    },
+    numberOnly($event) {
+      let keyCode = $event.keyCode ? $event.keyCode : $event.which;
+      if (keyCode < 48 || keyCode > 57) {
+        // 46 is dot
+        $event.preventDefault();
+      }
     },
   },
 };

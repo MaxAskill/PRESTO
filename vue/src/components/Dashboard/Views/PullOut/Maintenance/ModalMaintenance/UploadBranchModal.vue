@@ -62,14 +62,13 @@ export default {
     handleFileInputChange() {
       const selectedFile = this.$refs.fileInput.files[0];
       // Do something with the selected file
-      console.log("Selected file:", selectedFile);
       const formData = new FormData();
       formData.append("file", selectedFile);
 
       axiosClient
         .post("/branchImport", formData)
         .then((response) => {
-          console.log("Success:", response.data);
+          // console.log("Success:", response.data);
 
           setTimeout(() => {
             window.location.reload();

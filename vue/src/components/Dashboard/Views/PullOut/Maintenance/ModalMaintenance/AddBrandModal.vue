@@ -74,7 +74,6 @@ export default {
       this.newBrand.brandName = "";
     },
     submit() {
-      // console.log("Brand", this.transferredData);
       axiosClient
         .post("/addNewBrand", {
           brandName: this.newBrand.brandName,
@@ -82,7 +81,7 @@ export default {
           userID: sessionStorage.getItem("UserID"),
         })
         .then((response) => {
-          console.log("Success Add Brand:", response.data);
+          // console.log("Success Add Brand:", response.data);
           setTimeout(() => {
             window.location.reload();
           }, 3000); // Reload after 3 seconds

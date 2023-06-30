@@ -49,7 +49,9 @@ export default {
   },
   mounted() {},
   methods: {
-    reloadPage() {},
+    reloadPage() {
+      window.location.href = "http://192.168.0.7:4040/#/pull-out/pullout-transaction";
+    },
   },
 };
 </script>

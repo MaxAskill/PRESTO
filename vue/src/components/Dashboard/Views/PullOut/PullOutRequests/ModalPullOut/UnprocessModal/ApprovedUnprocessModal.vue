@@ -122,14 +122,12 @@ export default {
   },
   methods: {
     generateLetter() {
-      console.log("DATE START:", this.dateStarted, "DATE END:", this.dateEnded);
       var tempDateStart =
         this.dateStarted.toString().split(" ")[1] +
         " " +
         this.dateStarted.toString().split(" ")[2] +
         ", " +
         this.dateStarted.toString().split(" ")[3];
-      console.log("Date Start: ", tempDateStart);
 
       var tempDateEnd =
         this.dateEnded.toString().split(" ")[1] +
@@ -137,9 +135,6 @@ export default {
         this.dateEnded.toString().split(" ")[2] +
         ", " +
         this.dateEnded.toString().split(" ")[3];
-      console.log("Date End: ", tempDateEnd);
-
-      console.log("Item Data:", this.itemData);
 
       for (var x = 0; x < this.itemData.length; x++) {
         axiosClient
@@ -152,7 +147,7 @@ export default {
             userID: sessionStorage.getItem("UserID"),
           })
           .then((response) => {
-            console.log("Success Save", response.data);
+            // console.log("Success Save", response.data);
           })
           .catch((error) => {
             console.error(error);
@@ -163,11 +158,11 @@ export default {
           company: sessionStorage.getItem("Company"),
           id: this.transferredData.plID,
           // name: this.userName,
-          status: "approved",
+          status: "endorsement",
           userID: sessionStorage.getItem("UserID"),
         })
         .then((response) => {
-          console.log("Success:", response.data);
+          // console.log("Success:", response.data);
           window.open(
             "http://192.168.0.7:40/api/generatePDF?name=" +
               this.transferredData.name +

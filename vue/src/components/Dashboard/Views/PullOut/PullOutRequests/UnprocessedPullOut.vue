@@ -30,6 +30,7 @@
     <div class="row mx-2">
       <el-table class="table-striped" :data="queriedData" border style="width: 100%">
         <el-table-column
+          class="el-table-mod"
           v-for="column in tableColumns"
           :key="column.label"
           :min-width="column.minWidth"
@@ -37,7 +38,11 @@
           :label="column.label"
         >
         </el-table-column>
-        <el-table-column :min-width="50" class-name="td-actions" label="Details">
+        <el-table-column
+          :min-width="50"
+          class-name="td-actions el-table-mod"
+          label="Details"
+        >
           <template slot-scope="props">
             <p-button
               type="info"
@@ -182,7 +187,6 @@ export default {
   methods: {
     openModal(data) {
       this.transferredData = data;
-      console.log("Open Modal", this.transferredData.plID);
 
       axiosClient
         .get("/fetchPullOutRequestItem", {
@@ -192,8 +196,8 @@ export default {
           },
         })
         .then((response) => {
-          console.log("Success Item Response:", response.data);
-          this.itemData = response.data;
+          // console.log("Success Item Response:", response.data);
+          this.itemData = response.data[0];
           this.listBoxLabel = [];
           this.itemData.forEach((obj) => {
             const index = this.listBoxLabel.findIndex(
@@ -207,8 +211,6 @@ export default {
               // console.log(`Object ${obj.boxNumber} saved.`);
             }
           });
-
-          console.log("Box", this.listBoxLabel);
         })
         .catch((error) => {
           console.error(error);
@@ -225,7 +227,7 @@ export default {
           },
         })
         .then((response) => {
-          console.log("Pull Out Request Unprocessed", response.data);
+          // console.log("Pull Out Request Unprocessed", response.data);
           this.tableData = response.data;
         })
         .catch((error) => {
@@ -236,20 +238,24 @@ export default {
 };
 </script>
 <style lang="scss">
-.el-table .td-actions {
-  button.btn {
-    margin-right: 5px;
-  }
-}
-.p-margin {
-  margin-bottom: 0px;
-}
-.pl {
-  padding-left: 4px;
-  padding-right: 0px;
-}
-.pr {
-  padding-left: 0px;
-  padding-right: 4px;
+// .el-table .td-actions {
+//   button.btn {
+//     margin-right: 5px;
+//   }
+// }
+// .p-margin {
+//   margin-bottom: 0px;
+// }
+// .pl {
+//   padding-left: 4px;
+//   padding-right: 0px;
+// }
+// .pr {
+//   padding-left: 0px;
+//   padding-right: 4px;
+// }
+.el-table-mod {
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
 }
 </style>

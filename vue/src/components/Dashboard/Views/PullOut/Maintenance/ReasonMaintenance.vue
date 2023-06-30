@@ -184,7 +184,6 @@ export default {
       axiosClient
         .get("/fetchReasonLabelMaintenance")
         .then((response) => {
-          console.log("Reason Response: ", response.data);
           this.tableData = response.data;
         })
         .catch((error) => {
@@ -208,7 +207,7 @@ export default {
           userID: sessionStorage.getItem("UserID"),
         })
         .then((response) => {
-          console.log("Success Update Reason");
+          // console.log("Success Update Reason");
         })
         .catch((error) => {
           console.error(error);

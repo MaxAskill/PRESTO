@@ -1,8 +1,8 @@
 <template>
   <div class="card">
-    <div class="card-header">
+    <!-- <div class="card-header">
       <h4 class="title">Pull-Out Requisition Form</h4>
-    </div>
+    </div> -->
     <div class="card-body">
       <form>
         <div class="row">
@@ -25,7 +25,7 @@
                   v-for="option in companyList"
                   class="select-default"
                   :value="option.shortName"
-                  :label="option.shortName"
+                  :label="option.name + ' (' + option.shortName + ') '"
                   :key="option.id"
                 >
                 </el-option>
@@ -96,7 +96,6 @@
                 size="large"
                 placeholder="Select Transaction Type"
                 v-model="newTransaction.transactionType"
-                @change="isShowButton = true"
                 :disabled="isTransactionType"
               >
                 <el-option
@@ -127,48 +126,51 @@
                   <i class="nc-icon nc-simple-add font-weight-bold"></i> Add Box Label
                 </p-button>
                 <p-button
+                  :disabled="isEditBLDisabled"
                   type="default"
                   link
                   class="font-weight-bold"
                   data-bs-toggle="modal"
-                  data-bs-target="#exampleModal"
+                  data-bs-target="#editboxlabelModal"
                   @click="openModal(newTransaction)"
                 >
                   <i class="nc-icon nc-ruler-pencil font-weight-bold"></i> Edit Box Label
                 </p-button>
               </div>
-              <div class="col-sm-12 mx-n3" v-show="isBoxLabel">
-                <div class="col-sm-12">
-                  <fg-input
-                    placeholder="Box Label"
-                    v-model="newBoxLabel"
-                    class="w-100"
-                  ></fg-input>
-                </div>
-                <div class="col-sm-2 mt-n3">
-                  <p-button
-                    type="default"
-                    size="sm"
-                    outline
-                    class="font-weight-bold"
-                    @click.prevent="saveBoxLabel()"
+              <form @submit.prevent="saveBoxLabel()">
+                <div class="col-sm-12 mx-n3" v-show="isBoxLabel">
+                  <div class="col-sm-12">
+                    <fg-input
+                      placeholder="Box Label"
+                      v-model="newBoxLabel"
+                      class="w-100"
+                    ></fg-input>
+                  </div>
+                  <div class="col-sm-2 mt-n3">
+                    <p-button
+                      native-type="submit"
+                      type="default"
+                      size="sm"
+                      outline
+                      class="font-weight-bold"
+                    >
+                      <i class="nc-icon nc-check-2 font-weight-bold"></i>
+                    </p-button>
+                    <p-button
+                      type="default"
+                      size="sm"
+                      outline
+                      class="font-weight-bold"
+                      @click.prevent="cancelBoxLabel()"
+                    >
+                      <i class="nc-icon nc-simple-remove font-weight-bold"></i>
+                    </p-button>
+                  </div>
+                  <label v-show="isNewBoxLabel" class="label-font pl-3"
+                    >Box Label is empty.</label
                   >
-                    <i class="nc-icon nc-check-2 font-weight-bold"></i>
-                  </p-button>
-                  <p-button
-                    type="default"
-                    size="sm"
-                    outline
-                    class="font-weight-bold"
-                    @click.prevent="cancelBoxLabel()"
-                  >
-                    <i class="nc-icon nc-simple-remove font-weight-bold"></i>
-                  </p-button>
                 </div>
-                <label v-show="isNewBoxLabel" class="label-font pl-3"
-                  >Box Label is empty.</label
-                >
-              </div>
+              </form>
               <label v-show="isValid.boxLabel" class="label-font"
                 >Box Label is required.</label
               >
@@ -177,34 +179,40 @@
               <collapse-item
                 v-for="boxLabel in newTransaction.boxLabels"
                 :key="boxLabel.id"
-                :title="boxLabel.boxLabel"
+                :title="`Box Number: ${boxLabel.boxNumber} Box Label: ${boxLabel.boxLabel}`"
                 name="1"
                 class="font-weight-bold"
               >
                 <div class="row" v-show="isAddItem">
                   <button
                     class="btn btn-transparent text-left bold-button"
-                    @click.prevent="addItem(boxLabel.id)"
+                    @click.prevent="addItem(boxLabel.boxNumber)"
                   >
                     <i class="nc-icon nc-simple-add font-weight-bold"></i> Add Item
                   </button>
                 </div>
                 <div>
-                  <div
-                    class="row"
-                    v-for="newItem in newItemInputBox"
-                    v-show="newItem.id === boxLabel.id"
-                  >
-                    <div class="col-sm-12 d-flex mt-2" v-if="newItem.id == showItemInput">
-                      <input
-                        type="text"
-                        v-model="newItemInput"
-                        @input="fetchItems"
-                        @change="compareItemCode"
-                        list="items"
-                        class="input-datalist"
-                      />
-                      <!-- <input
+                  <form @submit.prevent="saveItem(boxLabel.boxNumber)">
+                    <div
+                      class="row"
+                      v-for="newItem in newItemInputBox"
+                      v-show="newItem.id === boxLabel.boxNumber"
+                    >
+                      <div
+                        class="col-sm-12 d-flex mt-2"
+                        v-if="newItem.id == showItemInput"
+                      >
+                        <input
+                          type="text"
+                          placeholder="Item Code"
+                          v-model="newItemInput"
+                          @input="fetchItems"
+                          @change="compareItemCode"
+                          list="items"
+                          class="input-datalist"
+                        />
+                        {{ newItem }}
+                        <!-- <input
                         :disabled="switchItemCode"
                         type="text"
                         v-model="newItemInput"
@@ -213,41 +221,41 @@
                         list="items"
                         class="input-datalist"
                       /> -->
-                      <datalist id="items">
-                        <option
-                          v-for="item in itemCodeList"
-                          :value="item.ItemNo + ' - ' + item.ItemDescription"
-                          :key="item.ItemNo"
-                        ></option>
-                      </datalist>
-                      <!-- <fg-input placeholder="Item" v-model="newItemInput" class="w-100"></fg-input> -->
-                      <!-- <label> showItemInput: {{ showItemInput }}</label>
+                        <datalist id="items">
+                          <option
+                            v-for="item in itemCodeList"
+                            :value="item.ItemNo + ' - ' + item.ItemDescription"
+                            :key="item.ItemNo"
+                          ></option>
+                        </datalist>
+                        <!-- <fg-input placeholder="Item" v-model="newItemInput" class="w-100"></fg-input> -->
+                        <!-- <label> showItemInput: {{ showItemInput }}</label>
                           <label> newItem.id: {{ newItem.id }}</label> -->
-                      <p-button
-                        type="default"
-                        size="sm"
-                        class="font-weight-bold"
-                        @click.prevent="saveItem(boxLabel.boxLabel, boxLabel.id)"
+                        <p-button
+                          native-type="submit"
+                          type="default"
+                          size="sm"
+                          class="font-weight-bold"
+                        >
+                          <i class="nc-icon nc-check-2 font-weight-bold"></i>
+                        </p-button>
+                        <p-button
+                          type="default"
+                          size="sm"
+                          class="font-weight-bold"
+                          @click.prevent="cancelItem()"
+                        >
+                          <i class="nc-icon nc-simple-remove font-weight-bold"></i>
+                        </p-button>
+                      </div>
+                      <label v-show="isRightCode" class="label-font font-weight-normal"
+                        >Invalid Item Code.</label
                       >
-                        <i class="nc-icon nc-check-2 font-weight-bold"></i>
-                      </p-button>
-                      <p-button
-                        type="default"
-                        size="sm"
-                        class="font-weight-bold"
-                        @click.prevent="cancelItem()"
+                      <label v-show="isNewItem" class="label-font font-weight-normal"
+                        >Item code is empty.</label
                       >
-                        <i class="nc-icon nc-simple-remove font-weight-bold"></i>
-                      </p-button>
-                    </div>
-                    <label v-show="isRightCode" class="label-font font-weight-normal"
-                      >Invalid Item Code.</label
-                    >
-                    <label v-show="isNewItem" class="label-font font-weight-normal"
-                      >Item code is empty.</label
-                    >
 
-                    <!-- <div class="col-sm-12 d-flex" v-show="newItem.id != showItemInput">
+                      <!-- <div class="col-sm-12 d-flex" v-show="newItem.id != showItemInput">
                           <fg-input :placeholder="newItem.id " v-model="newItem.item" class="w-100"></fg-input>
                           <p-button type="default" size="sm"   class="font-weight-bold" @click.prevent="saveItem(boxLabel.boxLabel)">
                             <i class="nc-icon nc-check-2 font-weight-bold"></i> {{ newItem.id }}
@@ -256,7 +264,8 @@
                             <i class="nc-icon nc-simple-remove font-weight-bold"></i>
                           </p-button>
                         </div> -->
-                  </div>
+                    </div>
+                  </form>
                 </div>
 
                 <div class="row">
@@ -265,55 +274,96 @@
                   >
                     <thead>
                       <tr>
-                        <th scope="col" class="nowrap">Item Code</th>
-                        <th scope="col" class="nowrap">Description</th>
-                        <th scope="col" class="nowrap">Category/Brand</th>
-                        <th scope="col" class="nowrap">Quantity</th>
-                        <th scope="col" class="nowrap">Box Label</th>
+                        <th scope="col" class="text-nowrap">Item Code</th>
+                        <th scope="col" class="text-nowrap">Description</th>
+                        <th scope="col" class="text-nowrap">Size</th>
+                        <th scope="col" class="text-nowrap">Color</th>
+                        <th scope="col" class="text-nowrap">Category/Brand</th>
+                        <th scope="col" class="text-nowrap">Quantity</th>
+                        <th scope="col" class="text-nowrap">Box Label</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr
-                        v-show="boxLabel.boxLabel == item.boxLabel"
+                        v-show="boxLabel.boxNumber == item.boxNumber"
                         v-for="item in newTransaction.items"
                         :key="item.code"
                       >
                         <th scope="row" class="px-3 d-flex">
                           <button
                             class="table-delete-button"
-                            @click.prevent="removeItem(item.code, item.boxLabel)"
+                            @click.prevent="removeItem(item.code, item.boxNumber)"
                           >
                             <i class="nc-icon nc-simple-remove font-weight-bold"></i>
                           </button>
                           {{ item.code }}
                         </th>
-                        <td class="cell px-3" style="width: 700px">
+                        <td class="cell px-3" style="width: 550px">
                           {{ item.description }}
+                        </td>
+                        <td class="cell px-3" style="width: 10px">
+                          {{ item.size }}
+                        </td>
+                        <td class="cell px-3" style="width: 20px">
+                          {{ item.color }}
                         </td>
                         <td class="cell px-3" style="width: 300px">
                           {{ item.categorybrand }}
                         </td>
-                        <td class="cell" style="width: 50px">
+                        <!-- <td class="cell" style="width: 50px">
                           <input
                             type="number"
                             @blur="handleQuantity(item.id)"
                             v-model="item.quantity"
                             class="table-input-box"
+                            @keypress="numberOnly"
                           />
+                        </td> -->
+                        <td class="cell">
+                          <span>
+                            <div class="btn-group btn-group-sm d-flex flex-row">
+                              <p-button
+                                type="default"
+                                round
+                                outline
+                                size="xs"
+                                @click="item.quantity > 0 ? item.quantity-- : 0"
+                              >
+                                <i class="nc-icon nc-simple-delete"></i>
+                              </p-button>
+                              <input
+                                type="text"
+                                @blur="handleQuantity(item)"
+                                v-model="item.quantity"
+                                class="table-input-box"
+                                style="width: 75px; text-align: center"
+                                @keypress="numberOnly"
+                              />
+                              <p-button
+                                type="default"
+                                round
+                                outline
+                                size="xs"
+                                @click="item.quantity++"
+                              >
+                                <i class="nc-icon nc-simple-add"></i>
+                              </p-button>
+                            </div>
+                          </span>
                         </td>
-                        <td class="cell" style="width: 150px">
+                        <td class="cell" style="width: 300px">
                           <el-select
                             class="table-select-box"
                             size="large"
-                            v-model="item.boxLabel"
+                            v-model="item.boxNumber"
                             @change="
-                              editBoxLabel(item.code, item.quantity, item.boxLabel)
+                              editBoxLabel(item.code, item.quantity, item.boxNumber)
                             "
                           >
                             <el-option
                               v-for="boxLabel in newTransaction.boxLabels"
                               class="table-select-box"
-                              :value="boxLabel.boxLabel"
+                              :value="boxLabel.id"
                               :label="boxLabel.boxLabel"
                               :key="boxLabel.id"
                             >
@@ -329,7 +379,6 @@
             </collapse>
           </card>
         </div>
-
         <div class="text-center">
           <button
             type="submit"
@@ -341,13 +390,39 @@
           </button>
           <button
             type="submit"
-            data-bs-target="#transactionReceipt"
-            data-bs-toggle="modal"
+            class="btn btn-warning btn-fill btn-wd"
+            @click.prevent="cancelTransaction"
+            v-show="isCancel"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
             class="btn btn-info btn-fill btn-wd"
             @click.prevent="submit"
+            v-show="isApproved"
           >
-            Submit
+            Approved
           </button>
+          <span
+            id="submitBTN"
+            class="d-inline-block"
+            tabindex="0"
+            data-bs-toggle="tooltip"
+            data-bs-placement="bottom"
+            data-bs-title="Complete the form above to enable this button."
+          >
+            <button
+              :disabled="isDisabledSubmit"
+              type="submit"
+              class="btn btn-info btn-fill btn-wd"
+              data-bs-target="#confirmationSubmitPullOut"
+              data-bs-toggle="modal"
+              v-show="isSubmit"
+            >
+              Submit
+            </button></span
+          >
         </div>
         <div class="clearfix"></div>
       </form>
@@ -355,11 +430,16 @@
         :transferredData="transferredData"
         :newItemInputBox="newItemInputBox"
         @closeModal="transferredData"
+        @renameBoxLabel="editingBoxLabel($event)"
       ></EditBoxLabelModal>
     </div>
     <TransactionReceiptModal
       :transferTransactionID="transferTransactionID"
     ></TransactionReceiptModal>
+    <DraftModal :transferTransactionID="transferTransactionID"></DraftModal>
+    <ConfirmationSubmitPullOutModal
+      @confirm="submit($event)"
+    ></ConfirmationSubmitPullOutModal>
   </div>
 </template>
 <script>
@@ -390,9 +470,14 @@ import { Table, TableColumn } from "element-ui";
 import axiosClient from "../../../../axios";
 import EditBoxLabelModal from "./PullOutRequests/ModalPullOut/EditBoxLabelModal.vue";
 import TransactionReceiptModal from "./PullOutRequests/ModalPullOut/TransactionReceiptModal.vue";
+import DraftModal from "./PullOutRequests/ModalPullOut/DraftModal.vue";
+import linkName from "../../../../linkName";
+import ConfirmationSubmitPullOutModal from "./PullOutRequests/ModalPullOut/ConfirmationSubmitPullOutModal.vue";
+import { isCancel } from "axios";
 
 Vue.use(Table);
 Vue.use(TableColumn);
+
 export default {
   components: {
     [DatePicker.name]: DatePicker,
@@ -422,20 +507,23 @@ export default {
     NotifSubmitTransaction,
     EditBoxLabelModal,
     TransactionReceiptModal,
+    DraftModal,
+    ConfirmationSubmitPullOutModal,
   },
   data() {
     return {
       transferredData: "",
-      isDisabled: [false, true, true, true, false, true],
       isCompany: false,
       isChainCode: true,
       isBranchName: true,
       isTransactionType: true,
       isShowButton: false,
       itemCodeList: [],
+      isEditBLDisabled: false,
       isBoxLabel: false,
       isItem: false,
       isAddItem: true,
+      isDisabledSubmit: true,
       showItemInput: "",
       companyList: [],
       chainCodeList: [],
@@ -458,6 +546,9 @@ export default {
         boxLabel: false,
         item: false,
       },
+      isApproved: false,
+      isCancel: false,
+      isSubmit: true,
       hoveredRow: null,
 
       transactionTypeList: [
@@ -471,6 +562,7 @@ export default {
       newBrand: "",
       newItemDescription: "",
       newStyleCode: "",
+      newItemCode: "",
       notifications: {
         topCenter: false,
       },
@@ -483,31 +575,135 @@ export default {
       isNewItem: false,
       isRightCode: false,
       transferTransactionID: "",
-      itemss: [
-        { id: 1, name: "Item 1" },
-        { id: 2, name: "Item 2" },
-        { id: 1, name: "Item 3" },
-        { id: 3, name: "Item 4" },
-        { id: 2, name: "Item 5" },
-      ],
       uniqueItemss: [],
       duplicateItemss: [],
       isDenied: true,
     };
   },
+  computed: {
+    sortedBoxes() {
+      return this.newTransaction.boxLabels.sort((a, b) => a.boxNumber - b.boxNumber);
+    },
+  },
   mounted() {
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    const tooltipList = [...tooltipTriggerList].map(
+      (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl)
+    );
     // this.processData();
     this.fetchEdit();
     this.fetchCompany();
+    if (window.resolveRouteChange) {
+      window.resolveRouteChange();
+      window.resolveRouteChange = null;
+    }
+    linkName.val = "Pull-Out Requisition Form";
+  },
+  watch: {
+    newTransaction: {
+      handler(val) {
+        this.validateSubmit();
+      },
+      deep: true,
+    },
+    "newTransaction.boxLabels": function (val, oldVal) {
+      this.enableDropDowns();
+    },
+    "newTransaction.company": function (val, oldVal) {
+      this.showButtons();
+    },
+    "newTransaction.chainCode": function (val, oldVal) {
+      this.showButtons();
+    },
+    "newTransaction.branchName": function (val, oldVal) {
+      this.showButtons();
+    },
+    "newTransaction.transactionType": function (val, oldVal) {
+      this.showButtons();
+    },
+    sortedBoxes(newSortedBoxes) {
+      // Option 1: Using Vue.set
+      Vue.set(this, "newTransaction.boxLabels", newSortedBoxes);
+
+      // Option 2: Reassigning the array
+      // this.boxes = newSortedBoxes.slice();
+    },
   },
   methods: {
+    numberOnly($event) {
+      let keyCode = $event.keyCode ? $event.keyCode : $event.which;
+      if (keyCode < 48 || keyCode > 57) {
+        // 46 is dot
+        $event.preventDefault();
+      }
+    },
+    validateSubmit() {
+      let uniqueItems = [
+        ...new Set(this.newTransaction.items.map((item) => item.boxNumber)),
+      ];
+      let itemsValidation = false;
+      for (let j in this.newTransaction.boxLabels) {
+        for (let i in uniqueItems) {
+          if (uniqueItems[i] == this.newTransaction.boxLabels[j].id) {
+            itemsValidation = true;
+            break;
+          } else itemsValidation = false;
+        }
+      }
+      for (let x in this.newTransaction.items)
+        if (this.newTransaction.items[x].quantity == 0) {
+          itemsValidation = false;
+          break;
+        }
+      if (!itemsValidation) {
+        let tooltip = bootstrap.Tooltip.getInstance("#submitBTN");
+        tooltip._config.title = "No items should have a quantity with 0.";
+        tooltip.update();
+      }
+      if (
+        this.newTransaction.company &&
+        this.newTransaction.chainCode &&
+        this.newTransaction.branchName &&
+        this.newTransaction.transactionType &&
+        this.newTransaction.boxLabels.length > 0 &&
+        itemsValidation
+      )
+        this.isDisabledSubmit = false;
+      else this.isDisabledSubmit = true;
+    },
+    editingBoxLabel({ index, value, tempBL }) {
+      if (value) this.newTransaction.boxLabels[index].boxLabel = value;
+      else this.newTransaction.boxLabels[index].boxLabel = tempBL;
+    },
+    enableDropDowns() {
+      if (this.newTransaction.boxLabels.length == 0) {
+        this.isCompany = false;
+        this.isChainCode = false;
+        this.isBranchName = false;
+        this.isTransactionType = false;
+        this.isEditBLDisabled = true;
+        // console.log(this.newTransaction.boxLabels.length);
+      } else this.isEditBLDisabled = false;
+    },
+    showButtons() {
+      if (
+        this.newTransaction.company &&
+        this.newTransaction.chainCode &&
+        this.newTransaction.branchName &&
+        this.newTransaction.transactionType
+      ) {
+        this.isShowButton = true;
+        if (this.newTransaction.boxLabels.length == 0) this.isEditBLDisabled = true;
+        else this.isEditBLDisabled = false;
+      } else this.isShowButton = false;
+    },
     fetchEdit() {
       try {
         const uri = window.location.href;
         var transactionID = uri.split("?")[1];
         var id = transactionID.split("=")[1].split("&")[0];
-        console.log("ID", id);
-        console.log("Company", transactionID.split("=")[2]);
+        // console.log("ID", id);
+        // console.log("Company", transactionID.split("=")[2]);
         var company = transactionID.split("=")[2];
         axiosClient
           .get("/fetchEditDraftBranch", {
@@ -517,15 +713,26 @@ export default {
             },
           })
           .then((response) => {
-            console.log("Edit Branch:", response.data, this.itemss);
+            // console.log("Edit Branch:", response.data, this.itemss);
             this.newTransaction.company = response.data[0].company;
             this.newTransaction.branchName = response.data[0].branchName;
             this.newTransaction.chainCode = response.data[0].chainCode;
             this.newTransaction.transactionType = response.data[0].transactionType;
 
-            if (response.data[0].status == "denied") {
+            if (
+              response.data[0].status == "denied" ||
+              response.data[0].status == "endorsement" ||
+              response.data[0].status == "unprocessed"
+            ) {
               this.isDenied = false;
+              this.isCancel = true;
             }
+
+            if (response.data[0].status == "endorsement") {
+              this.isApproved = true;
+              this.isSubmit = false;
+            }
+
             axiosClient
               .get("/fetchEditDraftItem", {
                 params: {
@@ -534,7 +741,7 @@ export default {
                 },
               })
               .then((response) => {
-                console.log("Edit Item:", response.data);
+                // console.log("Edit Item:", response.data);
                 for (var x = 0; x < response.data.length; x++) {
                   this.newTransaction.items.push(response.data[x]);
                   // console.log("New Items:", this.newTransaction.items);
@@ -555,12 +762,12 @@ export default {
                     });
                   }
                 });
-                console.log("Edit Labels:", this.newTransaction.boxLabels);
+                // console.log("Edit Labels:", this.newTransaction.boxLabels);
 
-                console.log(
-                  "this.newTransaction.transactionType:",
-                  this.newTransaction.transactionType
-                );
+                // console.log(
+                //   "this.newTransaction.transactionType:",
+                //   this.newTransaction.transactionType
+                // );
 
                 if (this.newTransaction.company) {
                   this.isCompany = false;
@@ -583,39 +790,57 @@ export default {
                 }
 
                 if (this.newTransaction.transactionType) {
-                  console.log("Yes", this.isShowButton);
+                  // console.log("Yes", this.isShowButton);
                   this.isCompany = false;
                   this.isChainCode = false;
                   this.isBranchName = false;
                   this.isTransactionType = false;
-                  this.isShowButton = true;
-                  console.log("Yes 2", this.isShowButton);
+                  // this.isShowButton = true;
+                  // console.log("Yes 2", this.isShowButton);
                 }
 
                 if (this.newTransaction.items.length) {
-                  console.log("Disable", this.newTransaction.items.length);
+                  // console.log("Disable", this.newTransaction.items.length);
                   this.isCompany = true;
                   this.isChainCode = true;
                   this.isBranchName = true;
                   this.isTransactionType = true;
-                  this.isShowButton = true;
+                  // this.isShowButton = true;
                 }
               })
               .catch((error) => {
-                console.error(error);
+                // console.error(error);
               });
           })
           .catch((error) => {
-            console.error(error);
+            // console.error(error);
           });
       } catch {
-        console.log("No Edit");
+        // console.log("No Edit");
+        //Fetching Promo Info
+        axiosClient
+          .get("/fetchPromoBranchInfo", {
+            params: {
+              userID: sessionStorage.getItem("UserID"),
+            },
+          })
+          .then((response) => {
+            // console.log("Promo Branch Info:", response.data);
+            this.newTransaction.company = response.data[0].company;
+            this.newTransaction.chainCode = response.data[0].chainCode;
+            this.newTransaction.branchName = response.data[0].branchName;
+          })
+          .catch((error) => {
+            // console.error(error);
+          });
       }
     },
-
+    cancelTransaction() {
+      location.href = "http://192.168.0.7:4040/#/pull-out/requests";
+    },
     updateData(updatedData) {
       // this.newTransaction.boxLabels = updatedData;
-      console.log("das", updatedData);
+      // console.log("das", updatedData);
     },
     openModal(data) {
       this.transferredData = data;
@@ -629,10 +854,11 @@ export default {
     hideButton(itemId) {
       this.hoveredRow = null;
     },
-    removeItem(code, boxLabel) {
-      console.log("New DATAs", code, boxLabel);
+    removeItem(code, boxNumber) {
+      this.validateSubmit();
+      // console.log("New DATAs", code, boxNumber);
       this.newTransaction.items = this.newTransaction.items.filter(
-        (item) => item.code !== code || item.boxLabel !== boxLabel
+        (item) => item.code !== code || item.boxNumber !== boxNumber
       );
 
       this.notifyVue("DeleteItem", "bottom", "right");
@@ -655,7 +881,7 @@ export default {
               },
             }) // Make a GET request to the specified URL
             .then((response) => {
-              console.log("Item Code Response: ", response.data);
+              //console.log("Item Code Response: ", response.data);
               this.itemCodeList = response.data; // Update the 'data' variable with the retrieved data
 
               // // this.itemCodeArray = Object.keys(this.itemCodeList).map((ItemNo) => ({
@@ -676,7 +902,7 @@ export default {
               },
             }) // Make a GET request to the specified URL
             .then((response) => {
-              console.log("Item Code Response: ", response.data);
+              //console.log("Item Code Response: ", response.data);
               this.itemCodeList = response.data; // Update the 'data' variable with the retrieved data
 
               // // this.itemCodeArray = Object.keys(this.itemCodeList).map((ItemNo) => ({
@@ -713,8 +939,9 @@ export default {
           },
         })
         .then((response) => {
-          console.log("Success Item No:", response.data);
-          console.log("Success Item Description", response.data[0].ItemDescription);
+          //console.log("Success Item No:", response.data);
+          //console.log("Success Item Description", response.data[0].ItemDescription);
+          this.newItemCode = response.data[0].ItemNo;
           this.newItemDescription = response.data[0].ItemDescription;
           this.newStyleCode = response.data[0].StyleCode;
           // console.log(
@@ -733,7 +960,7 @@ export default {
               },
             })
             .then((response) => {
-              console.log("Success", response.data);
+              //console.log("Success", response.data);
               this.newBrand = response.data[0].brandNames;
               // console.log("Box Data:", this.boxes);
               // console.log("Box Count:", this.boxes.length);
@@ -744,17 +971,22 @@ export default {
               // this.$refs.Quantity.focus();
             })
             .catch((error) => {
-              console.error(error);
+              //console.error(error);
             });
         })
         .catch((error) => {
           this.missItemCode = 0;
           !this.newItemInput ? true : (this.isRightCode = true);
-          console.log("Not Equal");
-          console.error(error);
+          //console.log("Not Equal");
+          //console.error(error);
         });
     },
-    handleQuantity() {
+    handleQuantity(item) {
+      //console.log("Item Quantity", item.quantity);
+      if (!item.quantity) {
+        //console.log("Empty");
+        item.quantity = 0;
+      }
       this.notifyVue("ItemQuantity", "bottom", "right");
     },
     notifyVue(notify, verticalAlign, horizontalAlign) {
@@ -805,11 +1037,11 @@ export default {
       axiosClient
         .get("/fetchCompany")
         .then((response) => {
-          console.log("Company Response:", response.data);
+          //console.log("Company Response:", response.data);
           this.companyList = response.data;
         })
         .catch((error) => {
-          console.error(error);
+          //console.error(error);
         });
     },
     fetchChainCode() {
@@ -820,11 +1052,11 @@ export default {
           },
         })
         .then((response) => {
-          console.log("Chain Code Response:", response.data);
+          //console.log("Chain Code Response:", response.data);
           this.chainCodeList = response.data;
         })
         .catch((error) => {
-          console.error(error);
+          //console.error(error);
         });
       // this.notifyVue("bottom", "right");
       this.isChainCode = false;
@@ -837,50 +1069,55 @@ export default {
           },
         })
         .then((response) => {
-          console.log("Chain Name Response:", response.data);
+          //console.log("Chain Name Response:", response.data);
           this.branchNameList = response.data;
         })
         .catch((error) => {
-          console.error(error);
+          //console.error(error);
         });
       this.isBranchName = false;
     },
-    addItem(id) {
+    addItem(boxNUMBER) {
       this.isItem = false;
       this.isAddItem = false;
-      this.showItemInput = id;
-      console.log("clicked ID:", this.showItemInput);
+      this.showItemInput = boxNUMBER;
+      //console.log("clicked nUMBER:", this.showItemInput);
     },
-    saveItem(label, boxID) {
+    saveItem(boxNUMBER) {
       this.isNewItem = !this.newItemInput ? true : false;
-      console.log("item", this.newItemInput);
-      console.log("condition", this.isNewItem);
+      //console.log("item", this.newItemInput);
+      //console.log("condition", this.isNewItem);
 
       if (this.isNewItem) {
         this.isRightCode = false;
         return 0;
       }
 
-      console.log(this.newTransaction.items.length);
-      console.log("Items: ", this.newTransaction.items);
+      //console.log(this.newTransaction.items.length);
+      //console.log("Items: ", this.newTransaction.items);
 
-      let str = label.toLowerCase();
+      // let str = label.toLowerCase();
+      //console.log("Item No:", this.newItemCode);
+      //console.log("Item Description:", this.newItemDescription);
+      //console.log("Style Code:", this.newStyleCode);
       axiosClient
         .get("/fetchSameItem", {
           params: {
             company: this.newTransaction.company,
+            ItemCode: this.newItemCode,
             ItemDescription: this.newItemDescription,
             StyleCode: this.newStyleCode,
           },
         })
         .then((response) => {
+          //console.log("Same Item:", response.data);
           for (var x = 0; x < response.data.length; x++) {
             var flag = true;
 
             for (var i = 0; i < this.newTransaction.items.length; i++) {
               if (
                 this.newTransaction.items[i].code == response.data[x].ItemNo &&
-                this.newTransaction.items[i].boxLabel.toLowerCase() == str
+                this.newTransaction.items[i].boxNumber == boxNUMBER
               ) {
                 this.newTransaction.items[i].quantity =
                   parseInt(this.newTransaction.items[x].quantity) + 1;
@@ -891,12 +1128,13 @@ export default {
             if (flag) {
               let tempItem = {
                 code: response.data[x].ItemNo,
-                description:
-                  response.data[x].ItemDescription + "-" + response.data[x].Size,
+                description: response.data[x].ItemDescription,
                 categorybrand: this.newBrand,
-                quantity: 1,
-                boxLabel: label,
-                boxNumber: boxID,
+                quantity: 0,
+                size: response.data[x].Size,
+                color: response.data[x].Color,
+                // boxLabel: label,
+                boxNumber: boxNUMBER,
               };
               this.newTransaction.items.push(tempItem);
             }
@@ -909,10 +1147,10 @@ export default {
           }
         })
         .catch((error) => {
-          console.error(error);
+          //console.error(error);
         });
 
-      console.log("Items: ", this.newTransaction.items);
+      //console.log("Items: ", this.newTransaction.items);
 
       // console.log(this.newListBoxLabel);
     },
@@ -926,6 +1164,7 @@ export default {
     },
     addBoxLabel() {
       this.isBoxLabel = true;
+      this.isEditBLDisabled = true;
     },
     saveBoxLabel() {
       this.isNewBoxLabel = !this.newBoxLabel ? true : false;
@@ -934,12 +1173,13 @@ export default {
         return 0;
       }
       this.isBoxLabel = false;
-      console.log(this.newTransaction.boxLabels.length);
+      //console.log(this.newTransaction.boxLabels.length);
       let tempBoxLabel = [];
 
       if (this.newTransaction.boxLabels.length == 0) {
         tempBoxLabel = {
           id: this.newTransaction.boxLabels.length + 1,
+          boxNumber: this.newTransaction.boxLabels.length + 1,
           boxLabel: this.newBoxLabel,
         };
       } else {
@@ -947,6 +1187,7 @@ export default {
           id:
             this.newTransaction.boxLabels[this.newTransaction.boxLabels.length - 1].id +
             1,
+          boxNumber: this.newTransaction.boxLabels.length + 1,
           boxLabel: this.newBoxLabel,
         };
       }
@@ -976,121 +1217,154 @@ export default {
       this.isBranchName = true;
       this.isTransactionType = true;
       this.notifyVue("AddBoxLabel", "bottom", "right");
+      this.isEditBLDisabled = false;
     },
     cancelBoxLabel() {
       this.isNewBoxLabel = false;
       this.isBoxLabel = false;
       this.newBoxLabel = "";
+      if (this.newTransaction.boxLabels.length == 0) this.isEditBLDisabled = true;
+      else this.isEditBLDisabled = false;
     },
-    submit() {
-      try {
-        const uri = window.location.href;
-        var transactionID = uri.split("?")[1];
-        var id = transactionID.split("=")[1].split("&")[0];
+    submit(confirmation) {
+      if (confirmation)
+        try {
+          const uri = window.location.href;
+          var transactionID = uri.split("?")[1];
+          var id = transactionID.split("=")[1].split("&")[0];
 
-        this.isValid.company = !this.newTransaction.company ? true : false;
-        this.isValid.chainCode = !this.newTransaction.chainCode ? true : false;
-        this.isValid.branchName = !this.newTransaction.branchName ? true : false;
-        this.isValid.transactionType = !this.newTransaction.transactionType
-          ? true
-          : false;
-        this.isValid.boxLabel = !this.newTransaction.boxLabels.length ? true : false;
-        this.isValid.item = !this.newTransaction.items.length ? true : false;
+          this.isValid.company = !this.newTransaction.company ? true : false;
+          this.isValid.chainCode = !this.newTransaction.chainCode ? true : false;
+          this.isValid.branchName = !this.newTransaction.branchName ? true : false;
+          this.isValid.transactionType = !this.newTransaction.transactionType
+            ? true
+            : false;
+          this.isValid.boxLabel = !this.newTransaction.boxLabels.length ? true : false;
+          this.isValid.item = !this.newTransaction.items.length ? true : false;
 
-        console.log("Company: ", this.isValid.company);
+          //console.log("Company: ", this.isValid.company);
 
-        console.log("company", this.newTransaction.company);
-        // alert("Your data: " + JSON.stringify(this.newTransaction));
-        axiosClient
-          .post("/updatePullOutBranchRequest", {
-            id: id,
-            chainCode: this.newTransaction.chainCode,
-            companyType: this.newTransaction.company,
-            branchName: this.newTransaction.branchName,
-            transactionType: this.newTransaction.transactionType,
-            email: sessionStorage.getItem("Email"),
-            status: "unprocessed",
-          })
-          .then((response) => {
-            console.log("Success Branch Save: ", response.data);
-            for (var x = 0; x < this.newTransaction.items.length; x++) {
-              axiosClient
-                .post("/updatePullOutItemRequest", {
-                  plID: id,
-                  companyType: this.newTransaction.company,
-                  brand: this.newTransaction.items[x].categorybrand,
-                  boxNumber: this.newTransaction.items[x].boxNumber,
-                  boxLabel: this.newTransaction.items[x].boxLabel,
-                  itemCode: this.newTransaction.items[x].code,
-                  quantity: this.newTransaction.items[x].quantity,
-                  email: sessionStorage.getItem("Email"),
-                  status: "unprocessed",
-                })
-                .then((response) => {
-                  console.log("Success Items Save: ", response.data);
-                  window.location.href =
-                    "http://192.168.0.7:4040/#/pull-out/requisition-form";
-                })
-                .catch((error) => {
-                  console.error(error);
-                });
-            }
-          })
-          .catch((error) => {
-            console.error(error);
-          });
-      } catch {
-        this.isValid.company = !this.newTransaction.company ? true : false;
-        this.isValid.chainCode = !this.newTransaction.chainCode ? true : false;
-        this.isValid.branchName = !this.newTransaction.branchName ? true : false;
-        this.isValid.transactionType = !this.newTransaction.transactionType
-          ? true
-          : false;
-        this.isValid.boxLabel = !this.newTransaction.boxLabels.length ? true : false;
-        this.isValid.item = !this.newTransaction.items.length ? true : false;
+          //console.log("company", this.newTransaction.company);
+          // alert("Your data: " + JSON.stringify(this.newTransaction));
 
-        console.log("Company: ", this.isValid.company);
+          if (
+            sessionStorage.getItem("Position") == "Agent" ||
+            sessionStorage.getItem("Position") == "Admin"
+          ) {
+            var status = "endorsement";
+          } else if (sessionStorage.getItem("Position") == "Admin") {
+            var status = "approved";
+          } else {
+            var status = "unprocessed";
+          }
+          axiosClient
+            .post("/updatePullOutBranchRequest", {
+              id: id,
+              chainCode: this.newTransaction.chainCode,
+              companyType: this.newTransaction.company,
+              branchName: this.newTransaction.branchName,
+              transactionType: this.newTransaction.transactionType,
+              email: sessionStorage.getItem("Email"),
+              status: status,
+            })
+            .then((response) => {
+              //console.log("Success Branch Save: ", response.data);
+              this.transferTransactionID = id;
 
-        console.log("company", this.newTransaction.company);
-        // alert("Your data: " + JSON.stringify(this.newTransaction));
-        axiosClient
-          .post("/savePullOutBranchRequest", {
-            chainCode: this.newTransaction.chainCode,
-            companyType: this.newTransaction.company,
-            branchName: this.newTransaction.branchName,
-            transactionType: this.newTransaction.transactionType,
-            email: sessionStorage.getItem("Email"),
-            status: "unprocessed",
-          })
-          .then((response) => {
-            console.log("Success Branch Save: ", response.data);
-            this.transferTransactionID = response.data.id;
+              for (var x = 0; x < this.newTransaction.items.length; x++) {
+                let labelBox = "";
+                for (let box of this.newTransaction.boxLabels) {
+                  if (box.id == this.newTransaction.items[x].boxNumber) {
+                    labelBox = box.boxLabel;
+                  }
+                }
+                axiosClient
+                  .post("/updatePullOutItemRequest", {
+                    plID: id,
+                    companyType: this.newTransaction.company,
+                    brand: this.newTransaction.items[x].categorybrand,
+                    boxNumber: this.newTransaction.items[x].boxNumber,
+                    boxLabel: labelBox,
+                    itemCode: this.newTransaction.items[x].code,
+                    quantity: this.newTransaction.items[x].quantity,
+                    email: sessionStorage.getItem("Email"),
+                    status: status,
+                  })
+                  .then((response) => {
+                    //console.log("Success Items Save: ", response.data);
+                    // window.location.href =
+                    //   "http://192.168.0.7:4040/#/pull-out/requisition-form";
+                  })
+                  .catch((error) => {
+                    //console.error(error);
+                  });
+              }
+              const transactionModal = new bootstrap.Modal("#transactionReceipt");
+              transactionModal.show();
+            })
+            .catch((error) => {
+              //console.error(error);
+            });
+        } catch {
+          this.isValid.company = !this.newTransaction.company ? true : false;
+          this.isValid.chainCode = !this.newTransaction.chainCode ? true : false;
+          this.isValid.branchName = !this.newTransaction.branchName ? true : false;
+          this.isValid.transactionType = !this.newTransaction.transactionType
+            ? true
+            : false;
+          this.isValid.boxLabel = !this.newTransaction.boxLabels.length ? true : false;
+          this.isValid.item = !this.newTransaction.items.length ? true : false;
 
-            for (var x = 0; x < this.newTransaction.items.length; x++) {
-              axiosClient
-                .post("/savePullOutItemRequest", {
-                  plID: response.data.id,
-                  companyType: this.newTransaction.company,
-                  brand: this.newTransaction.items[x].categorybrand,
-                  boxNumber: this.newTransaction.items[x].boxNumber,
-                  boxLabel: this.newTransaction.items[x].boxLabel,
-                  itemCode: this.newTransaction.items[x].code,
-                  quantity: this.newTransaction.items[x].quantity,
-                  email: sessionStorage.getItem("Email"),
-                  status: "unprocessed",
-                })
-                .then((response) => {
-                  console.log("Success Items Save: ", response.data);
-                })
-                .catch((error) => {
-                  console.error(error);
-                });
-            }
-          })
-          .catch((error) => {
-            console.error(error);
-          });
-      }
+          //console.log("Company: ", this.isValid.company);
+
+          //console.log("company", this.newTransaction.company);
+          // alert("Your data: " + JSON.stringify(this.newTransaction));
+          axiosClient
+            .post("/savePullOutBranchRequest", {
+              chainCode: this.newTransaction.chainCode,
+              companyType: this.newTransaction.company,
+              branchName: this.newTransaction.branchName,
+              transactionType: this.newTransaction.transactionType,
+              email: sessionStorage.getItem("Email"),
+              status: "unprocessed",
+            })
+            .then((response) => {
+              //console.log("Success Branch Save: ", response.data);
+              this.transferTransactionID = response.data.id;
+
+              for (var x = 0; x < this.newTransaction.items.length; x++) {
+                let labelBox = "";
+                for (let box of this.newTransaction.boxLabels) {
+                  if (box.id == this.newTransaction.items[x].boxNumber) {
+                    labelBox = box.boxLabel;
+                  }
+                }
+                axiosClient
+                  .post("/savePullOutItemRequest", {
+                    plID: response.data.id,
+                    companyType: this.newTransaction.company,
+                    brand: this.newTransaction.items[x].categorybrand,
+                    boxNumber: this.newTransaction.items[x].boxNumber,
+                    boxLabel: labelBox,
+                    itemCode: this.newTransaction.items[x].code,
+                    quantity: this.newTransaction.items[x].quantity,
+                    email: sessionStorage.getItem("Email"),
+                    status: "unprocessed",
+                  })
+                  .then((response) => {
+                    //console.log("Success Items Save: ", response.data);
+                  })
+                  .catch((error) => {
+                    //console.error(error);
+                  });
+              }
+              const transactionModal = new bootstrap.Modal("#transactionReceipt");
+              transactionModal.show();
+            })
+            .catch((error) => {
+              //console.error(error);
+            });
+        }
     },
     draft() {
       try {
@@ -1109,31 +1383,39 @@ export default {
             email: sessionStorage.getItem("Email"),
           })
           .then((response) => {
-            console.log("Success Branch Save: ", response.data);
-            console.log("Items Length:", this.newTransaction.items.length);
+            //console.log("Success Branch Save: ", response.data);
+            //console.log("Items Length:", this.newTransaction.items.length);
             for (var x = 0; x < this.newTransaction.items.length; x++) {
+              let labelBox = "";
+              for (let box of this.newTransaction.boxLabels) {
+                if (box.id == this.newTransaction.items[x].boxNumber) {
+                  labelBox = box.boxLabel;
+                }
+              }
               axiosClient
                 .post("/updatePullOutItemRequest", {
                   plID: id,
                   companyType: this.newTransaction.company,
                   brand: this.newTransaction.items[x].categorybrand,
                   boxNumber: this.newTransaction.items[x].boxNumber,
-                  boxLabel: this.newTransaction.items[x].boxLabel,
+                  boxLabel: labelBox,
                   itemCode: this.newTransaction.items[x].code,
                   quantity: this.newTransaction.items[x].quantity,
                   status: "draft",
                   email: sessionStorage.getItem("Email"),
                 })
                 .then((response) => {
-                  console.log("Success Items Save: ", response.data);
+                  //console.log("Success Items Save: ", response.data);
                 })
                 .catch((error) => {
-                  console.error(error);
+                  //console.error(error);
                 });
             }
+            const draftModal = new bootstrap.Modal("#draftModal");
+            draftModal.show();
           })
           .catch((error) => {
-            console.error(error);
+            //console.error(error);
           });
       } catch {
         axiosClient
@@ -1146,48 +1428,58 @@ export default {
             email: sessionStorage.getItem("Email"),
           })
           .then((response) => {
-            console.log("Success Branch Save: ", response.data);
+            //console.log("Success Branch Save: ", response.data);
 
             for (var x = 0; x < this.newTransaction.items.length; x++) {
+              let labelBox = "";
+              for (let box of this.newTransaction.boxLabels) {
+                if (box.id == this.newTransaction.items[x].boxNumber) {
+                  labelBox = box.boxLabel;
+                }
+              }
               axiosClient
                 .post("/savePullOutItemRequest", {
                   plID: response.data.id,
                   companyType: this.newTransaction.company,
                   brand: this.newTransaction.items[x].categorybrand,
                   boxNumber: this.newTransaction.items[x].boxNumber,
-                  boxLabel: this.newTransaction.items[x].boxLabel,
+                  boxLabel: labelBox,
                   itemCode: this.newTransaction.items[x].code,
                   quantity: this.newTransaction.items[x].quantity,
                   status: "draft",
                   email: sessionStorage.getItem("Email"),
                 })
                 .then((response) => {
-                  console.log("Success Items Save: ", response.data);
+                  //console.log("Success Items Save: ", response.data);
                 })
                 .catch((error) => {
-                  console.error(error);
+                  //console.error(error);
                 });
             }
+            const draftModal = new bootstrap.Modal("#draftModal");
+            draftModal.show();
           })
           .catch((error) => {
-            console.error(error);
+            //console.error(error);
           });
       }
     },
-    editBoxLabel(code, quantity, boxLabel) {
-      console.log(
-        "Item Code Edit:",
-        code,
-        " Quantity:",
-        quantity,
-        " Box Label",
-        boxLabel
-      );
+    editBoxLabel(code, quantity, boxNumber) {
+      this.validateSubmit();
+      //console.log(
+      //   "Item Code Edit:",
+      //   code,
+      //   " Quantity:",
+      //   quantity,
+      //   " Box Number",
+      //   boxNumber
+      // );
+      //console.log(" == : ", this.newTransaction.items);
       var filteredItems = this.newTransaction.items.filter(
-        (item) => item.code === code && item.boxLabel === boxLabel
+        (item) => item.code === code && item.boxNumber === boxNumber
       );
 
-      console.log("Filtered Items: ", filteredItems);
+      //console.log("Filtered Items: ", filteredItems);
       var uniqueItems = [];
       filteredItems.forEach((item) => {
         var existingItem = uniqueItems.find(
@@ -1200,13 +1492,13 @@ export default {
         }
       });
       // The uniqueItems array will contain unique items based on itemCode, with quantities added up.
-      console.log("Unique Items: 1", uniqueItems);
-      console.log("Unique Items: Code", uniqueItems[0].code);
-      console.log("Unique Items: Box Label", uniqueItems[0].boxLabel);
+      //console.log("Unique Items: 1", uniqueItems);
+      //console.log("Unique Items: Code", uniqueItems[0].code);
+      //console.log("Unique Items: Box Number", uniqueItems[0].boxNumber);
 
       this.newTransaction.items = this.newTransaction.items.filter(
         (item) =>
-          item.code !== uniqueItems[0].code || item.boxLabel !== uniqueItems[0].boxLabel
+          item.code !== uniqueItems[0].code || item.boxNumber !== uniqueItems[0].boxNumber
       );
       this.newTransaction.items.push(uniqueItems[0]);
       this.notifyVue("ChangeBoxLabel", "bottom", "right");

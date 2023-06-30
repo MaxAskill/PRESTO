@@ -40,6 +40,7 @@
     <div class="row mx-2">
       <el-table class="table-striped" :data="queriedData" border style="width: 100%">
         <el-table-column
+          class="el-table-mod"
           v-for="column in tableColumns"
           :key="column.label"
           :min-width="column.minWidth"
@@ -47,7 +48,11 @@
           :label="column.label"
         >
         </el-table-column>
-        <el-table-column :width="120" class-name="td-actions" label="Details">
+        <el-table-column
+          :width="120"
+          class-name="td-actions el-table-mod"
+          label="Details"
+        >
           <template slot-scope="props">
             <p-button
               type="info"
@@ -61,7 +66,7 @@
             </p-button>
           </template>
         </el-table-column>
-        <el-table-column :width="120" class-name="td-actions" label="Check">
+        <el-table-column :width="120" class-name="td-actions" label="Check Box">
           <template slot-scope="props">
             <p-checkbox
               @click="clickExport"
@@ -241,9 +246,7 @@ export default {
           },
         })
         .then((response) => {
-          console.log("Selected Item Request", response.data);
           this.excelBranch = response.data;
-          console.log("Selected items:", this.excelBranch);
           dataArray = this.excelBranch.map((obj) => [
             obj.branchName,
             obj.brand,
@@ -254,14 +257,12 @@ export default {
             obj.date,
             obj.time,
           ]);
-          console.log("sda", dataArray);
 
           const currentDate = new Date();
           const options = { year: "numeric", month: "2-digit", day: "2-digit" };
           const currentDateString = currentDate
             .toLocaleDateString("en-PH", options)
             .replace(/\//g, "-");
-          console.log(currentDateString);
 
           dataArray = [this.headerRow, ...dataArray];
           const workbook = XLSX.utils.book_new();
@@ -285,7 +286,6 @@ export default {
     },
     openModal(data) {
       this.transferredData = data;
-      console.log("Branch Data: ", this.transferredData.plID);
       axiosClient
         .get("/fetchPullOutRequestItem", {
           params: {
@@ -294,8 +294,8 @@ export default {
           },
         })
         .then((response) => {
-          console.log("Success Item Response:", response.data);
-          this.itemData = response.data;
+          // console.log("Success Item Response:", response.data);
+          this.itemData = response.data[0];
         })
         .catch((error) => {
           console.error(error);
@@ -312,7 +312,7 @@ export default {
           },
         })
         .then((response) => {
-          console.log("Pull Out Request", response.data);
+          console.log("Pull Out Request Denied", response.data);
           this.tableData = response.data;
         })
         .catch((error) => {
@@ -340,5 +340,9 @@ export default {
 }
 .btn-margin {
   margin: 0px 0px;
+}
+.el-table-mod {
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
 }
 </style>

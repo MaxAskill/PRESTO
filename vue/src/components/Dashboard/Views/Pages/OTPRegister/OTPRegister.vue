@@ -53,9 +53,6 @@ export default {
       document.body.classList.remove("off-canvas-sidebar");
     },
     verify() {
-      console.log("HashCode:", sessionStorage.getItem("HashCode"));
-      console.log("OTP:", this.OTP);
-
       axiosClient
         .get("/confirmCode", {
           params: {
@@ -74,7 +71,6 @@ export default {
               company: sessionStorage.getItem("Company"),
             })
             .then((response) => {
-              console.log(response.data);
               sessionStorage.clear();
               this.$router.push({ name: "Login" });
             })

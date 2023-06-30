@@ -129,8 +129,6 @@ export default {
   },
   methods: {
     submit() {
-      console.log("Submit:", this.company);
-
       axiosClient
         .post("/addNewBranch", {
           branchCode: this.newBranch.branchCode,
@@ -141,7 +139,7 @@ export default {
           company: this.company,
         })
         .then((response) => {
-          console.log("Response:", response.data);
+          // console.log("Response:", response.data);
           setTimeout(() => {
             window.location.reload();
           }, 3000); // Reload after 3 seconds
@@ -163,7 +161,6 @@ export default {
           },
         })
         .then((response) => {
-          console.log("Success Chain Code Response:", response.data);
           this.chainCodeList = response.data;
         })
         .catch((error) => {
@@ -172,7 +169,6 @@ export default {
       axiosClient
         .get("/fetchCompany")
         .then((response) => {
-          console.log("Success Company List Response:", response.data);
           this.companyList = response.data;
         })
         .catch((error) => {
