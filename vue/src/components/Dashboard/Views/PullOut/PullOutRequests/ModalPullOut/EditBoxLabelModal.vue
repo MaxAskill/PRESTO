@@ -37,7 +37,8 @@
                     <el-select
                       class="table-select-box"
                       size="large"
-                      @focus="listBoxNumber(index)"
+                      :key="index"
+                      @focus.capture="listBoxNumber(index)"
                       @change="saveBoxNumber(index)"
                       v-model="boxLabel.boxNumber"
                     >
@@ -150,6 +151,7 @@ export default {
   methods: {
     saveBoxNumber(index) {
       const origItems = [];
+      const selectedItems = [];
       for (let key in this.transferredData.boxLabels) {
         if (this.transferredData.boxLabels.hasOwnProperty(key)) {
           // console.log("Box Label", this.transferredData.boxLabels[key].id);
@@ -159,36 +161,51 @@ export default {
             this.transferredData.boxLabels[index].boxNumber ===
             this.transferredData.boxLabels[key].boxNumber
           ) {
-            // console.log(index, key, "same", this.transferredData.boxLabels[key]);
             if (index != key) {
-              // console.log("NOT SAME ID");
-
               for (let ikey in this.transferredData.items) {
                 //loop for items
                 if (this.transferredData.items.hasOwnProperty(ikey)) {
                   //checking if the key still existed
+                  console.log("same: ", this.transferredData.boxLabels[key].boxNumber); //new value
                   if (
                     this.transferredData.items[ikey].boxNumber ===
                     this.transferredData.boxLabels[key].boxNumber
                   ) {
-                    origItems.push(this.transferredData.items[ikey]);
-                    //check if the box number of each item is same with previous box number of the selected/changed box number
-                    // this.transferredData.items[
-                    //   ikey
-                    // ].boxNumber = this.transferredData.boxLabels[key].boxNumber; //transferring the boxnumber to the items inside the selected box
-                    // console.log("boxnumber", this.transferredData.items[ikey].boxNumber);
-                    // console.log("Items", this.transferredData.items[ikey]);
+                    this.transferredData.items[
+                      ikey
+                    ].boxNumber = this.transferredData.boxLabels[key].boxNumber;
+                    origItems.push(ikey); //where the items from original item
                   }
                 }
               }
+              for (let ikey in this.transferredData.items) {
+                //loop for items
+                if (this.transferredData.items.hasOwnProperty(ikey)) {
+                  //checking if the key still existed
+                  console.log("same: ", this.transferredData.boxLabels[key].boxNumber); //new value
+                  if (
+                    this.transferredData.items[ikey].boxNumber === this.selectedBoxLabel
+                  ) {
+                    this.transferredData.items[
+                      ikey
+                    ].boxNumber = this.transferredData.boxLabels[key].boxNumber;
+                    selectedItems.push(ikey); //where the items from selected item
+                  }
+                }
+              }
+              this.transferredData.boxLabels[key].boxNumber = this.selectedBoxLabel; // transferring the box number of the selected box to original box
 
-              this.transferredData.boxLabels[key].boxNumber = this.selectedBoxLabel; //transfer the boxnumber of the selected box to the original box
+              break;
             }
+
+            console.log("same: ", index, key, this.selectedBoxLabel);
+            //
           }
         }
       }
 
       console.log("Original Items: ", origItems);
+      console.log("Selected Items: ", selectedItems);
 
       // for (let key in this.transferredData.items) {
       //   //loop for items
@@ -207,6 +224,7 @@ export default {
     },
     listBoxNumber(index) {
       // console.log("Select input box focused", this.transferredData.boxLabels[index]);
+      console.log("Select input box focused", index);
       this.selectedBoxLabel = this.transferredData.boxLabels[index].boxNumber;
       this.numberBoxLabel = [];
       this.transferredData.boxLabels.forEach((obj) => {
