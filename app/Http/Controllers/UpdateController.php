@@ -232,4 +232,13 @@ class UpdateController extends Controller
 
         return response()->json($item);
     }
+
+    public function updateUserBranch(Request $request){
+        if($request->status == "Deactivated")
+            DB::select("UPDATE users SET status = 'Inactive' WHERE id = \"".$request->userID."\"");
+        else
+            DB::select("UPDATE users SET status = 'Active' WHERE id = \"".$request->userID."\"");
+        
+        DB::select("UPDATE userbranchmaintenance SET status = \"".$request->status."\" WHERE userID = \"".$request->userID."\"");
+    }
 }

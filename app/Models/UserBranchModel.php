@@ -17,7 +17,8 @@ class UserBranchModel extends Model
         'company',
         'chainCode',
         'branchName',
-        'created_date'
+        'created_date',
+        'status'
 
     ];
 }

@@ -107,7 +107,7 @@
               </div> -->
         </div>
         <div class="modal-footer d-flex justify-content-center">
-          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-secondary" data-bs-dismiss="modal" @click="cancel">Cancel</button>
           <button
             :disabled="enableBtn"
             type="button"
@@ -243,6 +243,7 @@ export default {
         })
         .then((response) => {
           console.log("Success Activate Account", response.data);
+          this.$emit("fetchUsers");
         })
         .catch((error) => {
           console.error(error);
@@ -284,6 +285,11 @@ export default {
         this.enableBtn = true;
       }
     },
+    cancel(){
+      this.form.company = "",
+      this.form.chainCode = "",
+      this.form.branchName = ""
+    }
   },
 };
 </script>

@@ -611,6 +611,7 @@ class PostController extends Controller
         $promo->chainCode = $request->chainCode;
         $promo->branchName = $request->branchName;
         $promo->created_date = $date;
+        $promo->status = 'Activated';
 
 
         $promo->save();

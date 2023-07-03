@@ -48,15 +48,28 @@
           </el-table-column>
           <el-table-column :min-width="80" class-name="td-actions" label="Status">
             <template slot-scope="props">
-              <!-- <p-button
+              <p-button
                 v-if="props.row.status === 'Activated'"
                 type="success"
                 size="sm"
+                data-bs-toggle="modal"
+                data-bs-target="#promoDeactivationModal"
                 @click="handleEdit(props.$index, props.row)"
               >
                 Activated
-              </p-button> -->
+              </p-button>
               <p-button
+                v-else-if="props.row.status === 'Deactivated'"
+                type="warning"
+                size="sm"
+                data-bs-toggle="modal"
+                data-bs-target="#promoReactivationModal"
+                @click="handleEdit(props.$index, props.row)"
+              >
+                Deactivated
+              </p-button>
+              <p-button
+                v-else
                 type="info"
                 size="sm"
                 data-bs-toggle="modal"
@@ -65,14 +78,6 @@
               >
                 New Account
               </p-button>
-              <!-- <p-button
-                v-else-if="props.row.status === 'Deactivated'"
-                type="warning"
-                size="sm"
-                @click="handleEdit(props.$index, props.row)"
-              >
-                New Account
-              </p-button> -->
             </template>
           </el-table-column>
         </el-table>
@@ -92,7 +97,9 @@
         </p-pagination>
       </div>
     </div>
-    <PromoActivation :promoData="promoData"> </PromoActivation>
+    <PromoActivation :promoData="promoData" @fetchUsers="fetchData"> </PromoActivation>
+    <PromoDeactivationModal :promoData="promoData" @fetchUsers="fetchData"></PromoDeactivationModal>
+    <PromoReactivationModal :promoData="promoData" @fetchUsers="fetchData"></PromoReactivationModal>
   </div>
 </template>
 <script>
@@ -113,6 +120,8 @@ import axiosClient from "../../../../axios";
 import linkName from "../../../../linkName";
 
 import PromoActivation from "./PromoActivation.vue";
+import PromoDeactivationModal from "./PromoDeactivationModal.vue"
+import PromoReactivationModal from "./PromoReactivationModal.vue";
 
 Vue.use(Table);
 Vue.use(TableColumn);
@@ -124,6 +133,8 @@ export default {
     PButton,
     PPagination,
     PromoActivation,
+    PromoDeactivationModal,
+    PromoReactivationModal
   },
   mounted() {
     this.fetchData();
@@ -242,34 +253,8 @@ export default {
         });
     },
     handleEdit(index, row) {
-      var tempStatus = "";
-      if (row.status === "Activated") {
-        row.status = "Deactivated";
-        tempStatus = "Deactivated";
-      } else if (row.status === "New Account") {
-        row.status = "Activated";
-        tempStatus = "Activated";
-      }
-
       this.promoData = row;
       console.log("Promo Data:", this.promoData);
-      // let promoActivationModal = new bootstrap.Modal("#promoActivation");
-      // promoActivationModal.show();
-
-      // axiosClient
-      //   .post("/updateBranch", {
-      //     company: this.company,
-      //     id: row.id,
-      //     status: tempStatus,
-      //     userID: sessionStorage.getItem("UserID"),
-      //   })
-      //   .then((response) => {
-      //     console.log("Success Update Branch:", response.data);
-      //   })
-      //   .catch((error) => {
-      //     console.error(error);
-      //   });
-      // alert(`Your want to edit ${row.status}`);
     },
     handleDelete(index, row) {
       let indexToDelete = this.tableData.findIndex((tableRow) => tableRow.id === row.id);

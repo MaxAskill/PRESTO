@@ -653,13 +653,11 @@ export default {
       for (let x in this.newTransaction.items)
         if (this.newTransaction.items[x].quantity == 0) {
           itemsValidation = false;
+          let tooltip = bootstrap.Tooltip.getInstance("#submitBTN");
+          tooltip._config.title = "No items should have a quantity with 0.";
+          tooltip.update();
           break;
         }
-      if (!itemsValidation) {
-        let tooltip = bootstrap.Tooltip.getInstance("#submitBTN");
-        tooltip._config.title = "No items should have a quantity with 0.";
-        tooltip.update();
-      }
       if (
         this.newTransaction.company &&
         this.newTransaction.chainCode &&

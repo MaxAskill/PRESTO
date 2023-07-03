@@ -98,6 +98,7 @@ Route::get('/users',[FetchController::class, 'users']);
     Route::post('/savePullOutItemRequest', [PostController::class, 'savePullOutItemRequest']);
     Route::post('/updatePullOutBranchRequest', [UpdateController::class, 'updatePullOutBranchRequest']);
     Route::post('/updatePullOutItemRequest', [UpdateController::class, 'updatePullOutItemRequest']);
+    Route::post('/updateUserBranch', [UpdateController::class, 'updateUserBranch']);
 
     Route::post('/sendDeniedBranch', [PostController::class, 'sendDeniedBranch']);
 

@@ -783,7 +783,7 @@ class FetchController extends Controller
 
         $data = DB::table('users as a')
                     ->leftJoin('userBranchMaintenance as b', 'a.id', '=', 'b.userID')
-                    ->select('a.id', 'a.name', 'email', 'b.company', 'chainCode', 'branchName', DB::raw('CONCAT(MONTHNAME(a.created_at), " ", DATE_FORMAT(a.created_at, "%d, %Y")) as date'))
+                    ->select('a.id', 'a.name', 'email', 'b.company', 'chainCode', 'branchName', 'b.status', DB::raw('CONCAT(MONTHNAME(a.created_at), " ", DATE_FORMAT(a.created_at, "%d, %Y")) as date'))
                     ->where('position', 'User')
                     ->get();
 
@@ -792,6 +792,7 @@ class FetchController extends Controller
                 $item->chainCode = 'N/A';
                 $item->branchName = 'N/A';
                 $item->company = 'N/A';
+                $item->status = 'New Account';
             }
         }
         return response()->json($data);
