@@ -18,7 +18,7 @@
         <div class="text-center modal-body px-4">
           <fg-input
             v-model="promoData.name"
-            disabled
+            aria-readonly="true"
             addon-left-icon="nc-icon nc-single-02"
             placeholder="Full Name"
           ></fg-input>
@@ -55,7 +55,7 @@
           <div class="input-group d-flex">
             <div class="input-group-prepend">
               <span class="input-group-text">
-                <i class="nc-icon nc-bank"></i>
+                <i class="nc-icon nc-basket"></i>
               </span>
             </div>
             <el-select
@@ -80,7 +80,7 @@
           <div class="input-group d-flex">
             <div class="input-group-prepend">
               <span class="input-group-text">
-                <i class="nc-icon nc-bank"></i>
+                <i class="nc-icon nc-shop"></i>
               </span>
             </div>
             <el-select
@@ -101,13 +101,25 @@
               </el-option>
             </el-select>
           </div>
+          <div class="row">
+            <fg-input label="Date End Promo">
+              <el-date-picker
+                v-model="form.dateEnd"
+                type="date"
+                placeholder="Select a Day"
+              >
+              </el-date-picker>
+            </fg-input>
+          </div>
 
           <!-- <div class="card-footer my-2">
                 <p-button native-type="submit" type="info" round>Register </p-button>
               </div> -->
         </div>
         <div class="modal-footer d-flex justify-content-center">
-          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-secondary" data-bs-dismiss="modal" @click="cancel">
+            Cancel
+          </button>
           <button
             :disabled="enableBtn"
             type="button"
@@ -124,9 +136,11 @@
 </template>
 <script>
 import { Card, Checkbox, Button, InfoSection } from "src/components/UIComponents";
-import { Select, Option } from "element-ui";
+import { DatePicker, Select, Option } from "element-ui";
 import axiosClient from "../../../../axios";
+import Vue from "vue";
 
+Vue.use(DatePicker);
 export default {
   props: ["promoData"],
   components: {
@@ -144,6 +158,7 @@ export default {
         chainCode: "",
         branchName: "",
         position: "",
+        dateEnd: "",
       },
       companyList: "",
       disableChainCode: true,
@@ -240,9 +255,11 @@ export default {
           branchName: this.form.branchName,
           user: sessionStorage.getItem("UserID"),
           company: this.form.company,
+          dateEnd: this.form.dateEnd,
         })
         .then((response) => {
           console.log("Success Activate Account", response.data);
+          this.$emit("fetchUsers");
         })
         .catch((error) => {
           console.error(error);
@@ -283,6 +300,9 @@ export default {
       else {
         this.enableBtn = true;
       }
+    },
+    cancel() {
+      (this.form.company = ""), (this.form.chainCode = ""), (this.form.branchName = "");
     },
   },
 };

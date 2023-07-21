@@ -1,5 +1,21 @@
 export default [
   {
+    name: 'UserPromo',
+    access: 'All',
+    children: [
+      {
+        name: 'My Profile',
+        path: '/user-promo/profile',
+        access: 'User'
+      },
+      {
+        name: 'Logout',
+        path: '/logout',
+        access: 'All'
+      }
+    ]
+  },
+  {
     name: 'Dashboard',
     icon: 'nc-icon nc-bank',
     path: '/admin/overview',
@@ -126,7 +142,7 @@ export default [
       access: 'User'
     },
     {
-      name: 'Pull-Out Draft',
+      name: 'Pull-Out Draft Documents',
       path: '/pull-out/requisition-draft',
       access: 'User'
     },
@@ -163,6 +179,24 @@ export default [
       access: 'Admin'
     },
     ]
+  },
+  {
+    name: 'Timekeeping System',
+    icon: 'nc-icon nc-time-alarm',
+    path: '/admin/timekeeping',
+    access: 'Admin'
+  },
+  {
+    name: 'Repeat Orders',
+    icon: 'nc-icon nc-box-2',
+    path: '/admin/repeat-orders',
+    access: 'Admin'
+  },
+  {
+    name: 'Sales Report (DSR)',
+    icon: 'nc-icon nc-paper',
+    path: '/admin/sales-report',
+    access: 'Admin'
   },
   {
     name: 'Maps',

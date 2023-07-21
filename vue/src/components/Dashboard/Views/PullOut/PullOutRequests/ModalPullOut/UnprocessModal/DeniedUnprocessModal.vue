@@ -17,7 +17,22 @@
         </div>
         <div class="modal-body">
           <div class="">
-            <!-- <fg-input label="Reason" placeholder="Reason" v-model="reason"></fg-input> -->
+            <input
+              type="text"
+              placeholder="Reason"
+              v-model="reason"
+              list="reasonsList"
+              class="input-datalist w-100"
+            />
+
+            <datalist id="reasonsList">
+              <option
+                v-for="reasonLabel in reasonLabelList"
+                :value="reasonLabel.reasonLabel"
+                :key="reasonLabel.id"
+              ></option>
+            </datalist>
+            <!-- <fg-input label="Reason" placeholder="Reason" v-model="reason"></fg-input>
             <el-select class="denied-select-box" size="large" v-model="reason">
               <el-option
                 v-for="reasonLabel in reasonLabelList"
@@ -27,7 +42,7 @@
                 :key="reasonLabel.id"
               >
               </el-option>
-            </el-select>
+            </el-select> -->
           </div>
         </div>
         <div class="modal-footer px-5">
@@ -42,11 +57,11 @@
           <button
             :disabled="isDisabled"
             type="button"
-            class="btn btn-primary"
+            class="btn btn-danger"
             data-bs-dismiss="modal"
             @click="submit"
           >
-            Send
+            Denied
           </button>
         </div>
       </div>
@@ -98,7 +113,11 @@ export default {
     },
     fetchData() {
       axiosClient
-        .get("/fetchReasonLabel")
+        .get("/fetchReasonLabel", {
+          params: {
+            company: sessionStorage.getItem("Company"),
+          },
+        })
         .then((response) => {
           this.reasonLabelList = response.data;
         })
@@ -117,7 +136,7 @@ export default {
           reason: this.reason,
         })
         .then((response) => {
-          // console.log("Success Denied", response.data);
+          console.log("Success Denied", response.data);
           setTimeout(() => {
             window.location.reload();
           }, 3000); // Reload after 3 seconds
@@ -152,5 +171,10 @@ export default {
   color: #ffffff !important;
   border: 5px solid transparent !important;
   background-color: #5c5c58 !important;
+}
+
+.input-datalist {
+  padding: 10px;
+  border-radius: 5px;
 }
 </style>

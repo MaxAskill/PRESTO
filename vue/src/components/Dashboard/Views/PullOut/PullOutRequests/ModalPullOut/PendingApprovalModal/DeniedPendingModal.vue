@@ -42,11 +42,11 @@
           <button
             :disabled="isDisabled"
             type="button"
-            class="btn btn-primary"
+            class="btn btn-danger"
             data-bs-dismiss="modal"
             @click="submit"
           >
-            Send
+            Denied
           </button>
         </div>
       </div>

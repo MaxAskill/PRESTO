@@ -163,22 +163,22 @@ export default {
         {
           prop: "Department",
           label: "Department",
-          minWidth: 70,
+          minWidth: 60,
         },
         {
           prop: "SubDepartment",
           label: "Sub-Department",
-          minWidth: 70,
+          minWidth: 80,
         },
         {
           prop: "Category",
           label: "Category",
-          minWidth: 70,
+          minWidth: 50,
         },
         {
           prop: "SubCategory",
           label: "Sub-Category",
-          minWidth: 70,
+          minWidth: 90,
         },
       ],
       tableData: [],

@@ -1,5 +1,5 @@
 <template>
-  <div class="row">
+  <div class="row card-maintenance">
     <div class="col-lg-12">
       <card>
         <!-- <h4 class="title">Maintenance</h4> -->
@@ -64,3 +64,9 @@ export default {
   },
 };
 </script>
+
+<style>
+.card-maintenance {
+  margin-top: 100px;
+}
+</style>

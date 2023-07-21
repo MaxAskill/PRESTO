@@ -9,14 +9,7 @@
 <script>
 import linkName from "../../../linkName";
 export default {
-  props: {
-    headerName: {
-      type: String,
-      deafult() {
-        return "";
-      },
-    },
-  },
+  props: ["headerName"],
   watch: {
     $route: function (from, to) {
       new Promise((resolve) => {

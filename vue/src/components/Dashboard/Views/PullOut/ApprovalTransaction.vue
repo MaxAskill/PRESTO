@@ -2,38 +2,12 @@
   <div class="card">
     <div class="card-body margin-body">
       <div class="row">
-        <div class="col-sm-3">
+        <div class="col-sm-2">
           <div class="form-group">
             <label class="font-weight-bold label-size">Transaction Number</label>
             <textarea rows="1" readonly class="form-control control-form">1002</textarea>
           </div>
         </div>
-        <div class="col-sm-3">
-          <div class="form-group">
-            <label class="font-weight-bold label-size">Created By</label>
-            <textarea rows="1" readonly class="form-control control-form">
-Roland Alavera
-            </textarea>
-          </div>
-        </div>
-        <div class="col-sm-3">
-          <div class="form-group">
-            <label class="font-weight-bold label-size">Creation Date</label>
-            <textarea rows="1" readonly class="form-control control-form">
-July 02, 2023</textarea
-            >
-          </div>
-        </div>
-        <div class="col-sm-3">
-          <div class="form-group">
-            <label class="font-weight-bold label-size">Reviewed By</label>
-            <textarea rows="1" readonly class="form-control control-form">
-Melvin Perez</textarea
-            >
-          </div>
-        </div>
-      </div>
-      <div class="row">
         <div class="col-sm-3">
           <div class="form-group">
             <label class="font-weight-bold label-size">Company</label>
@@ -42,7 +16,7 @@ New Barbizon Fashion Incorporated (NBFI) </textarea
             >
           </div>
         </div>
-        <div class="col-sm-3">
+        <div class="col-sm-2">
           <div class="form-group">
             <label class="font-weight-bold label-size">Chain Code</label>
             <textarea rows="1" readonly class="form-control control-form">
@@ -58,11 +32,76 @@ All Home Bataan </textarea
             >
           </div>
         </div>
-        <div class="col-sm-3">
+        <div class="col-sm-2">
           <div class="form-group">
             <label class="font-weight-bold label-size">Transaction Type</label>
             <textarea rows="1" readonly class="form-control control-form">
 Store Transfer </textarea
+            >
+          </div>
+        </div>
+        <!-- <div class="col-sm-3">
+          <div class="form-group">
+            <label class="font-weight-bold label-size">Created By</label>
+            <textarea rows="1" readonly class="form-control control-form">
+Roland Alavera
+            </textarea>
+          </div>
+        </div> -->
+      </div>
+      <div class="row">
+        <div class="col-sm-2">
+          <div class="form-group">
+            <label class="font-weight-bold label-size">Creation Date</label>
+            <textarea rows="1" readonly class="form-control control-form">
+July 02, 2023</textarea
+            >
+          </div>
+        </div>
+
+        <div class="col-sm-4 row">
+          <div class="col-sm-6">
+            <div class="form-group">
+              <label class="font-weight-bold label-size">Reviewed Date</label>
+              <textarea rows="1" readonly class="form-control control-form">
+July 02, 2023</textarea
+              >
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="form-group">
+              <label class="font-weight-bold label-size">Reviewed By</label>
+              <textarea rows="1" readonly class="form-control control-form">
+Melvin Perez</textarea
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-4 row">
+          <div class="col-sm-6">
+            <div class="form-group">
+              <label class="font-weight-bold label-size">Approved Date</label>
+              <textarea rows="1" readonly class="form-control control-form">
+July 02, 2023</textarea
+              >
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="form-group">
+              <label class="font-weight-bold label-size">Approved By</label>
+              <textarea rows="1" readonly class="form-control control-form">
+Melvin Perez</textarea
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-2">
+          <div class="form-group">
+            <label class="font-weight-bold label-size">Status</label>
+            <textarea rows="1" readonly class="form-control control-form">
+Melvin Perez</textarea
             >
           </div>
         </div>
@@ -84,43 +123,24 @@ Store Transfer </textarea
           >
           </el-table-column>
         </el-table>
-      </div>
-      <div class="d-flex justify-content-end pagination-info">
-        <p class="category p-margin">
-          Showing {{ from + 1 }} to {{ to }} of {{ total }} entries
-        </p>
-      </div>
-      <div class="d-flex justify-content-center">
-        <p-pagination
-          class="pull-center"
-          v-model="pagination.currentPage"
-          :per-page="pagination.perPage"
-          :total="pagination.total"
-        >
-        </p-pagination>
+        <div class="d-flex justify-content-end pagination-info">
+          <p class="category p-margin">
+            Showing {{ from + 1 }} to {{ to }} of {{ total }} entries
+          </p>
+        </div>
+        <div class="d-flex justify-content-center">
+          <p-pagination
+            class="pull-center"
+            v-model="pagination.currentPage"
+            :per-page="pagination.perPage"
+            :total="pagination.total"
+          >
+          </p-pagination>
+        </div>
       </div>
 
       <div class="row">
-        <div class="col-sm-4">
-          <div class="form-group">
-            <label class="font-weight-bold label-size">Total Number of Box</label>
-            <textarea rows="1" readonly class="form-control control-form">2</textarea>
-          </div>
-        </div>
-        <div class="col-sm-4">
-          <div class="form-group">
-            <label class="font-weight-bold label-size">Total Number of Item</label>
-            <textarea rows="1" readonly class="form-control control-form">9</textarea>
-          </div>
-        </div>
-        <div class="col-sm-4">
-          <div class="form-group">
-            <label class="font-weight-bold label-size">Total Amount</label>
-            <textarea rows="1" readonly class="form-control control-form">
-P 1,100.00</textarea
-            >
-          </div>
-        </div>
+        <label class="font-weight-bold label-size">Photo:</label>
       </div>
 
       <div class="text-center">
@@ -287,11 +307,19 @@ export default {
   methods: {
     denied(row) {
       console.log("Company", row);
-      location.href =
-        "http://192.168.0.7:4040/#/pull-out/requisition-form?transactionID=" +
-        row.plID +
-        "&company=" +
-        row.company;
+      // location.href =
+      //   "http://192.168.0.7:4040/#/pull-out/requisition-form?transactionID=" +
+      //   row.plID +
+      //   "&company=" +
+      //   row.company;
+
+      this.$router.push({
+        path: "/pull-out/requisition-form",
+        query: {
+          transactionID: row.plID,
+          company: row.company,
+        },
+      });
     },
     fetchData() {
       axiosClient

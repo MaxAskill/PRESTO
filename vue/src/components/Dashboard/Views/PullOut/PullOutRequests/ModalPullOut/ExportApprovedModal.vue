@@ -19,7 +19,7 @@
           <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
           <button
             type="button"
-            class="btn btn-primary"
+            class="btn btn-success"
             data-bs-dismiss="modal"
             @click="exportTransfer(true)"
           >
@@ -28,7 +28,7 @@
           <button
             :disabled="disableBtn"
             type="button"
-            class="btn btn-info"
+            class="btn btn-success"
             data-bs-dismiss="modal"
             @click="exportTransfer(false)"
           >

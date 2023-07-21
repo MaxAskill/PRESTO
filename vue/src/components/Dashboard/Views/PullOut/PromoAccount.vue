@@ -1,5 +1,5 @@
 <template>
-  <div class="card">
+  <div class="card card-account">
     <div class="card-body">
       <!-- <div class="card-header">
         <h4 class="title">Promodiser's Account</h4>
@@ -46,17 +46,65 @@
             :label="column.label"
           >
           </el-table-column>
-          <el-table-column :min-width="80" class-name="td-actions" label="Status">
+          <el-table-column :width="150" class-name="td-actions" label="More Details">
             <template slot-scope="props">
-              <!-- <p-button
+              <p-button
+                v-if="
+                  props.row.status === 'Activated' || props.row.status === 'Deactivated'
+                "
+                type="primary"
+                size="sm"
+                data-bs-toggle="modal"
+                data-bs-target="#promoDetailsModal"
+                @click="
+                  handleEdit(props.$index, props.row), fetchDataPromoDetails(props.row.id)
+                "
+              >
+                View Details
+              </p-button>
+            </template>
+          </el-table-column>
+          <el-table-column :width="90" class-name="td-actions" label="Request">
+            <template slot-scope="props">
+              <p-button
+                v-if="props.row.request"
+                type="info"
+                class="m-0"
+                icon
+                data-bs-toggle="modal"
+                data-bs-target="#promoRequestBranchModal"
+                @click="
+                  handleEdit(props.$index, props.row), fetchDataPromoRequest(props.row.id)
+                "
+              >
+                <i class="nc-icon nc-badge"></i>
+              </p-button>
+            </template>
+          </el-table-column>
+          <el-table-column :min-width="85" class-name="td-actions" label="Status">
+            <template slot-scope="props">
+              <p-button
                 v-if="props.row.status === 'Activated'"
                 type="success"
                 size="sm"
+                data-bs-toggle="modal"
+                data-bs-target="#promoDeactivationModal"
                 @click="handleEdit(props.$index, props.row)"
               >
                 Activated
-              </p-button> -->
+              </p-button>
               <p-button
+                v-else-if="props.row.status === 'Deactivated'"
+                type="warning"
+                size="sm"
+                data-bs-toggle="modal"
+                data-bs-target="#promoReactivationModal"
+                @click="handleEdit(props.$index, props.row)"
+              >
+                Deactivated
+              </p-button>
+              <p-button
+                v-else
                 type="info"
                 size="sm"
                 data-bs-toggle="modal"
@@ -65,14 +113,6 @@
               >
                 New Account
               </p-button>
-              <!-- <p-button
-                v-else-if="props.row.status === 'Deactivated'"
-                type="warning"
-                size="sm"
-                @click="handleEdit(props.$index, props.row)"
-              >
-                New Account
-              </p-button> -->
             </template>
           </el-table-column>
         </el-table>
@@ -92,7 +132,28 @@
         </p-pagination>
       </div>
     </div>
-    <PromoActivation :promoData="promoData"> </PromoActivation>
+    <PromoActivation :promoData="promoData" @fetchUsers="fetchData"> </PromoActivation>
+    <PromoDeactivationModal
+      :promoData="promoData"
+      @fetchUsers="fetchData"
+    ></PromoDeactivationModal>
+    <PromoReactivationModal
+      :promoData="promoData"
+      @fetchUsers="fetchData"
+    ></PromoReactivationModal>
+    <PromoDetailsModal
+      :promoData="promoData"
+      :promoDetails="promoDetails"
+      :dateBranchEnd="dateBranchEnd"
+    ></PromoDetailsModal>
+    <PromoRequestBranchModal
+      :promoData="promoData"
+      :promoDetails="promoDetails"
+      :promoRequest="promoRequest"
+      @fetchUsers="fetchData"
+      @fetchPromoRequest="fetchDataPromoRequest($event)"
+    >
+    </PromoRequestBranchModal>
   </div>
 </template>
 <script>
@@ -113,6 +174,10 @@ import axiosClient from "../../../../axios";
 import linkName from "../../../../linkName";
 
 import PromoActivation from "./PromoActivation.vue";
+import PromoDeactivationModal from "./PromoDeactivationModal.vue";
+import PromoReactivationModal from "./PromoReactivationModal.vue";
+import PromoDetailsModal from "./PromoDetailsModal.vue";
+import PromoRequestBranchModal from "./PromoRequestBranchModal.vue";
 
 Vue.use(Table);
 Vue.use(TableColumn);
@@ -124,6 +189,11 @@ export default {
     PButton,
     PPagination,
     PromoActivation,
+    PromoDeactivationModal,
+    PromoReactivationModal,
+    PromoDetailsModal,
+    PromoRequestBranchModal,
+    PromoRequestBranchModal,
   },
   mounted() {
     this.fetchData();
@@ -179,7 +249,7 @@ export default {
   data() {
     return {
       pagination: {
-        perPage: 5,
+        perPage: 10,
         currentPage: 1,
         perPageOptions: [5, 10, 25, 50],
         total: 0,
@@ -197,79 +267,103 @@ export default {
           label: "Email",
           minWidth: 180,
         },
-        {
-          prop: "company",
-          label: "Company",
-          minWidth: 120,
-        },
-        {
-          prop: "chainCode",
-          label: "Chain Code",
-          minWidth: 80,
-        },
-        {
-          prop: "branchName",
-          label: "Branch Name",
-          minWidth: 120,
-        },
+        // {
+        //   prop: "company",
+        //   label: "Company",
+        //   minWidth: 70,
+        // },
+        // {
+        //   prop: "chainCode",
+        //   label: "Chain Code",
+        //   minWidth: 80,
+        // },
+        // {
+        //   prop: "branchName",
+        //   label: "Branch Name",
+        //   minWidth: 170,
+        // },
         {
           prop: "date",
           label: "Date Registered",
-          minWidth: 80,
+          minWidth: 90,
         },
+        // {
+        //   prop: "dateEnd",
+        //   label: "Date Branch Expiration",
+        //   minWidth: 75,
+        // },
       ],
       tableData: [],
       promoData: {},
+      promoDetails: [],
+      promoRequest: [],
+      dateBranchEnd: "",
     };
   },
   methods: {
     denied(row) {
-      location.href =
-        "http://192.168.0.7:4040/#/pull-out/requisition-form?transactionID=" +
-        row.plID +
-        "&company=" +
-        row.company;
+      // location.href =
+      //   "http://192.168.0.7:4040/#/pull-out/requisition-form?transactionID=" +
+      //   row.plID +
+      //   "&company=" +
+      //   row.company;
+
+      this.$router.push({
+        path: "/pull-out/requisition-form",
+        query: {
+          transactionID: row.plID,
+          company: row.company,
+        },
+      });
     },
     fetchData() {
       axiosClient
         .get("/usersMaintenance")
         .then((response) => {
-          console.log("Pull Out Request", response.data);
+          // console.log("Pull Out Request", response.data);
           this.tableData = response.data;
         })
         .catch((error) => {
           console.error(error);
         });
     },
+    fetchDataPromoDetails(user_ID) {
+      axiosClient
+        .get("/usersMaintenanceViewDetails", {
+          params: {
+            userID: user_ID,
+          },
+        })
+        .then((response) => {
+          console.log("Pull Out Promo Details: ", response.data);
+          this.promoDetails = response.data;
+          this.dateBranchEnd = this.promoDetails[0].dateEnd;
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+      console.log("userr: ", user_ID);
+    },
+    fetchDataPromoRequest(user_ID) {
+      axiosClient
+        .get("/usersMaintenanceRequestBranch", {
+          params: {
+            userID: user_ID,
+          },
+        })
+        .then((response) => {
+          console.log("Pull Out Promo Request: ", response.data);
+          this.promoRequest = response.data;
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+      console.log("userr: ", user_ID);
+      this.fetchDataPromoDetails(user_ID);
+    },
     handleEdit(index, row) {
-      var tempStatus = "";
-      if (row.status === "Activated") {
-        row.status = "Deactivated";
-        tempStatus = "Deactivated";
-      } else if (row.status === "New Account") {
-        row.status = "Activated";
-        tempStatus = "Activated";
-      }
-
       this.promoData = row;
       console.log("Promo Data:", this.promoData);
-      // let promoActivationModal = new bootstrap.Modal("#promoActivation");
-      // promoActivationModal.show();
-
-      // axiosClient
-      //   .post("/updateBranch", {
-      //     company: this.company,
-      //     id: row.id,
-      //     status: tempStatus,
-      //     userID: sessionStorage.getItem("UserID"),
-      //   })
-      //   .then((response) => {
-      //     console.log("Success Update Branch:", response.data);
-      //   })
-      //   .catch((error) => {
-      //     console.error(error);
-      //   });
-      // alert(`Your want to edit ${row.status}`);
     },
     handleDelete(index, row) {
       let indexToDelete = this.tableData.findIndex((tableRow) => tableRow.id === row.id);
@@ -319,5 +413,9 @@ export default {
   border: none;
   text-transform: uppercase;
   color: white;
+}
+
+.card-account {
+  margin-top: 100px;
 }
 </style>

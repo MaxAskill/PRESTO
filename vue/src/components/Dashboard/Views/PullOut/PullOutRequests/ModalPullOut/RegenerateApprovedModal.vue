@@ -60,7 +60,7 @@
           <button
             :disabled="isDisabled"
             type="button"
-            class="btn btn-primary"
+            class="btn btn-success"
             data-bs-dismiss="modal"
             @click="generateLetter"
           >

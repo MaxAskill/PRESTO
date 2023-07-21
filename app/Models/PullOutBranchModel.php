@@ -21,6 +21,8 @@ class PullOutBranchModel extends Model
         'dateTime',
         'updated_at',
         'editedBy',
-        'promoEmail'
+        'promoEmail',
+        'SLA_count',
+        'SLA_status'
     ];
 }

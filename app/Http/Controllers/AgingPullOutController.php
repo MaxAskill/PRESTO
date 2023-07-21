@@ -111,4 +111,57 @@ class AgingPullOutController extends Controller
 
     }
 
+    public function SLACountNBFI(){
+
+        $date = now()->timezone('Asia/Manila'); // GETTING THE TIME ZONE IN PH
+
+
+        $data = DB::table('pullOutBranchTblNBFI')
+            ->select('id', 'dateTime', 'SLA_count')
+            ->whereIn('status', ['unprocessed', 'endorsement'])
+            ->get();
+
+        foreach($data as $item){
+            $dateTime = Carbon::parse($item->dateTime);
+
+            $days_diff = $date->diffInDays($dateTime);
+
+            $daysCount = (int)$item->SLA_count - 1;
+            DB::select("UPDATE pullOutBranchTblNBFI SET SLA_count = \"".$daysCount."\" WHERE id = \"".$item->id."\"");
+
+            if($daysCount < 0){
+                DB::select("UPDATE pullOutBranchTblNBFI SET SLA_status = 'Delayed' WHERE id = \"".$item->id."\"");
+            }
+
+        }
+        // return response()->json($data);
+
+    }
+
+    public function SLACountEPC(){
+
+        $date = now()->timezone('Asia/Manila'); // GETTING THE TIME ZONE IN PH
+
+
+        $data = DB::table('pullOutBranchTbl')
+            ->select('id', 'dateTime', 'SLA_count')
+            ->whereIn('status', ['unprocessed', 'endorsement'])
+            ->get();
+
+        foreach($data as $item){
+            $dateTime = Carbon::parse($item->dateTime);
+
+            $days_diff = $date->diffInDays($dateTime);
+
+            $daysCount = (int)$item->SLA_count - 1;
+            DB::select("UPDATE pullOutBranchTbl SET SLA_count = \"".$daysCount."\" WHERE id = \"".$item->id."\"");
+
+            if($daysCount < 0){
+                DB::select("UPDATE pullOutBranchTbl SET SLA_status = 'Delayed' WHERE id = \"".$item->id."\"");
+            }
+
+        }
+        // return response()->json($data);
+
+    }
 }

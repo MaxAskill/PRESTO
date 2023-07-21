@@ -47,18 +47,29 @@ class RegisterController extends Controller
 
     public function sendForgotVerificationCode(Request $request){
 
-        $code = mt_rand(100000, 999999);
+        $emailRequest = DB::table('users')
+                            ->select('email')
+                            ->where('email', $request->email)
+                            ->get();
 
-        $data = array(
-            'email' => $request->email,
-            'code' => $code,
-            'status' => 'verifyEmail'
-        );
+        if($emailRequest->count() != 0){
+            $code = mt_rand(100000, 999999);
 
-        $hashCode = Hash::make($code);
-        Mail::to($request->email)->send(new MailNotify ($data));
+            $data = array(
+                'email' => $request->email,
+                'code' => $code,
+                'status' => 'verifyEmail'
+            );
 
-        return response()->json($hashCode);
+            $hashCode = Hash::make($code);
+            Mail::to($request->email)->send(new MailNotify ($data));
+
+            return response()->json($hashCode);
+        }
+
+        return 1;
+
+
 
 
     }

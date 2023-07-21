@@ -13,6 +13,7 @@ class EpcReasonModel extends Model
     public $timestamps = false;
     protected $fillable = [
         'id',
+        'company',
         'reasonLabel',
         'dateTime',
         'status',

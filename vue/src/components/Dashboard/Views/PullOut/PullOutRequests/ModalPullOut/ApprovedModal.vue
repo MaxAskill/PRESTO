@@ -12,35 +12,253 @@
       <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5 text-weight-bold" id="approvedModalLabel">
+            <div class="row">
+              <div class="col d-flex justify-content-center">
+                <h6 class="modal-title">Approved Pull Out Transaction</h6>
+              </div>
+              <div class="col-auto">
+                <button class="delete-buttons" data-bs-dismiss="modal">
+                  <i
+                    class="nc-icon nc-simple-remove font-weight-bold"
+                    style="margin-top: 5px"
+                  ></i>
+                </button>
+              </div>
+            </div>
+            <!-- <h1 class="modal-title fs-5 text-weight-bold" id="approvedModalLabel">
               APPROVED: {{ transferredData.branchName }}
-            </h1>
-            <fg-input
-              class="input-md"
-              placeholder="Search"
-              v-model="searchQuery"
-              addon-right-icon="nc-icon nc-zoom-split"
-            >
-            </fg-input>
+            </h1> -->
           </div>
           <div class="modal-body">
-            <div class="col-sm-12 mt-2">
-              <el-table
-                class="table-striped"
-                :data="queriedData"
-                border
-                style="width: 100%"
-              >
-                <el-table-column
-                  class="el-table-mod"
-                  v-for="column in tableColumns"
-                  :key="column.label"
-                  :min-width="column.minWidth"
-                  :prop="column.prop"
-                  :label="column.label"
+            <div class="row">
+              <div class="col-sm-3">
+                <div class="form-group">
+                  <label
+                    class="selector-label d-flex justify-content-center align-items-center"
+                    >Transaction Number</label
+                  >
+                  <p
+                    rows="1"
+                    readonly
+                    class="form-control font-weight-bold control-form text-center font-weight-bold"
+                  >
+                    {{ transferredData.plID }}
+                  </p>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="form-group">
+                  <label
+                    class="selector-label d-flex justify-content-center align-items-center"
+                    >Transaction Type</label
+                  >
+                  <p
+                    rows="1"
+                    readonly
+                    class="form-control control-form text-center font-weight-bold"
+                  >
+                    {{ transferredData.transactionType }}
+                  </p>
+                </div>
+              </div>
+              <div class="col-sm-3">
+                <div class="form-group">
+                  <label
+                    class="selector-label d-flex justify-content-center align-items-center"
+                    >Status</label
+                  >
+                  <p
+                    rows="1"
+                    readonly
+                    class="form-control control-form text-center font-weight-bold"
+                    style="text-transform: capitalize"
+                  >
+                    {{ transferredData.status }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="row text-center">
+              <div class="col-sm-3">
+                <div class="form-group">
+                  <label
+                    class="selector-label d-flex justify-content-center align-items-center"
+                    >Branch</label
+                  >
+                  <p
+                    rows="1"
+                    readonly
+                    class="form-control font-weight-bold control-form text-center"
+                  >
+                    {{ transferredData.branchName }}
+                  </p>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="form-group">
+                  <label
+                    class="selector-label d-flex justify-content-center align-items-center"
+                    >Created By</label
+                  >
+                  <p
+                    rows="1"
+                    readonly
+                    class="form-control control-form text-center font-weight-bold"
+                  >
+                    {{ transferredData.createdBy }}
+                  </p>
+                </div>
+              </div>
+              <div class="col-sm-3">
+                <div class="form-group">
+                  <label
+                    class="selector-label d-flex justify-content-center align-items-center"
+                    >Date Created</label
+                  >
+                  <p
+                    rows="1"
+                    readonly
+                    class="form-control control-form text-center font-weight-bold"
+                    style="text-transform: capitalize"
+                  >
+                    {{ transferredData.date }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="row text-center">
+              <div class="col-sm-3">
+                <div class="form-group">
+                  <label
+                    class="selector-label d-flex justify-content-center align-items-center"
+                    >Chain</label
+                  >
+                  <p
+                    rows="1"
+                    readonly
+                    class="form-control font-weight-bold control-form text-center"
+                  >
+                    {{ transferredData.chainCode }}
+                  </p>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="form-group">
+                  <label
+                    class="selector-label d-flex justify-content-center align-items-center"
+                    >Reviewed By</label
+                  >
+                  <p
+                    rows="1"
+                    readonly
+                    class="form-control control-form text-center font-weight-bold"
+                  >
+                    {{ transferredData.reviewedBy }}
+                  </p>
+                </div>
+              </div>
+              <div class="col-sm-3">
+                <div class="form-group">
+                  <label
+                    class="selector-label d-flex justify-content-center align-items-center"
+                    >Date Reviewed</label
+                  >
+                  <p
+                    rows="1"
+                    readonly
+                    class="form-control control-form text-center font-weight-bold"
+                    style="text-transform: capitalize"
+                  >
+                    {{ transferredData.reviewedDate }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="row text-center">
+              <div class="col-sm-3">
+                <div class="form-group">
+                  <label
+                    class="selector-label d-flex justify-content-center align-items-center"
+                    >Company</label
+                  >
+                  <p
+                    rows="1"
+                    readonly
+                    class="form-control font-weight-bold control-form text-center"
+                  >
+                    {{ transferredData.company }}
+                  </p>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="form-group">
+                  <label
+                    class="selector-label d-flex justify-content-center align-items-center"
+                    >Approved By</label
+                  >
+                  <p
+                    rows="1"
+                    readonly
+                    class="form-control control-form text-center font-weight-bold"
+                  >
+                    {{ transferredData.approvedBy }}
+                  </p>
+                </div>
+              </div>
+              <div class="col-sm-3">
+                <div class="form-group">
+                  <label
+                    class="selector-label d-flex justify-content-center align-items-center"
+                    >Date Approved</label
+                  >
+                  <p
+                    rows="1"
+                    readonly
+                    class="form-control control-form text-center font-weight-bold"
+                    style="text-transform: capitalize"
+                  >
+                    {{ transferredData.approvedDate }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm-12 pt-5">
+                <fg-input
+                  class="input-md"
+                  placeholder="Search"
+                  v-model="searchQuery"
+                  addon-right-icon="nc-icon nc-zoom-split"
                 >
-                </el-table-column>
-              </el-table>
+                </fg-input>
+              </div>
+              <div class="col-sm-12 mt-2">
+                <el-table
+                  class="table-striped"
+                  :data="queriedData"
+                  border
+                  style="width: 100%"
+                  :header-cell-style="headerCellStyle"
+                  :cell-style="cellStyle"
+                >
+                  <el-table-column
+                    class="el-table-mod"
+                    v-for="column in tableColumns"
+                    :key="column.label"
+                    :min-width="column.minWidth"
+                    :prop="column.prop"
+                    :label="column.label"
+                    header-align="center"
+                    align="center"
+                    style="font-weight: bold"
+                  >
+                  </el-table-column>
+                </el-table>
+              </div>
             </div>
             <div class="d-flex justify-content-end pagination-info">
               <p class="category p-margin">
@@ -62,7 +280,16 @@
               Close
             </button>
             <button
-              class="btn btn-primary"
+              type="submit"
+              class="btn btn-info"
+              data-bs-target="#viewApprovedModal"
+              data-bs-toggle="modal"
+              @click="viewImage"
+            >
+              View
+            </button>
+            <button
+              class="btn btn-success"
               data-bs-target="#regenerateApproved"
               data-bs-toggle="modal"
             >
@@ -76,6 +303,7 @@
       :transferredData="transferredData"
       :itemData="itemData"
     ></RegenerateApprovedModal>
+    <ViewApprovedModal :viewImages="viewImages"></ViewApprovedModal>
   </div>
 </template>
 <script>
@@ -85,6 +313,7 @@ import axiosClient from "../../../../../../axios";
 import RegenerateApprovedModal from "./RegenerateApprovedModal.vue";
 import { createPopper } from "@popperjs/core/lib/popper-lite.js";
 import PPagination from "../../../../../UIComponents/Pagination.vue";
+import ViewApprovedModal from "./ApprovedModal/ViewApprovedModal.vue";
 
 Vue.use(Table);
 Vue.use(TableColumn);
@@ -94,6 +323,7 @@ export default {
   components: {
     PPagination,
     RegenerateApprovedModal,
+    ViewApprovedModal,
   },
   props: ["transferredData", "itemData"],
 
@@ -181,17 +411,17 @@ export default {
         {
           prop: "itemCode",
           label: "Item Code",
-          minWidth: 175,
+          minWidth: 100,
         },
         {
           prop: "brand",
           label: "Brand",
-          minWidth: 200,
+          minWidth: 100,
         },
         {
           prop: "boxNumber",
           label: "Box Number",
-          minWidth: 125,
+          minWidth: 60,
         },
         {
           prop: "boxLabel",
@@ -201,7 +431,7 @@ export default {
         {
           prop: "quantity",
           label: "Quantity",
-          minWidth: 100,
+          minWidth: 50,
         },
         {
           prop: "amount",
@@ -209,7 +439,45 @@ export default {
           minWidth: 100,
         },
       ],
+      viewImages: "",
+      headerCellStyle: {
+        fontSize: "10px",
+      },
+      cellStyle: {
+        fontSize: "12px !important",
+      },
     };
+  },
+  methods: {
+    viewImage() {
+      console.log("Transaction Number:", this.transferredData);
+
+      axiosClient
+        .get("/fetchImageBranchDoc", {
+          params: {
+            transactionID: this.transferredData.plID,
+            company: sessionStorage.getItem("Company"),
+          },
+        })
+        .then((response) => {
+          console.log("Pull out path image:", response.data);
+          console.log("Pull out path image length:", response.data.length);
+
+          this.viewImages = response.data.imagePaths;
+          // for (var x = 0; x < response.data.length; x++) {
+          //   this.viewImages.push(
+          //     "http://192.168.0.7:40/public/uploads/" +
+          //       sessionStorage.getItem("Company") +
+          //       "/" +
+          //       response.data[x].path
+          //   );
+          // }
+          // console.log("Images:", this.viewImages);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    },
   },
 };
 </script>

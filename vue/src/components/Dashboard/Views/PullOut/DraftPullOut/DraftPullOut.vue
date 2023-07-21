@@ -1,11 +1,20 @@
 <template>
-  <div class="card">
+  <div class="card card-draft">
     <div class="card-body">
       <!-- <div class="card-header">
         <h4 class="title">Pull-Out Draft</h4>
       </div> -->
-      <div class="row mx-2">
-        <div class="col-2 pl-0 pr-1">
+      <div class="row mx-2 justify-content-between">
+        <div class="col-4 pl-1 pr-0">
+          <fg-input
+            class="input-md"
+            placeholder="Search"
+            v-model="searchQuery"
+            addon-right-icon="nc-icon nc-zoom-split"
+          >
+          </fg-input>
+        </div>
+        <div class="col-1 pl-0 pr-1">
           <el-select
             class="select-default"
             v-model="pagination.perPage"
@@ -21,32 +30,39 @@
             </el-option>
           </el-select>
         </div>
-        <div class="col-10 pl-1 pr-0">
-          <fg-input
-            class="input-md"
-            placeholder="Search"
-            v-model="searchQuery"
-            addon-right-icon="nc-icon nc-zoom-split"
-          >
-          </fg-input>
-        </div>
       </div>
       <div class="row mx-2">
         <el-table
           class="table-striped pad-tbl"
           :data="queriedData"
           border
+          :header-cell-style="headerCellStyle"
+          :cell-style="cellStyle"
           style="width: 100%"
         >
+          <!-- Index Column -->
+          <el-table-column label="" class="el-table-mod" width="40">
+            <template slot-scope="scope">
+              <span>{{
+                (pagination.currentPage - 1) * pagination.perPage + scope.$index + 1
+              }}</span>
+            </template>
+          </el-table-column>
           <el-table-column
             v-for="column in tableColumns"
             :key="column.label"
             :min-width="column.minWidth"
             :prop="column.prop"
             :label="column.label"
+            header-align="center"
           >
           </el-table-column>
-          <el-table-column :min-width="120" class-name="td-actions" label="Actions">
+          <el-table-column
+            :min-width="120"
+            class-name="td-actions"
+            label="Actions"
+            header-align="center"
+          >
             <template slot-scope="props">
               <p-button
                 type="success"
@@ -190,7 +206,7 @@ export default {
         // },
         {
           prop: "branchName",
-          label: "Branch Name",
+          label: "Branch",
           minWidth: 150,
         },
         {
@@ -209,6 +225,12 @@ export default {
           minWidth: 200,
         },
       ],
+      headerCellStyle: {
+        fontSize: "10px",
+      },
+      cellStyle: {
+        fontSize: "12px",
+      },
       tableData: [],
     };
   },
@@ -219,6 +241,7 @@ export default {
           params: {
             company: sessionStorage.getItem("Company"),
             promoEmail: sessionStorage.getItem("Email"),
+            userID: sessionStorage.getItem("UserID"),
           },
         })
         .then((response) => {
@@ -240,13 +263,21 @@ export default {
       //   tempStatus = "Active";
       // }
 
-      location.href =
-        "http://192.168.0.7:4040/#/pull-out/requisition-form?transactionID=" +
-        row.plID +
-        "&company=" +
-        row.company;
-      console.log("Branch ID:", row.id);
-      console.log("BranchCode:", row.branchCode);
+      this.$router.push({
+        path: "/pull-out/requisition-form",
+        query: {
+          transactionID: row.plID,
+          company: row.company,
+        },
+      });
+
+      // location.href =
+      //   "http://192.168.0.7:4040/#/pull-out/requisition-form?transactionID=" +
+      //   row.plID +
+      //   "&company=" +
+      //   row.company;
+      // console.log("Branch ID:", row.id);
+      // console.log("BranchCode:", row.branchCode);
 
       // axiosClient
       //   .post("/updateBranch", {
@@ -319,5 +350,9 @@ export default {
 }
 .last-btn {
   margin-left: 10px;
+}
+
+.card-draft {
+  margin-top: 100px;
 }
 </style>

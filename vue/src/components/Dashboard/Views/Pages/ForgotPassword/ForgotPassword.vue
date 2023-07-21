@@ -75,8 +75,12 @@ export default {
         .then((response) => {
           sessionStorage.setItem("HashCode", response.data);
           sessionStorage.setItem("Email", this.email);
+          console.log("Response", response.data);
 
-          this.$router.push({ name: "LoginOTPForm" });
+          if (response.data == 1) {
+          } else {
+            this.$router.push({ name: "LoginOTPForm" });
+          }
         })
         .catch((error) => {
           console.error(error);

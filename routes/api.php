@@ -45,15 +45,21 @@ Route::get('/users',[FetchController::class, 'users']);
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/fetchCompany', [FetchController::class, 'fetchCompany']);
+    Route::get('/fetchCompanyByUser', [FetchController::class, 'fetchCompanyByUser']);
     Route::get('/fetchSameItem', [FetchController::class, 'fetchSameItem']);
     // Route::get('/data', [FetchController::class, 'fetchData']);
     Route::get('/fetchChain', [FetchController::class, 'fetchChain']);
+    Route::get('/fetchChainByUser', [FetchController::class, 'fetchChainByUser']);
+    Route::get('/fetchSameItems', [FetchController::class, 'fetchSameItems']);
     Route::get('/fetchChainCode', [FetchController::class, 'fetchChainCode']);
     Route::get('/fetchBranch', [FetchController::class, 'fetchBranch']);
     Route::get('/fetchChainName', [FetchController::class, 'fetchChainName']);
+    Route::get('/fetchChainNameByUser', [FetchController::class, 'fetchChainNameByUser']);
     Route::get('/fetchBrands', [FetchController::class, 'fetchBrands']);
     Route::get('/fetchCategory', [FetchController::class, 'fetchCategory']);
     Route::get('/fetchItems', [FetchController::class, 'fetchItems']);
+    Route::get('/fetchItemsNBFIExcel', [FetchController::class, 'fetchItemsNBFIExcel']);
+    Route::get('/fetchItemsEPCExcel', [FetchController::class, 'fetchItemsEPCExcel']);
     Route::get('/compareItemCode', [FetchController::class, 'compareItemCode']);
     Route::get('/fetchItemsNBFI', [FetchController::class, 'fetchItemsNBFI']);
     Route::get('/fetchPromoBranchInfo', [FetchController::class, 'fetchPromoBranchInfo']);
@@ -63,7 +69,11 @@ Route::get('/users',[FetchController::class, 'users']);
     Route::post('/addNewDriver', [PostController::class, 'addNewDriver']);
     Route::post('/addNewReason', [PostController::class, 'addNewReason']);
     Route::post('/deleteDraft', [PostController::class, 'deleteDraft']);
+    Route::post('/deleteUserBranch', [PostController::class, 'deleteUserBranch']);
     Route::post('/postUserBranch', [PostController::class, 'postUserBranch']);
+    Route::post('/postRemarks', [PostController::class, 'postRemarks']);
+    Route::post('/upload', [PostController::class, 'upload']);
+    Route::post('/postPromoUserBranch', [PostController::class, 'postPromoUserBranch']);
 
     Route::get('/fetchPullOutReq', [FetchController::class, 'fetchPullOutRequest']);
     Route::get('/fetchReasonLabel', [FetchController::class, 'getReasons']);
@@ -83,6 +93,11 @@ Route::get('/users',[FetchController::class, 'users']);
     Route::get('/fetchEditDraftItem', [FetchController::class, 'fetchEditDraftItem']);
     Route::get('/fetchNewAmount', [FetchController::class, 'fetchNewAmount']);
     Route::get('/usersMaintenance', [FetchController::class, 'usersMaintenance']);
+    Route::get('/usersMaintenanceViewDetails', [FetchController::class, 'usersMaintenanceViewDetails']);
+    Route::get('/usersMaintenanceRequestBranch', [FetchController::class, 'usersMaintenanceRequestBranch']);
+    Route::get('/usersProfile', [FetchController::class, 'usersProfile']);
+    Route::get('/fetchImageBranchDoc', [FetchController::class, 'fetchImageBranchDoc']);
+    Route::get('/fetchItemsBarcode', [FetchController::class, 'fetchItemsBarcode']);
 
     Route::get('/generatePDF', [PostController::class, 'generatePDF']);
     Route::get('/generatePDF1', [PostController::class, 'generatePDF1']);
@@ -92,12 +107,15 @@ Route::get('/users',[FetchController::class, 'users']);
     Route::post('/updateItemQuantity', [UpdateController::class, 'updateItemQuantity']);
     Route::post('/updateStatus', [UpdateController::class, 'updateStatus']);
     Route::post('/updateBranchStatus', [UpdateController::class, 'updateBranchStatus']);
+    Route::post('/updateBranchStatusApprover', [UpdateController::class, 'updateBranchStatusApprover']);
 
     Route::get('/fetchLastIDBranch', [FetchController::class, 'fetchLastIDBranch']);
     Route::post('/savePullOutBranchRequest', [PostController::class, 'savePullOutBranchRequest']);
     Route::post('/savePullOutItemRequest', [PostController::class, 'savePullOutItemRequest']);
     Route::post('/updatePullOutBranchRequest', [UpdateController::class, 'updatePullOutBranchRequest']);
     Route::post('/updatePullOutItemRequest', [UpdateController::class, 'updatePullOutItemRequest']);
+    Route::post('/updateUserBranch', [UpdateController::class, 'updateUserBranch']);
+    Route::post('/updateUserBranchByRequest', [UpdateController::class, 'updateUserBranchByRequest']);
 
     Route::post('/sendDeniedBranch', [PostController::class, 'sendDeniedBranch']);
 
@@ -131,6 +149,7 @@ Route::get('/users',[FetchController::class, 'users']);
     Route::post('/itemsImport', [ImportController::class, 'itemsImport']);
 
     Route::post('/agingController', [AgingPullOutController::class, 'agingController']);
+    Route::post('/SLACountNBFI', [AgingPullOutController::class, 'SLACountNBFI']);
 
 Route::middleware('auth')->group(function () {
 

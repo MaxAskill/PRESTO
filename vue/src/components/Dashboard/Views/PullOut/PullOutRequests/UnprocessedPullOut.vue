@@ -1,7 +1,16 @@
 <template>
   <div>
-    <div class="row mx-2">
-      <div class="col-2 pr">
+    <div class="row mx-1 justify-content-between">
+      <div class="col-4 pl">
+        <fg-input
+          class="input-md"
+          placeholder="Search"
+          v-model="searchQuery"
+          addon-right-icon="nc-icon nc-zoom-split"
+        >
+        </fg-input>
+      </div>
+      <div class="col-1 pr">
         <el-select
           class="select-default"
           v-model="pagination.perPage"
@@ -17,43 +26,53 @@
           </el-option>
         </el-select>
       </div>
-      <div class="col-10 pl">
-        <fg-input
-          class="input-md"
-          placeholder="Search"
-          v-model="searchQuery"
-          addon-right-icon="nc-icon nc-zoom-split"
-        >
-        </fg-input>
-      </div>
     </div>
     <div class="row mx-2">
-      <el-table class="table-striped" :data="queriedData" border style="width: 100%">
+      <el-table
+        class="table-striped"
+        :data="queriedData"
+        border
+        style="width: 100%"
+        :header-cell-style="headerCellStyle"
+        :cell-style="cellStyle"
+      >
+        <!-- Index Column -->
+        <el-table-column label="" class="el-table-mod" width="40">
+          <template slot-scope="scope">
+            <span>{{
+              (pagination.currentPage - 1) * pagination.perPage + scope.$index + 1
+            }}</span>
+          </template>
+        </el-table-column>
         <el-table-column
-          class="el-table-mod"
+          class="el-table-mod text-break"
           v-for="column in tableColumns"
           :key="column.label"
           :min-width="column.minWidth"
           :prop="column.prop"
           :label="column.label"
+          header-align="center"
         >
         </el-table-column>
         <el-table-column
           :min-width="50"
           class-name="td-actions el-table-mod"
+          header-align="center"
           label="Details"
         >
           <template slot-scope="props">
-            <p-button
-              type="info"
-              size="sm"
-              icon
-              data-bs-toggle="modal"
-              data-bs-target="#unprocessModal"
-              @click="openModal(props.row)"
-            >
-              <i class="nc-icon nc-single-copy-04"></i>
-            </p-button>
+            <div class="container d-flex justify-content-center">
+              <p-button
+                type="info"
+                size="sm"
+                icon
+                data-bs-toggle="modal"
+                data-bs-target="#unprocessModal"
+                @click="openModal(props.row)"
+              >
+                <i class="nc-icon nc-single-copy-04"></i>
+              </p-button>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -73,7 +92,7 @@
       </p-pagination>
     </div>
     <UnprocessModal
-      :transferredData="transferredData"
+      :transactionData="transactionData"
       :itemData="itemData"
       :listBoxLabel="listBoxLabel"
       @closeModal="closeModal"
@@ -143,7 +162,7 @@ export default {
   },
   data() {
     return {
-      transferredData: "",
+      transactionData: "",
       itemData: "",
       pagination: {
         perPage: 5,
@@ -156,18 +175,18 @@ export default {
       tableColumns: [
         {
           prop: "plID",
-          label: "TRANSACTION ID",
-          minWidth: 70,
+          label: "TRANSACTION NO.",
+          minWidth: 45,
         },
         {
           prop: "branchName",
           label: "BRANCH NAME",
-          minWidth: 150,
+          minWidth: 200,
         },
         {
           prop: "transactionType",
           label: "TRANSACTION TYPE",
-          minWidth: 100,
+          minWidth: 200,
         },
         {
           prop: "date",
@@ -179,20 +198,36 @@ export default {
           label: "TIME",
           minWidth: 50,
         },
+        {
+          prop: "SLA_count",
+          label: "Remaining  Days",
+          minWidth: 40,
+        },
+        {
+          prop: "SLA_status",
+          label: "SLA Status",
+          minWidth: 50,
+        },
       ],
+      headerCellStyle: {
+        fontSize: "10px",
+      },
+      cellStyle: {
+        fontSize: "12px",
+      },
       tableData: [],
       listBoxLabel: [],
     };
   },
   methods: {
     openModal(data) {
-      this.transferredData = data;
-
+      this.transactionData = data;
+      console.log("Transferred Data:", this.transactionData);
       axiosClient
         .get("/fetchPullOutRequestItem", {
           params: {
             company: sessionStorage.getItem("Company"),
-            plID: this.transferredData.plID,
+            plID: this.transactionData.plID,
           },
         })
         .then((response) => {
@@ -217,7 +252,7 @@ export default {
         });
     },
     closeModal() {
-      this.transferredData = "";
+      this.transactionData = "";
     },
     fetchData() {
       axiosClient
@@ -227,12 +262,22 @@ export default {
           },
         })
         .then((response) => {
-          // console.log("Pull Out Request Unprocessed", response.data);
+          console.log("Pull Out Request Unprocessed", response.data);
           this.tableData = response.data;
         })
         .catch((error) => {
           console.error(error);
         });
+
+      // axiosClient
+      //   .post("/SLACountNBFI")
+      //   .then((response) => {
+      //     console.log("SLA COUNT", response.data);
+      //     // this.tableData = response.data;
+      //   })
+      //   .catch((error) => {
+      //     console.error(error);
+      //   });
     },
   },
 };

@@ -1,13 +1,21 @@
 <template>
-  <div class="row">
+  <div class="row card-requests">
     <div class="col-lg-12">
       <card>
         <!-- <h4 class="title">Pull-Out Requests</h4> -->
         <tabs value="Description" tab-content-classes="text-center">
-          <tab-pane title="Unprocessed Pull-Out" key="UPO" v-if="isUnprocessed">
+          <tab-pane
+            title="Unprocessed Pull-Out"
+            key="UPO"
+            v-if="isUnprocessed || isAdmin"
+          >
             <unprocessed-pull-out></unprocessed-pull-out>
           </tab-pane>
-          <tab-pane title="Pending Approval Pull-Out" key="PAP" v-else>
+          <tab-pane
+            title="Pending Approval Pull-Out"
+            key="PAP"
+            v-if="isPendingApproval || isAdmin"
+          >
             <pending-approval-pull-out></pending-approval-pull-out>
           </tab-pane>
           <tab-pane title="Approved Pull-Out" key="APO">
@@ -62,6 +70,8 @@ export default {
         this.isPendingApproval = true;
         this.isApproval = true;
         this.isDenied = true;
+      } else if (position == "Admin") {
+        this.isAdmin = true;
       }
     },
   },
@@ -71,7 +81,14 @@ export default {
       isPendingApproval: null,
       isApproval: true,
       isDenied: true,
+      isAdmin: false,
     };
   },
 };
 </script>
+
+<style>
+.card-requests {
+  margin-top: 100px;
+}
+</style>

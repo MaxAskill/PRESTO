@@ -22,8 +22,11 @@ use App\Models\EpcBrandModel;
 use App\Models\NbfiBrandModel;
 use App\Models\EpcDriverModel;
 use App\Models\EpcReasonModel;
+use App\Models\ImageBranchModel;
 use App\Models\UserBranchModel;
+use App\Models\RemarksModel;
 use App\Http\Controllers\BrevoSMService;
+use Image;
 
 class PostController extends Controller
 {
@@ -308,24 +311,77 @@ class PostController extends Controller
 
         $date = now()->timezone('Asia/Manila'); // GETTING THE TIME ZONE IN PH
 
+        $name = DB::table('users')
+                    ->select('name')
+                    ->where('id', $request->userID)
+                    ->first()->name;
+
         if($request->company == "EPC"){
             $denied = DB::select('UPDATE pullOutBranchTbl
-                            SET editedBy = \''.$request->name.'\',
+                            SET editedBy = \''.$name.'\',
                             updated_at = \''.$date.'\',
                             status = "denied"
                             WHERE id = \''.$request->id.'\' ');
+            $table_affected = "EPC";
+            $old_data = PullOutBranchModel::find($request->id);
         } else if($request->company == "NBFI"){
             $denied = DB::select('UPDATE pullOutBranchTblNBFI
-                            SET editedBy = \''.$request->name.'\',
+                            SET editedBy = \''.$name.'\',
                             updated_at = \''.$date.'\',
                             status = "denied"
                             WHERE id = \''.$request->id.'\' ');
+            $table_affected = "NBFI";
+            $old_data = PullOutBranchModelNBFI::find($request->id);
+
         }
+
+        $reasons = DB::table('reasonMaintenance')
+                    ->select('reasonLabel')
+                    ->get();
+
+        $flag = true;
+        for ($ctr = 0; $ctr < $reasons->count(); $ctr++){
+            if(strtolower($reasons[$ctr]->reasonLabel) == strtolower($request->reason)){
+                $flag = false;
+                break;
+            }
+        }
+        if($flag){
+
+            $input = new EpcReasonModel();
+            $input->reasonLabel = ucfirst($request->reason);
+            $input->dateTime = $date;
+            $input->company = $request->company;
+            $input->status = 'Active';
+
+            $input->save();
+
+            $log = new TransactionModel();
+            $log->dateTime = $date;
+            $log->userID = $request->userID;
+            $log->action_type = 'insert';
+            $log->table_affected = 'reasonmaintenance';
+            $log->new_data = json_encode($request->all());
+            $log->save();
+
+        }
+
 
         $name = DB::table('users')
                     ->select('name')
                     ->where('id', $request->userID)
                     ->first()->name;
+
+        $oldData = $old_data->toArray(); // Retrieve the old data before the update
+
+        $log = new TransactionModel();
+        $log->dateTime = $date;
+        $log->userID = $request->userID;
+        $log->action_type = 'denied';
+        $log->table_affected = $table_affected;
+        $log->old_data = json_encode($oldData);
+        $log->new_data = json_encode($request->all());
+        $log->save();
 
         $data = array(
             'transactionID' => $request->id,
@@ -337,7 +393,7 @@ class PostController extends Controller
 
         $res = Mail::to($request->email)->send(new MailNotify($data));
 
-        return response()->json($denied);
+        return response()->json($reasons);
 
     }
 
@@ -364,6 +420,8 @@ class PostController extends Controller
         $branch->status = $request->status;
         $branch->dateTime = $date;
         $branch->promoEmail = $request->email;
+        $branch->SLA_count = "15";
+        $branch->SLA_status = "In Time";
         //SAVING
         $branch->save();
 
@@ -600,9 +658,26 @@ class PostController extends Controller
         return response()->json(['message'=>'Success'], 200);
     }
 
+    public function deleteUserBranch(Request $request){
+        if($request->userType == "Promo")
+            DB::table('userBranchMaintenance')->where('userID', $request->userID)->where('request', true)->delete();
+        else if($request->userType == "Agent")
+            DB::table('userBranchMaintenance')->where('userID', $request->userID)->where('request', true)
+            ->where(function ($query) use ($request) {
+                $query->where('company', $request->company)
+                      ->where('chainCode', $request->chainCode)
+                      ->where('branchName', $request->branchName);
+            })->delete();
+    }
+
     public function postUserBranch(Request $request){
 
         $date = now()->timezone('Asia/Manila'); // GETTING THE TIME ZONE IN PH
+
+        $dateEnd = Carbon::createFromFormat('Y-m-d\TH:i:s.v\Z', $request->input('dateEnd'))
+                    ->addDay(); // Add one day to the dateEnd
+
+        // $dateEnd = Carbon::parse($request->input('dateEnd'))->format('Y-m-d');
 
         $promo = new UserBranchModel();
 
@@ -611,6 +686,8 @@ class PostController extends Controller
         $promo->chainCode = $request->chainCode;
         $promo->branchName = $request->branchName;
         $promo->created_date = $date;
+        $promo->date_end = $dateEnd;
+        $promo->status = 'Activated';
 
 
         $promo->save();
@@ -647,4 +724,102 @@ class PostController extends Controller
 
         return response()->json($promo);
     }
+
+    public function upload(Request $request)
+    {
+
+
+        $branchName = str_replace(' ', '-', $request->branchName);
+
+        if($request->company == "NBFI" || $request->company == "ASC" || $request->company == "CMC"){
+            if ($request->image) {
+                $image = $request->image;
+                $imageName = $request->transactionID . '-' . $branchName . '-' . time() . '.' . $image->getClientOriginalExtension();
+
+                $filePath = public_path('uploads/NBFI');
+
+                $img = Image::make($image->path());
+                $img->resize(1280, 720, function ($const) {
+                    $const->aspectRatio();
+                })->save($filePath.'/'.$imageName);
+
+                // $image->move($filePath, $imageName);
+
+                $docImage = new ImageBranchModel();
+                $docImage->transactionID = $request->transactionID;
+                $docImage->company = "NBFI";
+                $docImage->path = $imageName;
+
+                $docImage->save();
+
+                return $imageName;
+            }
+        }else if ($request->company == "EPC" || $request->company == "AHLC"){
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $imageName = $request->transactionID . '-' . $branchName . '-' . time() . '.' . $image->getClientOriginalExtension();
+
+
+                $filePath = public_path('uploads/EPC');
+
+                $img = Image::make($image->path());
+                $img->resize(1280, 720, function ($const) {
+                    $const->aspectRatio();
+                })->save($filePath.'/'.$imageName);
+
+                // $image->move(public_path('uploads/EPC'), $imageName);
+
+                $docImage = new ImageBranchModel();
+                $docImage->transactionID = $request->transactionID;
+                $docImage->company = "EPC";
+                $docImage->path = $imageName;
+
+                $docImage->save();
+
+                return $imageName;
+            }
+        }
+        return "No Image found";
+    }
+
+    public function postRemarks(Request $request){
+
+        $date = now()->timezone('Asia/Manila'); // GETTING THE TIME ZONE IN PH
+
+        $remarks = new RemarksModel();
+
+        $remarks->remarksName = $request->remarksName;
+        $remarks->date = $date;
+
+        $remarks->save();
+
+        return response()->json($remarks);
+    }
+
+    public function postPromoUserBranch(Request $request){
+
+        $date = now()->timezone('Asia/Manila'); // GETTING THE TIME ZONE IN PH
+
+        $promoBranch = new UserBranchModel();
+        $promoBranch->userID = $request->userID;
+        $promoBranch->company = $request->company;
+        $promoBranch->chainCode = $request->chainCode;
+        $promoBranch->branchName = $request->branchName;
+        $promoBranch->created_date = $date;
+        $promoBranch->request = '1';
+        $promoBranch->status = 'Activated';
+
+        $promoBranch->save();
+
+        $log = new TransactionModel();
+        $log->dateTime = $date;
+        $log->userID = $request->userID;
+        $log->action_type = 'insert';
+        $log->table_affected = 'userBranchMaintenance';
+        $log->new_data = json_encode($request->all());
+        $log->save();
+
+
+    }
+
 }

@@ -13,19 +13,30 @@
       <a class="simple-text logo-normal user-select-none" @click="logoDashboard">
         PRESTO
       </a>
+      <!-- <div>
+        <span class="simple-text"> Date Today: {{ date }} </span>
+        <span class="simple-text"> Time Today: {{ time }} </span>
+      </div> -->
     </div>
+
     <div class="sidebar-wrapper" ref="sidebarScrollArea">
       <slot> </slot>
       <ul class="nav">
         <slot name="links">
           <sidebar-item
+            :name="name"
             v-for="(link, index) in filteredSidebarLinks"
             :key="link.name + index"
             :link="link"
           >
             <sidebar-item
+              :name="name"
               v-for="(subLink, index) in link.children"
-              v-if="positionEmployee === subLink.access || positionEmployee === 'Admin'"
+              v-if="
+                positionEmployee === subLink.access ||
+                positionEmployee === 'Admin' ||
+                subLink.access === 'All'
+              "
               :key="subLink.name + index"
               :link="subLink"
             >
@@ -38,10 +49,16 @@
 </template>
 <script>
 import "perfect-scrollbar/css/perfect-scrollbar.css";
+import axiosClient from "../../../axios";
+import axios from "axios";
 export default {
   data() {
     return {
       positionEmployee: "",
+      name: "",
+      date: "",
+      time: "",
+      ipAddress: "",
     };
   },
   props: {
@@ -106,18 +123,43 @@ export default {
     },
     logoDashboard() {
       if (this.positionEmployee == "Admin") {
-        window.location.href = "http://192.168.0.7:4040/#/admin/overview";
+        // window.location.href = "http://192.168.0.7:4040/#/admin/overview";
+        this.$router.push({
+          path: "/admin/overview",
+        });
       } else if (
         this.positionEmployee == "Agent" ||
         this.positionEmployee == "Approver"
       ) {
-        window.location.href = "http://192.168.0.7:4040/#/pull-out/requests";
+        // window.location.href = "http://192.168.0.7:4040/#/pull-out/requests";
+        this.$router.push({
+          path: "/pull-out/requests",
+        });
       } else if (this.positionEmployee == "User") {
-        window.location.href = "http://192.168.0.7:4040/#/pull-out/requisition-form";
+        // window.location.href = "http://192.168.0.7:4040/#/pull-out/requisition-form";
+        this.$router.push({
+          path: "/pull-out/requisition-form",
+        });
       }
+    },
+    fetchData() {
+      axiosClient
+        .get("/users", {
+          params: {
+            email: sessionStorage.getItem("Email"),
+          },
+        })
+        .then((response) => {
+          // console.log("Success User Response:", response.data);
+          this.name = response.data[0].name;
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     },
   },
   mounted() {
+    this.fetchData();
     this.initScrollBarAsync();
   },
   beforeDestroy() {

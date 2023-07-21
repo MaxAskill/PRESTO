@@ -1,38 +1,11 @@
 <template>
-  <div class="card">
+  <div class="card card-transactions">
     <div class="card-body">
       <!-- <div class="card-header">
         <h4 class="title">Pull-Out Transactions</h4>
       </div> -->
-      <div class="row mx-2">
-        <div class="col-1">
-          <el-select
-            class="select-default el-select-w"
-            placeholder="Select Company"
-            v-model="company"
-            @change="fetchData"
-          >
-            <el-option class="select-default" value="EPC" label="EPC">EPC</el-option>
-            <el-option class="select-default" value="NBFI" label="NBFI">NBFI</el-option>
-          </el-select>
-        </div>
-        <div class="col-1 pl-1 pr-1">
-          <el-select
-            class="select-default"
-            v-model="pagination.perPage"
-            placeholder="Per page"
-          >
-            <el-option
-              class="select-default"
-              v-for="item in pagination.perPageOptions"
-              :key="item"
-              :label="item"
-              :value="item"
-            >
-            </el-option>
-          </el-select>
-        </div>
-        <div class="col-10">
+      <div class="row mx-2 justify-content-between">
+        <div class="col-4">
           <fg-input
             class="input-md"
             placeholder="Search"
@@ -41,6 +14,35 @@
           >
           </fg-input>
         </div>
+        <div class="col-3 row">
+          <div class="col-6">
+            <el-select
+              class="select-default el-select-w"
+              placeholder="Select Company"
+              v-model="company"
+              @change="fetchData"
+            >
+              <el-option class="select-default" value="EPC" label="EPC">EPC</el-option>
+              <el-option class="select-default" value="NBFI" label="NBFI">NBFI</el-option>
+            </el-select>
+          </div>
+          <div class="col-6">
+            <el-select
+              class="select-default"
+              v-model="pagination.perPage"
+              placeholder="Per page"
+            >
+              <el-option
+                class="select-default"
+                v-for="item in pagination.perPageOptions"
+                :key="item"
+                :label="item"
+                :value="item"
+              >
+              </el-option>
+            </el-select>
+          </div>
+        </div>
       </div>
       <div class="row mx-2">
         <el-table
@@ -48,16 +50,32 @@
           :data="queriedData"
           border
           style="width: 100%"
+          :header-cell-style="headerCellStyle"
+          :cell-style="cellStyle"
         >
+          <!-- Index Column -->
+          <el-table-column label="" class="el-table-mod" width="40">
+            <template slot-scope="scope">
+              <span>{{
+                (pagination.currentPage - 1) * pagination.perPage + scope.$index + 1
+              }}</span>
+            </template>
+          </el-table-column>
           <el-table-column
             v-for="column in tableColumns"
             :key="column.label"
             :min-width="column.minWidth"
             :prop="column.prop"
             :label="column.label"
+            header-align="center"
           >
           </el-table-column>
-          <el-table-column :width="120" class-name="td-actions" label="Status">
+          <el-table-column
+            :min-width="60"
+            class-name="td-actions"
+            label="Status"
+            header-align="center"
+          >
             <template slot-scope="props">
               <!-- {{ props.row.status }} -->
               <badge
@@ -70,6 +88,12 @@
                 v-else-if="props.row.status === 'unprocessed'"
                 slot="header"
                 type="warning"
+                >{{ props.row.status }}</badge
+              >
+              <badge
+                v-else-if="props.row.status === 'For Approval'"
+                slot="header"
+                type="info"
                 >{{ props.row.status }}</badge
               >
               <!-- <badge v-else slot="header" type="success" @click="openModal(props.row)">{{
@@ -203,8 +227,8 @@ export default {
       tableColumns: [
         {
           prop: "plID",
-          label: "Transaction ID",
-          minWidth: 100,
+          label: "Transaction NO.",
+          minWidth: 50,
         },
         {
           prop: "branchName",
@@ -214,17 +238,17 @@ export default {
         {
           prop: "transactionType",
           label: "Transaction Type",
-          minWidth: 150,
+          minWidth: 200,
         },
         {
           prop: "date",
           label: "Creation Date",
-          minWidth: 100,
+          minWidth: 50,
         },
         {
           prop: "time",
           label: "Creation Time",
-          minWidth: 100,
+          minWidth: 50,
         },
         {
           prop: "name",
@@ -232,17 +256,31 @@ export default {
           minWidth: 100,
         },
       ],
+      headerCellStyle: {
+        fontSize: "10px",
+      },
+      cellStyle: {
+        fontSize: "12px",
+      },
       tableData: [],
     };
   },
   methods: {
     denied(row) {
       console.log("Company", row);
-      location.href =
-        "http://192.168.0.7:4040/#/pull-out/requisition-form?transactionID=" +
-        row.plID +
-        "&company=" +
-        row.company;
+      // location.href =
+      //   "http://192.168.0.7:4040/#/pull-out/requisition-form?transactionID=" +
+      //   row.plID +
+      //   "&company=" +
+      //   row.company;
+
+      this.$router.push({
+        path: "/pull-out/requisition-form",
+        query: {
+          transactionID: row.plID,
+          company: row.company,
+        },
+      });
     },
     fetchData() {
       axiosClient
@@ -337,5 +375,8 @@ export default {
   border: none;
   text-transform: uppercase;
   color: white;
+}
+.card-transactions {
+  margin-top: 100px;
 }
 </style>

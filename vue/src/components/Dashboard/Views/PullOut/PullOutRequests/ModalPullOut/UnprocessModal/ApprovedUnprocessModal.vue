@@ -20,11 +20,11 @@
             <div class="col-12 pull-left">
               <fg-input
                 label="Name of Sales Representative / Promodiser"
-                v-model="transferredData.name"
+                v-model="transferredData.createdBy"
               ></fg-input>
             </div>
             <div class="col-6">
-              <fg-input label="Date Started">
+              <fg-input label="Pull-Out Date Started">
                 <el-date-picker
                   v-model="dateStarted"
                   type="date"
@@ -35,7 +35,7 @@
               </fg-input>
             </div>
             <div class="col-6">
-              <fg-input label="Date Ended">
+              <fg-input label="Pull-Out Date Ended">
                 <el-date-picker
                   v-model="dateEnded"
                   type="date"
@@ -53,12 +53,12 @@
             data-bs-target="#unprocessModal"
             data-bs-toggle="modal"
           >
-            Close
+            Cancel
           </button>
           <button
             :disabled="isDisabled"
             type="button"
-            class="btn btn-primary"
+            class="btn btn-success"
             data-bs-dismiss="modal"
             @click="generateLetter"
           >
@@ -114,7 +114,7 @@ export default {
     };
   },
   watch: {
-    "transferredData.name": function (val, oldVal) {
+    "transferredData.createdBy": function (val, oldVal) {
       this.validateGenerate();
     },
     dateStarted: "validateGenerate",
@@ -165,7 +165,7 @@ export default {
           // console.log("Success:", response.data);
           window.open(
             "http://192.168.0.7:40/api/generatePDF?name=" +
-              this.transferredData.name +
+              this.transferredData.createdBy +
               "&plID=" +
               this.transferredData.plID +
               "&dateStart=" +
@@ -189,7 +189,7 @@ export default {
         });
     },
     validateGenerate() {
-      if (this.transferredData.name && this.dateStarted && this.dateEnded)
+      if (this.transferredData.createdBy && this.dateStarted && this.dateEnded)
         this.isDisabled = false;
       else this.isDisabled = true;
     },

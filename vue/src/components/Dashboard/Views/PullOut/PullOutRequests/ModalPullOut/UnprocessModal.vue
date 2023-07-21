@@ -12,60 +12,287 @@
       <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5 text-weight-bold" id="unprocessModalLabel">
-              {{ transferredData.branchName }}
-            </h1>
-            <div class="col-12 pl">
-              <fg-input
-                class="input-md"
-                placeholder="Search"
-                v-model="searchQuery"
-                addon-right-icon="nc-icon nc-zoom-split"
-              >
-              </fg-input>
+            <!-- <h1 class="modal-title fs-5 text-weight-bold" id="unprocessModalLabel">
+              Pull Out Transaction
+            </h1> -->
+            <div class="row">
+              <div class="col d-flex justify-content-center">
+                <h6 class="modal-title">Unprocessed Pull Out Transaction</h6>
+              </div>
+              <div class="col-auto">
+                <button class="delete-buttons" data-bs-dismiss="modal">
+                  <i
+                    class="nc-icon nc-simple-remove font-weight-bold"
+                    style="margin-top: 5px"
+                  ></i>
+                </button>
+              </div>
             </div>
           </div>
           <div class="modal-body">
-            <div class="col-sm-12 mt-2">
-              <table
-                class="table table-bordered table-hover table-responsive-sm table-font-size font-weight-normal"
-              >
-                <thead>
-                  <tr>
-                    <th scope="col" class="nowrap">Item Code</th>
-                    <th scope="col" class="nowrap">Category/Brand</th>
-                    <th scope="col" class="nowrap">Box Number</th>
-                    <th scope="col" class="nowrap">Box Label</th>
-                    <th scope="col" class="nowrap">Quantity</th>
-                    <th scope="col" class="nowrap">Amount</th>
-                    <th scope="col" class="nowrap">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(item, index) in queriedData" :key="item.id">
-                    <th scope="row" style="width: 200px" class="px-3">
-                      {{ item.itemCode }}
-                    </th>
-                    <td style="width: 100px" class="cell-unprocess">
-                      {{ item.brand }}
-                    </td>
-                    <td style="width: 100px" class="cell-unprocess">
-                      {{ item.boxNumber }}
-                    </td>
-                    <td style="width: 200px" class="cell-unprocess">
-                      <!-- {{ item.boxLabel }} -->
-                      <!-- <el-select
+            <div class="row">
+              <div class="col-sm-3">
+                <div class="form-group">
+                  <label
+                    class="selector-label d-flex justify-content-center align-items-center"
+                    >Transaction Number</label
+                  >
+                  <p
+                    rows="1"
+                    readonly
+                    class="form-control font-weight-bold control-form text-center font-weight-bold"
+                  >
+                    {{ transactionData.plID }}
+                  </p>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="form-group">
+                  <label
+                    class="selector-label d-flex justify-content-center align-items-center"
+                    >Transaction Type</label
+                  >
+                  <p
+                    rows="1"
+                    readonly
+                    class="form-control control-form text-center font-weight-bold"
+                  >
+                    {{ transactionData.transactionType }}
+                  </p>
+                </div>
+              </div>
+              <div class="col-sm-3">
+                <div class="form-group">
+                  <label
+                    class="selector-label d-flex justify-content-center align-items-center"
+                    >Status</label
+                  >
+                  <p
+                    rows="1"
+                    readonly
+                    class="form-control control-form text-center font-weight-bold"
+                    style="text-transform: capitalize"
+                  >
+                    {{ transactionData.status }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="row text-center">
+              <div class="col-sm-3">
+                <div class="form-group">
+                  <label
+                    class="selector-label d-flex justify-content-center align-items-center"
+                    >Branch</label
+                  >
+                  <p
+                    rows="1"
+                    readonly
+                    class="form-control font-weight-bold control-form text-center"
+                  >
+                    {{ transactionData.branchName }}
+                  </p>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="form-group">
+                  <label
+                    class="selector-label d-flex justify-content-center align-items-center"
+                    >Created By</label
+                  >
+                  <p
+                    rows="1"
+                    readonly
+                    class="form-control control-form text-center font-weight-bold"
+                  >
+                    {{ transactionData.createdBy }}
+                  </p>
+                </div>
+              </div>
+              <div class="col-sm-3">
+                <div class="form-group">
+                  <label
+                    class="selector-label d-flex justify-content-center align-items-center"
+                    >Date Created</label
+                  >
+                  <p
+                    rows="1"
+                    readonly
+                    class="form-control control-form text-center font-weight-bold"
+                    style="text-transform: capitalize"
+                  >
+                    {{ transactionData.date }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="row text-center">
+              <div class="col-sm-3">
+                <div class="form-group">
+                  <label
+                    class="selector-label d-flex justify-content-center align-items-center"
+                    >Chain</label
+                  >
+                  <p
+                    rows="1"
+                    readonly
+                    class="form-control font-weight-bold control-form text-center"
+                  >
+                    {{ transactionData.chainCode }}
+                  </p>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="form-group">
+                  <label
+                    class="selector-label d-flex justify-content-center align-items-center"
+                    >Reviewed By</label
+                  >
+                  <p
+                    rows="1"
+                    readonly
+                    class="form-control control-form text-center font-weight-bold"
+                  >
+                    {{ transactionData.reviewedBy }}
+                  </p>
+                </div>
+              </div>
+              <div class="col-sm-3">
+                <div class="form-group">
+                  <label
+                    class="selector-label d-flex justify-content-center align-items-center"
+                    >Date Reviewed</label
+                  >
+                  <p
+                    rows="1"
+                    readonly
+                    class="form-control control-form text-center font-weight-bold"
+                    style="text-transform: capitalize"
+                  >
+                    {{ transactionData.reviewedDate }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="row text-center">
+              <div class="col-sm-3">
+                <div class="form-group">
+                  <label
+                    class="selector-label d-flex justify-content-center align-items-center"
+                    >Company</label
+                  >
+                  <p
+                    rows="1"
+                    readonly
+                    class="form-control font-weight-bold control-form text-center"
+                  >
+                    {{ transactionData.company }}
+                  </p>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="form-group">
+                  <label
+                    class="selector-label d-flex justify-content-center align-items-center"
+                    >Approved By</label
+                  >
+                  <p
+                    rows="1"
+                    readonly
+                    class="form-control control-form text-center font-weight-bold"
+                  >
+                    {{ transactionData.approvedBy }}
+                  </p>
+                </div>
+              </div>
+              <div class="col-sm-3">
+                <div class="form-group">
+                  <label
+                    class="selector-label d-flex justify-content-center align-items-center"
+                    >Date Approved</label
+                  >
+                  <p
+                    rows="1"
+                    readonly
+                    class="form-control control-form text-center font-weight-bold"
+                    style="text-transform: capitalize"
+                  >
+                    {{ transactionData.approvedDate }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-12 pt-5">
+                <fg-input
+                  class="input-md"
+                  placeholder="Search"
+                  v-model="searchQuery"
+                  addon-right-icon="nc-icon nc-zoom-split"
+                >
+                </fg-input>
+              </div>
+              <div class="col-sm-12 mt-2">
+                <table
+                  class="table table-bordered table-hover table-responsive-sm table-font-size font-weight-normal"
+                >
+                  <thead>
+                    <tr class="text-center">
+                      <th scope="col" class="nowrap" style="font-size: 10px">
+                        Item Code
+                      </th>
+                      <th scope="col" class="nowrap" style="font-size: 10px">
+                        Category/Brand
+                      </th>
+                      <th scope="col" class="nowrap" style="font-size: 10px">
+                        Box Number
+                      </th>
+                      <th scope="col" class="nowrap" style="font-size: 10px">
+                        Box Label
+                      </th>
+                      <th scope="col" class="nowrap" style="font-size: 10px">Quantity</th>
+                      <th scope="col" class="nowrap" style="font-size: 10px">
+                        Amount (P)
+                      </th>
+                      <!-- <th scope="col" class="nowrap" style="font-size: 10px">Action</th> -->
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      v-for="(item, index) in queriedData"
+                      :key="item.id"
+                      style="font-size: 12px"
+                    >
+                      <th style="min-width: 150px" class="px-3">
+                        {{ item.itemCode }}
+                      </th>
+                      <td style="min-width: 50px" class="cell-unprocess">
+                        {{ item.brand }}
+                      </td>
+                      <td style="min-width: 100px" class="cell-unprocess">
+                        {{ item.boxNumber }}
+                      </td>
+                      <td style="min-width: 400px" class="cell-unprocess">
+                        {{ item.boxLabel }}
+                        <!-- {{ item.boxLabel }} -->
+                        <!-- <el-select
                         class="table-select-box"
                         size="large"
                         v-model="item.boxLabel"
                         @change="editBoxLabel(item.code, item.quantity, item.boxLabel)"
                       > -->
-                      <el-select
+                        <!-- <el-select
                         class="table-select-box"
+                        style="font-size: 12px; font-weight: bold"
                         size="large"
                         @visible-change="getBoxLabels"
                         @change="changeBoxNumber(item)"
                         v-model="item.boxLabel"
+                        :style="{ width: '100%' }"
                       >
                         <el-option
                           v-for="boxLabel in listBoxLabel"
@@ -75,12 +302,13 @@
                           :key="boxLabel.id"
                         >
                         </el-option>
-                      </el-select>
-                    </td>
-                    <!-- <td class="cell px-3">{{ item.quantity }}</td> -->
-                    <td style="width: 50px" class="cell-unprocess">
-                      <div class="btn-group btn-group-sm d-flex flex-row">
-                        <p-button
+                      </el-select> -->
+                      </td>
+                      <!-- <td class="cell px-3">{{ item.quantity }}</td> -->
+                      <td style="min-width: 50px" class="cell-unprocess">
+                        <!-- <div class="btn-group btn-group-sm d-flex flex-row"> -->
+                        {{ item.quantity }}
+                        <!-- <p-button
                           type="default"
                           round
                           outline
@@ -107,9 +335,9 @@
                           @click="item.quantity++, handleQuantity(item)"
                         >
                           <i class="nc-icon nc-simple-add"></i>
-                        </p-button>
-                      </div>
-                      <!-- <input
+                        </p-button> -->
+                        <!-- </div> -->
+                        <!-- <input
                         type="number"
                         min="1"
                         @blur="handleQuantity(item)"
@@ -118,43 +346,54 @@
                         required="true"
                         message="you can give score -10 to +10 only"
                       /> -->
-                    </td>
-                    <td style="width: 50px" class="cell-unprocess">
-                      <input
+                      </td>
+                      <td style="min-width: 80px" class="cell-unprocess">
+                        <!-- <input
                         :disabled="true"
                         v-model="item.amount"
                         class="table-input-box"
                         required="true"
                         message="you can give score -10 to +10 only"
-                      />
-                    </td>
-                    <td style="width: 100px" class="cell-unprocess">
+                      /> -->
+                        {{ item.amount }}
+                      </td>
+                      <!-- <td style="min-width: 50px" class="cell-unprocess">
                       <p-button type="danger" size="sm" icon @click="handleDelete(item)">
                         <i class="fa fa-times"></i>
                       </p-button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <div class="d-flex justify-content-end pagination-info">
-                <p class="category p-margin">
-                  Showing {{ from + 1 }} to {{ to }} of {{ total }} entries
-                </p>
-              </div>
-              <div class="d-flex justify-content-center">
-                <p-pagination
-                  class="pull-right"
-                  v-model="pagination.currentPage"
-                  :per-page="pagination.perPage"
-                  :total="pagination.total"
-                >
-                </p-pagination>
+                    </td> -->
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="d-flex justify-content-end pagination-info">
+                  <p class="category p-margin">
+                    Showing {{ from + 1 }} to {{ to }} of {{ total }} entries
+                  </p>
+                </div>
+                <div class="d-flex justify-content-center">
+                  <p-pagination
+                    class="pull-right"
+                    v-model="pagination.currentPage"
+                    :per-page="pagination.perPage"
+                    :total="pagination.total"
+                  >
+                  </p-pagination>
+                </div>
               </div>
             </div>
           </div>
           <div class="modal-footer mrgn-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
               Close
+            </button>
+            <button
+              type="submit"
+              class="btn btn-info"
+              data-bs-target="#viewModal"
+              data-bs-toggle="modal"
+              @click="viewImage"
+            >
+              View
             </button>
             <button
               type="submit"
@@ -173,7 +412,7 @@
               Denied
             </button>
             <button
-              class="btn btn-primary"
+              class="btn btn-success"
               data-bs-target="#approvedunprocess"
               data-bs-toggle="modal"
             >
@@ -183,9 +422,10 @@
         </div>
       </div>
     </div>
-    <DeniedUnprocessModal :transferredData="transferredData"></DeniedUnprocessModal>
+    <ViewModal :transferredData="transactionData" :viewImages="viewImages"></ViewModal>
+    <DeniedUnprocessModal :transferredData="transactionData"></DeniedUnprocessModal>
     <ApprovedUnprocessModal
-      :transferredData="transferredData"
+      :transferredData="transactionData"
       :itemData="itemData"
     ></ApprovedUnprocessModal>
   </div>
@@ -199,6 +439,7 @@ import NotifDeleteItem from "../../../Components/Notification/NotifSuccessDelete
 import { createPopper } from "@popperjs/core/lib/popper-lite.js";
 import DeniedUnprocessModal from "./UnprocessModal/DeniedUnprocessModal.vue";
 import ApprovedUnprocessModal from "./UnprocessModal/ApprovedUnprocessModal.vue";
+import ViewModal from "./UnprocessModal/ViewModal.vue";
 import PPagination from "../../../../../UIComponents/Pagination.vue";
 import axios from "axios";
 
@@ -210,12 +451,13 @@ export default {
   // mounted() {
   //   this.fetchData();
   // },
-  props: ["transferredData", "itemData", "listBoxLabel"],
+  props: ["transactionData", "itemData", "listBoxLabel"],
   components: {
     [Select.name]: Select,
     NotifItemQuantity,
     DeniedUnprocessModal,
     ApprovedUnprocessModal,
+    ViewModal,
     PPagination,
     NotifDeleteItem,
   },
@@ -340,17 +582,56 @@ export default {
       popover: null,
       toggle: false,
       // listBoxLabel: [],
+      viewImages: [],
     };
   },
   methods: {
+    viewImage() {
+      console.log("Transaction Number:", this.transactionData);
+
+      axiosClient
+        .get("/fetchImageBranchDoc", {
+          params: {
+            transactionID: this.transactionData.plID,
+            company: sessionStorage.getItem("Company"),
+          },
+        })
+        .then((response) => {
+          console.log("Pull out path image:", response.data);
+          console.log("Pull out path image length:", response.data.length);
+
+          this.viewImages = response.data.imagePaths;
+          // for (var x = 0; x < response.data.length; x++) {
+          //   this.viewImages.push(
+          //     "http://192.168.0.7:40/public/uploads/" +
+          //       sessionStorage.getItem("Company") +
+          //       "/" +
+          //       response.data[x].path
+          //   );
+          // }
+          // console.log("Images:", this.viewImages);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    },
     submit() {
-      console.log("Transaction Number:", this.transferredData.plID);
-      console.log("Company", this.transferredData.shortName);
-      location.href =
-        "http://192.168.0.7:4040/#/pull-out/requisition-form?transactionID=" +
-        this.transferredData.plID +
-        "&company=" +
-        this.transferredData.shortName;
+      console.log("Transaction Number:", this.transactionData);
+      console.log("Company", this.transactionData.shortName);
+
+      // location.href =
+      //   "http://192.168.0.7:4040/#/pull-out/requisition-form?transactionID=" +
+      //   this.transactionData.plID +
+      //   "&company=" +
+      //   this.transactionData.shortName;
+
+      this.$router.push({
+        path: "/pull-out/requisition-form",
+        query: {
+          transactionID: this.transactionData.plID,
+          company: this.transactionData.shortName,
+        },
+      });
     },
     changeBoxNumber(item) {
       console.log("Edit Labels:", item);
@@ -543,6 +824,7 @@ export default {
   border: 1px solid transparent;
   transition: border-color 0.3s ease-in-out;
   background-color: transparent;
+  font-size: 12px;
 }
 
 .table-select-box {
@@ -551,11 +833,31 @@ export default {
   /* background-color: yellow; */
   // border-radius: 0px !important;
   background-color: transparent !important;
+  font-size: 12px;
 }
 
 .table-select-box.el-select .el-input input {
   border-radius: 0px !important;
   border: 5px solid transparent !important;
   background-color: transparent;
+  font-size: 12px;
+}
+.delete-buttons {
+  background-color: transparent;
+  color: red;
+  border: 2px solid red;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  padding-bottom: -2px;
+}
+
+.delete-buttons:hover {
+  background-color: red;
+  color: white;
+}
+
+.selector-label {
+  font-size: 10px; /* Replace 16px with your desired font size */
+  color: #000 !important;
 }
 </style>

@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use App\Models\TransactionModel;
+use Carbon\Carbon;
 
 class AuthController extends Controller
 {
@@ -35,6 +37,17 @@ class AuthController extends Controller
                     ->select('b.shortName')
                     ->where('email', $request->email)
                     ->get();
+
+        $date = now()->timezone('Asia/Manila'); // GETTING THE TIME ZONE IN PH
+
+        $log = new TransactionModel();
+        $log->dateTime = $date;
+        $log->userID = $user->id;
+        $log->action_type = "Login";
+        $log->table_affected = 'users';
+        $log->new_data = json_encode($request->ipAddress);
+        $log->save();
+
         return response([
             'user' => $user,
             'token' => $token,

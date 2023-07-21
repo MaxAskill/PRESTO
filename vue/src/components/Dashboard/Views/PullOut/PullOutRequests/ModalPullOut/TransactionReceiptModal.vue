@@ -15,10 +15,14 @@
           <p>
             Your transaction has been processed successfully.<br /><br />Transaction
             Number<br /><span class="tr_num">{{ transferTransactionID }}</span
-            ><br /><br />Please save the transaction number before closing this window.
+            ><br /><br />Please take a photo or screenshot the transaction number before
+            closing this window.
           </p>
         </div>
         <div class="modal-footer d-flex justify-content-center">
+          <!-- <div class="spinner-border text-dark" role="status">
+            <span class="sr-only">Loading...</span>
+          </div> -->
           <button class="btn btn-secondary" data-bs-dismiss="modal" @click="reloadPage()">
             Close
           </button>
@@ -50,7 +54,11 @@ export default {
   mounted() {},
   methods: {
     reloadPage() {
-      window.location.href = "http://192.168.0.7:4040/#/pull-out/pullout-transaction";
+      // window.location.href = "http://192.168.0.7:4040/#/pull-out/pullout-transaction";
+
+      this.$router.push({
+        path: "/pull-out/pullout-transaction",
+      });
     },
   },
 };

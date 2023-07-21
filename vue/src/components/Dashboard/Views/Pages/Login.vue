@@ -78,7 +78,7 @@
 <script>
 import { Card, Checkbox, Button } from "src/components/UIComponents";
 // import AppFooter from './Layout/AppFooter'
-
+import axios from "axios";
 import axiosClient from "../../../../axios";
 
 export default {
@@ -87,13 +87,30 @@ export default {
     [Checkbox.name]: Checkbox,
     [Button.name]: Button,
   },
+  mounted() {
+    this.fetchIpAddress();
+  },
   methods: {
+    fetchIpAddress() {
+      const ipAxios = axios.create(); // Create a new Axios instance
+
+      ipAxios
+        .get("https://api.ipify.org?format=json")
+        .then((response) => {
+          this.ipAddress = response.data.ip;
+          console.log("IP Adress:", this.ipAddress);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    },
     login() {
       axiosClient
         .post("/login", {
           email: this.form.email,
           password: this.form.password,
           remember: this.form.remember,
+          ipAddress: this.ipAddress,
         })
         .then((response) => {
           if (response.data.user.status == "Active") {
@@ -131,6 +148,7 @@ export default {
         remember: false,
       },
       errorMsg: "",
+      ipAddress: "",
     };
   },
 };

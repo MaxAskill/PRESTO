@@ -1,88 +1,109 @@
 <template>
-  <div
-    class="modal fade"
-    id="editboxlabelModal"
-    data-bs-backdrop="static"
-    data-bs-keyboard="false"
-    tabindex="-1"
-    aria-labelledby="editboxlabelModalLabel"
-    aria-hidden="true"
-  >
-    <div class="modal-dialog modal-dialog-centered modal-xl">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5 text-weight-bold" id="editboxlabelModalLabel">
-            <!-- LIST OF BOX LABEL {{ transferredData }} -->
-            LIST OF BOX LABEL
-            <!-- <label scope="col" class="nowrap">{{ transferredData }}</label> -->
-          </h1>
-        </div>
-        <div class="modal-body">
-          <div class="row">
-            <table
-              class="table table-bordered table-hover table-responsive-sm table-font-size font-weight-normal"
-            >
-              <thead>
-                <tr>
-                  <th scope="col" class="nowrap">Box Number</th>
-                  <th scope="col" class="nowrap">Box Label</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="(boxLabel, index) in transferredData.boxLabels"
-                  :key="boxLabel.id"
-                >
-                  <td class="input-container">
-                    <el-select
-                      class="table-select-box"
-                      size="large"
-                      :key="index"
-                      @focus.capture="listBoxNumber(index)"
-                      @change="saveBoxNumber(index)"
-                      v-model="boxLabel.boxNumber"
-                    >
-                      <el-option
-                        v-for="boxNumber in numberBoxLabel"
-                        class="table-select-box"
-                        :value="boxNumber"
-                        :label="boxNumber"
-                      >
-                      </el-option>
-                    </el-select>
-
-                    <!-- {{ boxLabel.id }} -->
-                  </td>
-                  <td class="input-container">
-                    <input
-                      type="text"
-                      @focus="handleClick(index, boxLabel.boxLabel)"
-                      @blur="handleBoxLabel(index, boxLabel.boxLabel)"
-                      @input="renameBoxLabel(index, boxLabel.boxLabel, tempBoxLabel)"
-                      v-model.trim="boxLabel.boxLabel"
-                      class="table-input-box"
-                    />
-                    <button
-                      class="table-delete-modal pull-left"
-                      @click.prevent="removeBoxLabel(boxLabel)"
-                    >
-                      <i class="nc-icon nc-simple-remove font-weight-bold"></i>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+  <div>
+    <div
+      class="modal fade"
+      id="editboxlabelModal"
+      data-bs-backdrop="static"
+      data-bs-keyboard="false"
+      tabindex="-1"
+      aria-labelledby="editboxlabelModalLabel"
+      aria-hidden="true"
+    >
+      import ConfirmationDeleteBoxLabelModal from "./ConfirmationDeleteBoxLabelModal.vue";
+      <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5 text-weight-bold" id="editboxlabelModalLabel">
+              <!-- LIST OF BOX LABEL {{ transferredData }} -->
+              LIST OF BOX LABEL
+              <!-- <label scope="col" class="nowrap">{{ transferredData }}</label> -->
+            </h1>
           </div>
-        </div>
-        <div class="modal-footer px-5">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-            Close
-          </button>
+          <div class="modal-body">
+            <div class="row">
+              <table
+                class="table table-bordered table-hover table-responsive-sm table-font-size font-weight-normal"
+              >
+                <thead>
+                  <tr>
+                    <th scope="col" class="nowrap">Box Number</th>
+                    <th scope="col" class="nowrap">Box Label</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="(boxLabel, index) in transferredData.boxLabels"
+                    :key="boxLabel.id"
+                  >
+                    <td class="input-container">
+                      <el-select
+                        class="table-select-box"
+                        size="large"
+                        :key="index"
+                        @focus.capture="listBoxNumber(index)"
+                        @change="saveBoxNumber(index)"
+                        v-model="boxLabel.boxNumber"
+                        disabled
+                      >
+                        <el-option
+                          v-for="boxNumber in numberBoxLabel"
+                          class="table-select-box"
+                          :value="boxNumber"
+                          :label="boxNumber"
+                        >
+                        </el-option>
+                      </el-select>
+
+                      <!-- {{ boxLabel.id }} -->
+                    </td>
+                    <td class="input-container">
+                      <input
+                        type="text"
+                        @focus="handleClick(index, boxLabel.boxLabel)"
+                        @blur="handleBoxLabel(index, boxLabel.boxLabel)"
+                        @input="renameBoxLabel(index, boxLabel.boxLabel, tempBoxLabel)"
+                        v-model.trim="boxLabel.boxLabel"
+                        class="table-input-box"
+                        @keypress="restrictChar"
+                        list="remarks"
+                      />
+                      <datalist id="remarks">
+                        <option v-for="remark in remarksList" :value="remark">
+                          {{ remark }}
+                        </option>
+                      </datalist>
+                      <button
+                        class="table-delete-modal pull-left"
+                        data-bs-toggle="modal"
+                        data-bs-target="#confirmationDeleteBoxLabel"
+                        @click.prevent="transferBoxLabel(boxLabel)"
+                      >
+                        <i class="nc-icon nc-simple-remove font-weight-bold"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer px-5">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+              @click="closeModal"
+            >
+              Close
+            </button>
+          </div>
         </div>
       </div>
     </div>
+    <ConfirmationDeleteBoxLabelModal
+      :BoxLabelInfo="deleteBoxLabel"
+      @confirm="removeBoxLabel($event)"
+    ></ConfirmationDeleteBoxLabelModal>
   </div>
-  <!-- </div> -->
 </template>
 <script>
 import Vue from "vue";
@@ -93,6 +114,8 @@ import NotifRenameBoxLabel from "../../../Components/Notification/NotifSuccessRe
 import NotifDeleteBoxLabel from "../../../Components/Notification/NotifSuccessDeleteBoxLabel.vue";
 import NotifRestoredBoxLabel from "../../../Components/Notification/NotifBoxLabelRestored.vue";
 
+import ConfirmationDeleteBoxLabelModal from "./ConfirmationDeleteBoxLabelModal.vue";
+
 Vue.use(Table);
 Vue.use(TableColumn);
 Vue.use(Select);
@@ -102,20 +125,20 @@ export default {
     NotifRenameBoxLabel,
     NotifDeleteBoxLabel,
     NotifRestoredBoxLabel,
+    ConfirmationDeleteBoxLabelModal,
+    ConfirmationDeleteBoxLabelModal,
   },
-  props: ["transferredData", "newItemInputBox"],
-  // mounted() {
-  //   $("#myModal").modal("show");
-  // },
+  props: ["transferredData", "newItemInputBox", "remarksList"],
+  // mounted() {},
   // destroyed() {
   //   $("#myModal").modal("hide");
   // },
   watch: {
-    transferredData(newValue) {
-      if (newValue === "") {
-        this.$emit("closeModal");
-      }
-    },
+    // transferredData(newValue) {
+    //   if (newValue === "") {
+    //     this.$emit("closeModal");
+    //   }
+    // },
   },
   computed: {
     /***
@@ -145,10 +168,24 @@ export default {
       numberBoxLabel: [],
       selectedBoxLabel: null,
       isFocused: false,
+      selectedBox: null,
+      count: 0,
+      icount: 0,
+      deleteBoxLabel: null,
     };
   },
   // this.selectedBoxLabel = BoxLabel;
   methods: {
+    restrictChar($event) {
+      let keyCode = $event.keyCode ? $event.keyCode : $event.which;
+      if (keyCode == 91 || keyCode == 93) {
+        // 46 is dot
+        $event.preventDefault();
+      }
+    },
+    closeModal() {
+      this.$emit("closeModal");
+    },
     saveBoxNumber(index) {
       const origItems = [];
       const selectedItems = [];
@@ -174,7 +211,7 @@ export default {
                     this.transferredData.items[
                       ikey
                     ].boxNumber = this.transferredData.boxLabels[key].boxNumber;
-                    origItems.push(ikey); //where the items from original item
+                    origItems.push(parseInt(ikey)); //where the items from original item
                   }
                 }
               }
@@ -182,45 +219,47 @@ export default {
                 //loop for items
                 if (this.transferredData.items.hasOwnProperty(ikey)) {
                   //checking if the key still existed
-                  console.log("same: ", this.transferredData.boxLabels[key].boxNumber); //new value
+                  // console.log("same: ", this.transferredData.boxLabels[key].boxNumber); //new value
                   if (
                     this.transferredData.items[ikey].boxNumber === this.selectedBoxLabel
                   ) {
                     this.transferredData.items[
                       ikey
                     ].boxNumber = this.transferredData.boxLabels[key].boxNumber;
-                    selectedItems.push(ikey); //where the items from selected item
+                    selectedItems.push(parseInt(ikey)); //where the items from selected item
                   }
                 }
               }
               this.transferredData.boxLabels[key].boxNumber = this.selectedBoxLabel; // transferring the box number of the selected box to original box
-
+              this.selectedBox = this.transferredData.boxLabels[key].boxLabel;
               break;
             }
-
-            console.log("same: ", index, key, this.selectedBoxLabel);
-            //
           }
         }
       }
 
-      console.log("Original Items: ", origItems);
-      console.log("Selected Items: ", selectedItems);
+      // console.log("Original Items: ", origItems);
+      // console.log("Original Items: ", this.selectedBox);
+      // console.log("Selected Items: ", selectedItems);
+      // console.log("transfer: ", this.transferredData.boxLabels[index]);
 
-      // for (let key in this.transferredData.items) {
-      //   //loop for items
-      //   if (this.transferredData.items.hasOwnProperty(key)) {
-      //     //checking if the key still existed
-      //     if (this.transferredData.items[key].boxNumber === this.selectedBoxLabel) {
-      //       //check if the box number of each item is same with previous box number of the selected/changed box number
-      //       this.transferredData.items[key].boxNumber = this.transferredData.boxLabels[
-      //         index
-      //       ].boxNumber; //transferring the boxnumber to the items inside the selected box
-      //       console.log("boxnumber", this.transferredData.items[key].boxNumber);
-      //       console.log("Items", this.transferredData.items[key]);
-      //     }
-      //   }
-      // }
+      for (this.count = 0; this.count < origItems.length; this.count++) {
+        this.transferredData.items[
+          origItems[this.count]
+        ].boxNumber = this.selectedBoxLabel;
+        // this.transferredData.items[origItems[this.count]].boxLabel = this.selectedBox;
+        console.log("origItems", this.transferredData.items[origItems[this.count]]);
+      }
+
+      for (this.icount = 0; this.icount < selectedItems.length; this.icount++) {
+        this.transferredData.items[
+          selectedItems[this.icount]
+        ].boxNumber = this.transferredData.boxLabels[index].boxNumber;
+        // this.transferredData.items[
+        //   selectedItems[this.icount]
+        // ].boxLabel = this.transferredData.boxLabels[index].boxLabel;
+        // console.log("selectedItems", this.transferredData.items[selectedItems[count]]);
+      }
     },
     listBoxNumber(index) {
       // console.log("Select input box focused", this.transferredData.boxLabels[index]);
@@ -249,39 +288,46 @@ export default {
     resetFlag() {
       this.clicked = false;
     },
-    removeBoxLabel(deleteboxLabel) {
-      let localData = this.transferredData.boxLabels.findIndex(
-        (tablerow) => tablerow.id === deleteboxLabel.id
-      );
+    transferBoxLabel(deleteboxLabel) {
+      this.deleteBoxLabel = deleteboxLabel;
+      this.deleteBoxLabel.boxLength = this.transferredData.boxLabels.length;
+      console.log("Transfer: ", this.deleteBoxLabel);
+    },
+    removeBoxLabel(confirm) {
+      if (confirm) {
+        let localData = this.transferredData.boxLabels.findIndex(
+          (tablerow) => tablerow.id === this.deleteBoxLabel.id
+        );
 
-      console.log("deleteboxLabel", deleteboxLabel);
-      console.log("dasd", localData);
-      console.log("before", this.transferredData.boxLabels[localData].id);
+        console.log("deleteboxLabel", this.deleteBoxLabel);
+        console.log("dasd", localData);
+        console.log("before", this.transferredData.boxLabels[localData].id);
 
-      // Remove objects with the same ID from the original list
-      this.transferredData.items = this.transferredData.items.filter(
-        (obj) => obj.boxNumber !== this.transferredData.boxLabels[localData].id
-      );
+        // Remove objects with the same ID from the original list
+        this.transferredData.items = this.transferredData.items.filter(
+          (obj) => obj.boxNumber !== this.transferredData.boxLabels[localData].id
+        );
 
-      if (Object.keys(this.transferredData.boxLabels).length !== 0) {
-        for (let key in this.transferredData.boxLabels) {
-          if (this.transferredData.boxLabels.hasOwnProperty(key)) {
-            const box = this.transferredData.boxLabels[key];
-            if (box.boxNumber > deleteboxLabel.boxNumber) {
-              box.boxNumber--;
+        if (Object.keys(this.transferredData.boxLabels).length !== 0) {
+          for (let key in this.transferredData.boxLabels) {
+            if (this.transferredData.boxLabels.hasOwnProperty(key)) {
+              const box = this.transferredData.boxLabels[key];
+              if (box.boxNumber > this.deleteBoxLabel.boxNumber) {
+                box.boxNumber--;
+              }
             }
           }
         }
-      }
 
-      if (localData >= 0) {
-        this.transferredData.boxLabels.splice(localData, 1);
-        this.newItemInputBox.splice(localData, 1);
-        this.notifyVue("DeleteBoxLabel", "bottom", "right");
-      }
+        if (localData >= 0) {
+          this.transferredData.boxLabels.splice(localData, 1);
+          this.newItemInputBox.splice(localData, 1);
+          this.notifyVue("DeleteBoxLabel", "bottom", "right");
+        }
 
-      // console.log("after", this.transferredData);
-      // this.$emit("closeModal", this.transferredData);
+        // console.log("after", this.transferredData);
+        // this.$emit("closeModal", this.transferredData);
+      }
     },
     handleBoxLabel(index, boxLabel) {
       // console.log("items changed:", boxLabel);

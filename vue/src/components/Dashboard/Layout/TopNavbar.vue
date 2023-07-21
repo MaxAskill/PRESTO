@@ -1,6 +1,6 @@
 <template>
   <navbar v-model="showNavbar" class="navbar-mod">
-    <div class="navbar-wrapper">
+    <div class="navbar-wrapper container-fluid">
       <div class="navbar-minimize">
         <button
           id="minimizeSidebar"
@@ -14,7 +14,11 @@
       <div class="navbar-toggle">
         <navbar-toggle-button @click.native="toggleSidebar"> </navbar-toggle-button>
       </div>
-      <a class="navbar-brand" href="#">{{ headerName }}</a>
+      <a
+        class="navbar-brand container-fluid d-flex justify-content-center font-weight-bold"
+        href="#"
+        >{{ headerName }}</a
+      >
     </div>
 
     <!-- <template slot="navbar-menu">
@@ -116,6 +120,9 @@ export default {
 </script>
 <style>
 .navbar-mod {
-  border-bottom: 0px solid transparent !important;
+  margin-top: 5px;
+  border-bottom: 2px solid #d4d4d4 !important;
+  justify-content: center !important;
+  display: flex !important;
 }
 </style>

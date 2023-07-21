@@ -24,8 +24,8 @@
           >
             Cancel
           </button>
-          <button class="btn btn-primary" data-bs-dismiss="modal" @click="confirm(true)">
-            Proceed
+          <button class="btn btn-success" data-bs-dismiss="modal" @click="confirm(true)">
+            Submit
           </button>
         </div>
       </div>

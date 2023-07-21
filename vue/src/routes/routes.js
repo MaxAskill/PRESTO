@@ -8,6 +8,9 @@ const Widgets = () => import(/* webpackChunkName: "widgets" */ '../components/Da
 import VueRouter from 'vue-router'
 import Vue from 'vue'
 
+//Promo Profile
+import PromoProfile from '../components/Dashboard/Views/PullOut/PromoProfile.vue'
+
 // Pages
 import User from '../components/Dashboard/Views/Pages/UserProfile.vue'
 import TimeLine from '../components/Dashboard/Views/Pages/TimeLinePage.vue'
@@ -41,6 +44,7 @@ const PaginatedTables = () => import(/* webpackChunkName: "tables" */ '../compon
 
 // Pull - Out pages
 const PullOutForm = () => import(/* webpackChunkName: "tables" */ '../components/Dashboard/Views/PullOut/PullOutGenerator.vue');
+const PullOutFormCopy = () => import(/* webpackChunkName: "tables" */ '../components/Dashboard/Views/PullOut/PullOutGeneratorcopy.vue');
 const PullOutFormDraft = () => import(/* webpackChunkName: "tables" */ '../components/Dashboard/Views/PullOut/DraftPullOut/DraftPullOut.vue');
 const PullOutRequests = () => import(/* webpackChunkName: "tables" */ '../components/Dashboard/Views/PullOut/PullOutRequests.vue');
 const Maintenance = () => import(/* webpackChunkName: "tables" */ '../components/Dashboard/Views/PullOut/Maintenance.vue');
@@ -57,6 +61,20 @@ const VectorMaps = () => import(/* webpackChunkName: "maps" */ '../components/Da
 import Calendar from '../components/Dashboard/Views/Calendar/CalendarRoute.vue'
 // Charts
 const Charts = () => import(/* webpackChunkName: "widgets" */ '../components/Dashboard/Views/Charts.vue')
+
+let userPromoMenu = {
+  path: '/user-promo',
+  component: DashboardLayout,
+  redirect: '/user-promo/profile',
+  children: [
+    {
+      path: 'profile',
+      name: 'My Profile',
+      component: PromoProfile,
+      meta: {requiresAuth: true}
+    }
+  ]
+}
 
 let componentsMenu = {
   path: '/components',
@@ -177,6 +195,12 @@ let pullOutMenu = {
       meta: {requiresAuth: true},
     },
     {
+      path: 'requisition-form-copy',
+      name: 'Pull-Out Requisition Form',
+      component: PullOutFormCopy,
+      meta: {requiresAuth: true},
+    },
+    {
       path: 'requests',
       name: 'Pull-Out Requests',
       component: PullOutRequests,
@@ -273,6 +297,8 @@ let lockPage = {
 }
 
 const routes = [
+  userPromoMenu,
+
   {
     path: '/',
     component: DashboardLayout,
@@ -291,6 +317,12 @@ const routes = [
         meta: {requiresAuth: true},
       }
     ]
+  },
+  {
+    path: '/user-profile',
+    name: 'UserProfile',
+    component: User,
+    meta: {requiresAuth: true}
   },
   {
     path: '/login',

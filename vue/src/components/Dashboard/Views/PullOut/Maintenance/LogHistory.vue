@@ -129,12 +129,12 @@ export default {
         {
           prop: "action_type",
           label: "Action",
-          minWidth: 70,
+          minWidth: 50,
         },
         {
           prop: "table_affected",
           label: "Table Affected",
-          minWidth: 70,
+          minWidth: 90,
         },
         {
           prop: "creation_date",

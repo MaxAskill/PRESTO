@@ -21,6 +21,10 @@ class PullOutBranchModelNBFI extends Model
         'dateTime',
         'updated_at',
         'editedBy',
-        'promoEmail'
+        'approvedBy',
+        'approvedDate',
+        'promoEmail',
+        'SLA_count',
+        'SLA_status'
     ];
 }
