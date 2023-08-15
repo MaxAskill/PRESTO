@@ -136,6 +136,24 @@ export default {
         ", " +
         this.dateEnded.toString().split(" ")[3];
 
+      // console.log("Date Start:", this.dateStarted);
+      // console.log("Date End:", this.dateEnded);
+      axiosClient
+        .post("/postDatesLetter", {
+          id: this.transferredData.plID,
+          dateStarted: this.dateStarted,
+          dateEnded: this.dateEnded,
+          authorizedPersonnel: this.transferredData.createdBy,
+          company: sessionStorage.getItem("Company"),
+          userID: sessionStorage.getItem("UserID"),
+        })
+        .then((response) => {
+          console.log("Success Post Dates Letter", response.data);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+
       for (var x = 0; x < this.itemData.length; x++) {
         axiosClient
           .post("/updateItemQuantity", {
@@ -163,23 +181,22 @@ export default {
         })
         .then((response) => {
           // console.log("Success:", response.data);
-          window.open(
-            "http://192.168.0.7:40/api/generatePDF?name=" +
-              this.transferredData.createdBy +
-              "&plID=" +
-              this.transferredData.plID +
-              "&dateStart=" +
-              tempDateStart +
-              "&dateEnd=" +
-              tempDateEnd +
-              "&email=" +
-              this.transferredData.promoEmail +
-              "&userID=" +
-              sessionStorage.getItem("UserID") +
-              "&company=" +
-              sessionStorage.getItem("Company"),
-            "_blank"
-          );
+          const baseUrl = "http://192.168.0.7:40/api/generatePDF";
+          const queryParams = new URLSearchParams({
+            name: this.transferredData.createdBy,
+            plID: this.transferredData.plID,
+            dateStart: tempDateStart,
+            dateEnd: tempDateEnd,
+            email: this.transferredData.promoEmail,
+            userID: sessionStorage.getItem("UserID"),
+            status: "endorsement",
+            company: sessionStorage.getItem("Company"),
+            regenerate: "generate",
+          });
+
+          const fullUrl = `${baseUrl}?${queryParams}`;
+
+          window.open(fullUrl, "_blank");
           setTimeout(() => {
             window.location.reload();
           }, 3000); // Reload after 3 seconds

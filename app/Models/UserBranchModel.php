@@ -20,6 +20,7 @@ class UserBranchModel extends Model
         'created_date',
         'date_end',
         'request',
-        'status'
+        'status',
+        'permanent'
     ];
 }

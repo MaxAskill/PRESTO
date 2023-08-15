@@ -28,80 +28,80 @@
             addon-left-icon="nc-icon nc-email-85"
             placeholder="Email"
           ></fg-input>
-          <div class="input-group d-flex">
-            <div class="input-group-prepend">
+          <div class="input-group">
+            <div class="input-group-prepend" style="width: 100%">
               <span class="input-group-text">
                 <i class="nc-icon nc-bank"></i>
               </span>
-            </div>
-            <el-select
-              suffix-icon="nc-icon nc-key-25"
-              class="select-default flex-grow-1 sign-select"
-              size="large"
-              placeholder="Select Company"
-              v-model="form.company"
-              @change="fetchChainCode"
-            >
-              <el-option
-                v-for="option in companyList"
-                class="select-default"
-                :value="option.shortName"
-                :label="option.name + ' (' + option.shortName + ') '"
-                :key="option.id"
+              <el-select
+                suffix-icon="nc-icon nc-key-25"
+                class="select-default flex-grow-1 sign-select"
+                size="large"
+                placeholder="Select Company"
+                v-model="form.company"
+                @change="fetchChainCode"
               >
-              </el-option>
-            </el-select>
+                <el-option
+                  v-for="option in companyList"
+                  class="select-default"
+                  :value="option.shortName"
+                  :label="option.name + ' (' + option.shortName + ') '"
+                  :key="option.id"
+                >
+                </el-option>
+              </el-select>
+            </div>
           </div>
           <div class="input-group d-flex">
-            <div class="input-group-prepend">
+            <div class="input-group-prepend" style="width: 100%">
               <span class="input-group-text">
                 <i class="nc-icon nc-basket"></i>
               </span>
-            </div>
-            <el-select
-              suffix-icon="nc-icon nc-key-25"
-              class="select-default flex-grow-1 sign-select"
-              size="large"
-              placeholder="Select Chain Code"
-              v-model="form.chainCode"
-              :disabled="disableChainCode"
-              @change="fetchBranchName"
-            >
-              <el-option
-                v-for="option in chainCodeList"
-                class="select-default"
-                :value="option.chainCode"
-                :label="option.chainCode"
-                :key="option.chainCode"
+              <el-select
+                suffix-icon="nc-icon nc-key-25"
+                class="select-default flex-grow-1 sign-select"
+                size="large"
+                placeholder="Select Chain Code"
+                v-model="form.chainCode"
+                :disabled="disableChainCode"
+                @change="fetchBranchName"
               >
-              </el-option>
-            </el-select>
+                <el-option
+                  v-for="option in chainCodeList"
+                  class="select-default"
+                  :value="option.chainCode"
+                  :label="option.chainCode"
+                  :key="option.chainCode"
+                >
+                </el-option>
+              </el-select>
+            </div>
           </div>
           <div class="input-group d-flex">
-            <div class="input-group-prepend">
+            <div class="input-group-prepend" style="width: 100%">
               <span class="input-group-text">
                 <i class="nc-icon nc-shop"></i>
               </span>
-            </div>
-            <el-select
-              suffix-icon="nc-icon nc-key-25"
-              class="select-default flex-grow-1 sign-select"
-              size="large"
-              placeholder="Select Branch Name"
-              v-model="form.branchName"
-              :disabled="disableBranchName"
-            >
-              <el-option
-                v-for="option in branchNameList"
-                class="select-default"
-                :value="option.branchName"
-                :label="option.branchName"
-                :key="option.branchName"
+              <el-select
+                suffix-icon="nc-icon nc-key-25"
+                class="select-default flex-grow-1 sign-select"
+                size="large"
+                placeholder="Select Branch Name"
+                v-model="form.branchName"
+                :disabled="disableBranchName"
               >
-              </el-option>
-            </el-select>
+                <el-option
+                  v-for="option in branchNameList"
+                  class="select-default"
+                  :value="option.branchName"
+                  :label="option.branchName"
+                  :key="option.branchName"
+                >
+                </el-option>
+              </el-select>
+            </div>
           </div>
-          <div class="row">
+          <!-- <div class="row">
             <fg-input label="Date End Promo">
               <el-date-picker
                 v-model="form.dateEnd"
@@ -110,7 +110,7 @@
               >
               </el-date-picker>
             </fg-input>
-          </div>
+          </div> -->
 
           <!-- <div class="card-footer my-2">
                 <p-button native-type="submit" type="info" round>Register </p-button>
@@ -255,7 +255,7 @@ export default {
           branchName: this.form.branchName,
           user: sessionStorage.getItem("UserID"),
           company: this.form.company,
-          dateEnd: this.form.dateEnd,
+          // dateEnd: this.form.dateEnd,
         })
         .then((response) => {
           console.log("Success Activate Account", response.data);

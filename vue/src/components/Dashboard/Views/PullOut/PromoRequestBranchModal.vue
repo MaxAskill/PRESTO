@@ -26,7 +26,47 @@
             <span class="text-center mb-2" style="font-size: 13px">
               <b>{{ promoDetails.length }} Assigned Branch:</b>
             </span>
-            <div class="d-flex">
+            <div style="overflow-x: auto; min-width: 350px">
+              <table class="table table-borderless">
+                <thead>
+                  <tr>
+                    <th scope="col" class="labelRows">Company</th>
+                    <th scope="col" class="labelRows">Chain Code</th>
+                    <th scope="col" class="labelRows">Branch Name</th>
+                    <th scope="col" class="labelRows">Start Date</th>
+                    <th scope="col" class="labelRows">Expiry Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="details in promoDetails">
+                    <td class="cell text-nowrap py-1">{{ details.company }}</td>
+                    <td class="cell text-nowrap py-1">{{ details.chainCode }}</td>
+                    <td class="cell text-nowrap py-1">
+                      <el-tooltip
+                        v-if="details.permanent"
+                        effect="light"
+                        content="Permanent Branch"
+                        placement="top-start"
+                      >
+                        <span class="p-icon">P</span></el-tooltip
+                      >
+                      <el-tooltip
+                        v-else-if="!details.permanent"
+                        effect="light"
+                        content="Temporary Branch"
+                        placement="top-start"
+                      >
+                        <span class="t-icon">T</span>
+                      </el-tooltip>
+                      &nbsp;{{ details.branchName }}
+                    </td>
+                    <td class="cell text-nowrap py-1">{{ details.dateStart }}</td>
+                    <td class="cell text-nowrap py-1">{{ details.dateEnd }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <!-- <div class="d-flex">
               <span class="labelRows col-3">Company</span>
               <span class="labelRows col-3">Chain Code</span>
               <span class="labelRows col-6">Branch Name</span>
@@ -35,13 +75,81 @@
               <span class="col-3">{{ details.company }}</span>
               <span class="col-3">{{ details.chainCode }}</span>
               <span class="col-6">{{ details.branchName }}</span>
-            </div>
-            <div class="d-flex mt-3 text-center">
+            </div> -->
+            <div class="d-flex mt-2 text-center">
               <span class="col-12 mb-2" style="font-size: 13px"
-                ><b>This Promo wants to Update the Assigned Branch to: </b></span
-              >
+                ><b>Promo's Request to Update the Temporary Branch</b>
+              </span>
             </div>
-            <div class="d-flex mt-1">
+            <div style="overflow-x: auto; min-width: 350px">
+              <table class="table table-borderless">
+                <thead>
+                  <tr>
+                    <th scope="col" class="labelRows">Company</th>
+                    <th scope="col" class="labelRows">Chain Code</th>
+                    <th scope="col" class="labelRows">Branch Name</th>
+                    <th scope="col" class="labelRows text-center">Request</th>
+                    <th scope="col" class="labelRows">Reject</th>
+                    <th scope="col" class="labelRows">Start Date</th>
+                    <th scope="col" class="labelRows">Expiry Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(request, key) in tempPromoRequest">
+                    <td class="cell text-nowrap py-1">{{ request.company }}</td>
+                    <td class="cell text-nowrap py-1">{{ request.chainCode }}</td>
+                    <td class="cell text-nowrap py-1">{{ request.branchName }}</td>
+                    <td class="cell text-nowrap py-1">
+                      <el-tooltip
+                        v-if="request.request == 'remove'"
+                        content="Request to remove this branch."
+                        placement="top"
+                      >
+                        <el-tag class="m-0" type="danger">For Removal</el-tag>
+                      </el-tooltip>
+                      <el-tooltip
+                        v-else-if="request.request == 'additional'"
+                        content="Request to add this branch."
+                        placement="top"
+                      >
+                        <el-tag class="m-0" color="white" type="warning"
+                          >New Branch</el-tag
+                        >
+                      </el-tooltip>
+                    </td>
+                    <td class="cell text-nowrap text-center py-1">
+                      <button
+                        class="btn btn-default py-1 px-2"
+                        @click="rejectBranch(request)"
+                      >
+                        <i class="nc-icon nc-simple-remove"></i>
+                      </button>
+                    </td>
+                    <td class="cell text-nowrap py-1">
+                      <fg-input class="text-center mb-0" style="width: 150px"
+                        ><el-date-picker
+                          v-model="dateStart[key]"
+                          type="date"
+                          placeholder="Select a Day"
+                        >
+                        </el-date-picker
+                      ></fg-input>
+                    </td>
+                    <td class="cell text-nowrap py-1">
+                      <fg-input class="text-center mb-0" style="width: 150px"
+                        ><el-date-picker
+                          v-model="dateEnd[key]"
+                          type="date"
+                          placeholder="Select a Day"
+                        >
+                        </el-date-picker
+                      ></fg-input>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <!-- <div class="d-flex mt-1">
               <span class="labelRows col-3">Company</span>
               <span class="labelRows col-3">Chain Code</span>
               <span class="labelRows col-6">Branch Name</span>
@@ -57,8 +165,8 @@
                 v-model="checkedBranch"
                 :value="key"
               />
-            </div>
-            <div class="mt-3">
+            </div> -->
+            <!-- <div class="mt-3">
               <fg-input label="Date End Promo" class="col-12 text-center mb-0"
                 ><el-date-picker
                   v-model="dateEnd"
@@ -68,13 +176,13 @@
                 >
                 </el-date-picker
               ></fg-input>
-            </div>
+            </div> -->
           </div>
           <div class="modal-footer d-flex justify-content-center">
             <button v-show="!rejectMode" class="btn btn-default" data-bs-dismiss="modal">
               Cancel
             </button>
-            <button
+            <!-- <button
               v-show="rejectMode"
               class="btn btn-default"
               @click="(rejectMode = false), (checkedBranch = [])"
@@ -88,9 +196,14 @@
             >
               Reject
             </button>
-            <button v-show="rejectMode" class="btn btn-danger" @click="rejectBranch">
+            <button
+              v-show="rejectMode"
+              class="btn btn-danger"
+              @click="rejectBranch"
+              :disabled="rejected"
+            >
               Reject Selected Branch
-            </button>
+            </button> -->
             <button
               v-show="!rejectMode"
               class="btn btn-primary"
@@ -121,11 +234,16 @@ export default {
   },
   watch: {
     dateEnd: "validateApprove",
+    dateStart: "validateApprove",
     promoRequest: {
       handler() {
         this.promoDetailsTransfer();
       },
       deep: true,
+    },
+    checkedBranch: function () {
+      if (this.checkedBranch.length == 0) this.rejected = true;
+      else this.rejected = false;
     },
   },
   props: ["promoData", "promoDetails", "promoRequest"],
@@ -139,64 +257,75 @@ export default {
   },
   data() {
     return {
-      dateEnd: null,
+      dateStart: [],
+      dateEnd: [],
       disableApprove: true,
       checkedBranch: [],
       rejectMode: false,
       tempPromoRequest: [],
+      rejected: true,
     };
   },
-  mounted() {
-    console.log("DSAFSAF");
-  },
+  mounted() {},
   methods: {
     approveRequest(confirm) {
+      console.log("TP APP:", this.tempPromoRequest);
       if (confirm)
-        axiosClient
-          .post("/updateUserBranchByRequest", {
-            userID: this.promoData.id,
-            dateEnd: this.dateEnd,
-          })
-          .then((response) => {
-            this.$emit("fetchUsers");
-          })
-          .catch((error) => {
-            console.error(error);
-          });
+        for (let key in this.tempPromoRequest)
+          axiosClient
+            .post("/updateUserBranchByRequest", {
+              id: this.tempPromoRequest[key].id,
+              // userID: this.promoData.id,
+              dateStart: this.dateStart[key],
+              dateEnd: this.dateEnd[key],
+            })
+            .then((response) => {
+              this.$emit("fetchUsers");
+            })
+            .catch((error) => {
+              console.error(error);
+            });
     },
-    rejectBranch() {
-      let selectedBranchReject = this.checkedBranch.map((i) => this.tempPromoRequest[i]);
-      this.tempPromoRequest = this.tempPromoRequest.filter(
-        (_, index) => !this.checkedBranch.includes(index)
-      );
-      selectedBranchReject.forEach((reject) => {
-        axiosClient
-          .post("/deleteUserBranch", {
-            userID: this.promoData.id,
-            userType: "Agent",
-            company: reject.company,
-            chainCode: reject.chainCode,
-            branchName: reject.branchName,
-          })
-          .then((response) => {})
-          .catch((error) => {
-            console.error(error);
-          });
-      });
-      if (this.tempPromoRequest.length <= 0) {
-        window.location.reload();
-      }
-      this.rejectMode = false;
-      this.checkedBranch = [];
+    rejectBranch(reject) {
+      // let selectedBranchReject = this.checkedBranch.map((i) => this.tempPromoRequest[i]);
+      // this.tempPromoRequest = this.tempPromoRequest.filter(
+      //   (_, index) => !this.checkedBranch.includes(index)
+      // );
+      // selectedBranchReject.forEach((reject) => {
+      axiosClient
+        .post("/deleteUserBranch", {
+          userID: this.promoData.id,
+          company: reject.company,
+          chainCode: reject.chainCode,
+          branchName: reject.branchName,
+          req: reject.request,
+        })
+        .then((response) => {
+          this.$emit("fetchPromoRequest", this.promoData.id);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+      // });
+      // if (this.tempPromoRequest.length <= 0) {
+      //   window.location.reload();
+      // }
+      // this.rejectMode = false;
+      // this.rejected = true;
+      // this.checkedBranch = [];
       this.$emit("fetchUsers");
     },
     promoDetailsTransfer() {
       this.tempPromoRequest = [...this.promoRequest];
+      console.log("Prom Req:::::::: ", this.promoRequest);
     },
     validateApprove() {
-      console.log(this.dateEnd);
-      if (this.dateEnd) this.disableApprove = false;
-      else this.disableApprove = true;
+      if (
+        this.dateEnd.length != this.tempPromoRequest.length &&
+        this.dateStart.length != this.tempPromoRequest.length
+      )
+        this.disableApprove = true;
+      else this.disableApprove = false;
     },
   },
 };

@@ -11,7 +11,7 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header"></div>
-        <div class="modal-body text-center">
+        <div class="modal-body text-center" v-if="isSubmit">
           <p>
             Your transaction has been processed successfully.<br /><br />Transaction
             Number<br /><span class="tr_num">{{ transferTransactionID }}</span
@@ -19,13 +19,33 @@
             closing this window.
           </p>
         </div>
+        <div class="modal-body text-center" v-else>
+          <p>
+            The transaction has been reviewed successfully.<br /><br />Transaction
+            Number<br /><span class="tr_num">{{ transferTransactionID }}</span
+            ><br /><br />The transaction will now proceed for approval.
+          </p>
+        </div>
         <div class="modal-footer d-flex justify-content-center">
-          <!-- <div class="spinner-border text-dark" role="status">
+          <!-- <div class="spinner-border text-dark" role="status" v-if="counter">
             <span class="sr-only">Loading...</span>
           </div> -->
-          <button class="btn btn-secondary" data-bs-dismiss="modal" @click="reloadPage()">
+          <!-- <div v-else> -->
+          <button
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+            @click="reloadPage()"
+            :disabled="counter"
+          >
+            <span
+              class="spinner-border spinner-border-sm"
+              role="status"
+              aria-hidden="true"
+              v-if="counter"
+            ></span>
             Close
           </button>
+          <!-- </div> -->
         </div>
       </div>
     </div>
@@ -37,9 +57,11 @@ import axiosClient from "../../../../../../axios";
 import axios from "axios";
 
 export default {
-  props: ["transferTransactionID"],
+  props: ["transferTransactionID", "savingCounter"],
   components: {},
-  watch: {},
+  watch: {
+    savingCounter: "counterSaving",
+  },
   computed: {
     /***
      * Searches through table data and returns a paginated array.
@@ -49,16 +71,45 @@ export default {
      */
   },
   data() {
-    return {};
+    return {
+      counter: true,
+      isSubmit: true,
+    };
   },
-  mounted() {},
+  mounted() {
+    this.isEditParagraph();
+  },
   methods: {
+    isEditParagraph() {
+      if (
+        sessionStorage.getItem("Position") == "Agent" ||
+        sessionStorage.getItem("Position") == "Approver"
+      ) {
+        this.isSubmit = false;
+      }
+    },
     reloadPage() {
       // window.location.href = "http://192.168.0.7:4040/#/pull-out/pullout-transaction";
 
-      this.$router.push({
-        path: "/pull-out/pullout-transaction",
-      });
+      if (
+        sessionStorage.getItem("Position") == "Agent" ||
+        sessionStorage.getItem("Position") == "Approver"
+      )
+        this.$router.push({
+          path: "/pull-out/requests",
+        });
+      else
+        this.$router.push({
+          path: "/pull-out/pullout-transaction",
+        });
+    },
+    counterSaving() {
+      // foreach(v);
+      console.log("Counter: ", this.counter);
+      setTimeout(() => {
+        this.counter = false;
+      }, this.savingCounter * 1000);
+      console.log("Counter after: ", this.counter);
     },
   },
 };

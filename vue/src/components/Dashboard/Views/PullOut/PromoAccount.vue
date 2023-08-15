@@ -4,7 +4,7 @@
       <!-- <div class="card-header">
         <h4 class="title">Promodiser's Account</h4>
       </div> -->
-      <div class="row mx-2">
+      <!-- <div class="row mx-2">
         <div class="col-2 pl-0 pr-1">
           <el-select
             class="select-default"
@@ -30,90 +30,220 @@
           >
           </fg-input>
         </div>
-      </div>
+      </div> -->
       <div class="row mx-2">
         <el-table
-          class="table-striped pad-tbl"
+          class="table-striped p-0"
           :data="queriedData"
           border
+          max-height="650"
           style="width: 100%"
         >
-          <el-table-column
-            v-for="column in tableColumns"
-            :key="column.label"
-            :min-width="column.minWidth"
-            :prop="column.prop"
-            :label="column.label"
-          >
-          </el-table-column>
-          <el-table-column :width="150" class-name="td-actions" label="More Details">
-            <template slot-scope="props">
-              <p-button
-                v-if="
-                  props.row.status === 'Activated' || props.row.status === 'Deactivated'
-                "
-                type="primary"
-                size="sm"
-                data-bs-toggle="modal"
-                data-bs-target="#promoDetailsModal"
-                @click="
-                  handleEdit(props.$index, props.row), fetchDataPromoDetails(props.row.id)
-                "
+          <el-table-column>
+            <template slot="header" slot-scope="scope">
+              <fg-input
+                class="input-md"
+                placeholder="Search"
+                v-model="searchQuery"
+                addon-right-icon="nc-icon nc-zoom-split"
+                style="width: 100%"
               >
-                View Details
-              </p-button>
+              </fg-input>
             </template>
+            <el-table-column
+              v-for="column in tableColumns"
+              :key="column.label"
+              :min-width="column.minWidth"
+              :prop="column.prop"
+              :label="column.label"
+              header-align="center"
+              :sortable="column.sortable"
+            >
+            </el-table-column>
           </el-table-column>
-          <el-table-column :width="90" class-name="td-actions" label="Request">
-            <template slot-scope="props">
-              <p-button
-                v-if="props.row.request"
-                type="info"
-                class="m-0"
-                icon
-                data-bs-toggle="modal"
-                data-bs-target="#promoRequestBranchModal"
-                @click="
-                  handleEdit(props.$index, props.row), fetchDataPromoRequest(props.row.id)
-                "
-              >
-                <i class="nc-icon nc-badge"></i>
-              </p-button>
-            </template>
+          <el-table-column>
+            <template slot="header" slot-scope="scope"> </template>
+            <el-table-column
+              :width="150"
+              class-name="td-actions"
+              label="Branch"
+              header-align="center"
+            >
+              <template slot-scope="props">
+                <p-button
+                  v-if="
+                    (props.row.status === 'Activated' ||
+                      props.row.status === 'Deactivated') &&
+                    props.row.details.length > 1
+                  "
+                  type="success"
+                  size="sm"
+                  data-bs-toggle="modal"
+                  data-bs-target="#promoDetailsModal"
+                  @click="
+                    handleEdit(props.$index, props.row),
+                      fetchDataPromoDetails(props.row.id)
+                  "
+                >
+                  Roving
+                </p-button>
+                <p-button
+                  v-if="
+                    (props.row.status === 'Activated' ||
+                      props.row.status === 'Deactivated') &&
+                    props.row.details.length == 1
+                  "
+                  type="info"
+                  size="sm"
+                  data-bs-toggle="modal"
+                  data-bs-target="#promoDetailsModal"
+                  @click="
+                    handleEdit(props.$index, props.row),
+                      fetchDataPromoDetails(props.row.id)
+                  "
+                >
+                  Non-Roving
+                </p-button>
+              </template>
+            </el-table-column>
+            <!-- <el-table-column label="Roving Personnel" width="175">
+              <template slot-scope="scope">
+                <el-popover trigger="click" placement="top">
+                  <div class="overflow-x-auto">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th scope="col" class="text-nowrap">Company</th>
+                          <th scope="col" class="text-nowrap">Chain Code</th>
+                          <th scope="col" class="text-nowrap">Branch Name</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="promo in scope.row.details">
+                          <td class="cell">{{ promo.company }}</td>
+                          <td class="cell text-nowrap">{{ promo.chainCode }}</td>
+                          <td class="cell text-nowrap">{{ promo.branchName }}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="overflow-x-auto">
+                    <div class="d-flex">
+                      <span class="span-popover col-sm-auto">Company</span>
+                      <span class="span-popover col-sm-auto">Chain Code</span>
+                      <span class="span-popover col-sm-auto">Branch Name</span>
+                    </div>
+                    <div class="d-flex mt-1" v-for="promo in scope.row.details">
+                      <span class="col-3" style="word-break: keep-all">{{
+                        promo.company
+                      }}</span>
+                      <span class="col-3" style="word-break: keep-all">{{
+                        promo.chainCode
+                      }}</span>
+                      <span class="col-6" style="word-break: keep-all">{{
+                        promo.branchName
+                      }}</span>
+                    </div>
+                  </div>
+                  <div slot="reference">
+                    <el-tag>Yes</el-tag>
+                  </div>
+                </el-popover>
+              </template>
+            </el-table-column> -->
+            <el-table-column
+              :width="110"
+              class-name="td-actions"
+              label="Request"
+              header-align="center"
+              :filters="[
+                { text: 'With Request', value: 1 },
+                { text: 'Without Request', value: 0 },
+              ]"
+              :filter-method="filterRequest"
+              filter-placement="bottom-end"
+            >
+              <template slot-scope="props">
+                <p-button
+                  v-if="props.row.request"
+                  type="info"
+                  class="m-0"
+                  icon
+                  data-bs-toggle="modal"
+                  data-bs-target="#promoRequestBranchModal"
+                  @click="
+                    handleEdit(props.$index, props.row),
+                      fetchDataPromoRequest(props.row.id)
+                  "
+                >
+                  <i class="nc-icon nc-badge"></i>
+                </p-button>
+              </template>
+            </el-table-column>
           </el-table-column>
-          <el-table-column :min-width="85" class-name="td-actions" label="Status">
-            <template slot-scope="props">
-              <p-button
-                v-if="props.row.status === 'Activated'"
-                type="success"
-                size="sm"
-                data-bs-toggle="modal"
-                data-bs-target="#promoDeactivationModal"
-                @click="handleEdit(props.$index, props.row)"
+          <el-table-column fixed="right" width="160">
+            <template slot="header" slot-scope="scope">
+              <el-select
+                class="select-default"
+                v-model="pagination.perPage"
+                placeholder="Per page"
               >
-                Activated
-              </p-button>
-              <p-button
-                v-else-if="props.row.status === 'Deactivated'"
-                type="warning"
-                size="sm"
-                data-bs-toggle="modal"
-                data-bs-target="#promoReactivationModal"
-                @click="handleEdit(props.$index, props.row)"
-              >
-                Deactivated
-              </p-button>
-              <p-button
-                v-else
-                type="info"
-                size="sm"
-                data-bs-toggle="modal"
-                data-bs-target="#promoActivation"
-                @click="handleEdit(props.$index, props.row)"
-              >
-                New Account
-              </p-button>
+                <el-option
+                  class="select-default"
+                  v-for="item in pagination.perPageOptions"
+                  :key="item"
+                  :label="item"
+                  :value="item"
+                >
+                </el-option>
+              </el-select>
             </template>
+            <el-table-column
+              :width="160"
+              class-name="td-actions"
+              label="Status"
+              header-align="center"
+              :filters="[
+                { text: 'New Account', value: null },
+                { text: 'Activated', value: 'Activated' },
+                { text: 'Deactivated', value: 'Deactivated' },
+              ]"
+              :filter-method="filterStatus"
+              filter-placement="bottom-end"
+            >
+              <template slot-scope="props">
+                <p-button
+                  v-if="props.row.status === 'Activated'"
+                  type="success"
+                  size="sm"
+                  data-bs-toggle="modal"
+                  data-bs-target="#promoDeactivationModal"
+                  @click="handleEdit(props.$index, props.row)"
+                >
+                  Activated
+                </p-button>
+                <p-button
+                  v-else-if="props.row.status === 'Deactivated'"
+                  type="warning"
+                  size="sm"
+                  data-bs-toggle="modal"
+                  data-bs-target="#promoReactivationModal"
+                  @click="handleEdit(props.$index, props.row)"
+                >
+                  Deactivated
+                </p-button>
+                <p-button
+                  v-else-if="!props.row.status"
+                  type="info"
+                  size="sm"
+                  data-bs-toggle="modal"
+                  data-bs-target="#promoActivation"
+                  @click="handleEdit(props.$index, props.row)"
+                >
+                  New Account
+                </p-button>
+              </template>
+            </el-table-column>
           </el-table-column>
         </el-table>
       </div>
@@ -166,7 +296,7 @@ import Vue from "vue";
 //   Card,
 //   Button,
 // } from "src/components/UIComponents";
-import { Table, TableColumn, Select, Option } from "element-ui";
+import { Table, TableColumn, Select, Option, Popover, Tag } from "element-ui";
 // import PButton from "../../../../UIComponents/Button.vue";
 import PButton from "../../../UIComponents/Button.vue";
 import PPagination from "../../../UIComponents/Pagination.vue";
@@ -183,6 +313,8 @@ Vue.use(Table);
 Vue.use(TableColumn);
 Vue.use(Select);
 Vue.use(Option);
+Vue.use(Popover);
+Vue.use(Tag);
 
 export default {
   components: {
@@ -255,17 +387,19 @@ export default {
         total: 0,
       },
       searchQuery: "",
-      propsToSearch: ["name", "email", "branchName", "company", "chainCode", "date"],
+      propsToSearch: ["name", "email", "date"],
       tableColumns: [
         {
           prop: "name",
           label: "Full Name",
-          minWidth: 100,
+          minWidth: 120,
+          sortable: false,
         },
         {
           prop: "email",
           label: "Email",
-          minWidth: 180,
+          minWidth: 150,
+          sortable: false,
         },
         // {
         //   prop: "company",
@@ -285,7 +419,8 @@ export default {
         {
           prop: "date",
           label: "Date Registered",
-          minWidth: 90,
+          minWidth: 180,
+          sortable: true,
         },
         // {
         //   prop: "dateEnd",
@@ -318,7 +453,11 @@ export default {
     },
     fetchData() {
       axiosClient
-        .get("/usersMaintenance")
+        .get("/usersMaintenance", {
+          params: {
+            company: sessionStorage.getItem("Company"),
+          },
+        })
         .then((response) => {
           // console.log("Pull Out Request", response.data);
           this.tableData = response.data;
@@ -371,6 +510,12 @@ export default {
         this.tableData.splice(indexToDelete, 1);
       }
     },
+    filterStatus(value, row) {
+      return row.status === value;
+    },
+    filterRequest(value, row) {
+      return row.request === value;
+    },
   },
 };
 </script>
@@ -385,9 +530,6 @@ export default {
   display: flex;
   justify-content: center; /* Center horizontally */
   align-items: center; /* Center vertically */
-}
-.pad-tbl {
-  padding: 0px 0px;
 }
 .btn-margin {
   margin: 0px 0px;
@@ -417,5 +559,9 @@ export default {
 
 .card-account {
   margin-top: 100px;
+}
+.span-popover {
+  font-size: 0.8571em;
+  color: #9a9a9a;
 }
 </style>

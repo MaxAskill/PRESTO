@@ -37,6 +37,7 @@ import './assets/sass/demo.scss'
 
 import sidebarLinks from './sidebarLinks'
 import './registerServiceWorker'
+
 // import './assets/tailwind.css'
 // plugin setup
 // Vue.use(VueRouter)

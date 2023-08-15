@@ -103,17 +103,22 @@ export default {
   methods: {
     cancelRequest(confirm) {
       if (confirm)
-        axiosClient
-          .post("/deleteUserBranch", {
-            userID: sessionStorage.getItem("UserID"),
-            userType: "Promo",
-          })
-          .then((response) => {
-            this.$emit("refetchUserData");
-          })
-          .catch((error) => {
-            console.error(error);
-          });
+        this.userRequest.forEach((req) => {
+          axiosClient
+            .post("/deleteUserBranch", {
+              userID: sessionStorage.getItem("UserID"),
+              req: req.request,
+              company: req.company,
+              chainCode: req.chainCode,
+              branchName: req.branchName,
+            })
+            .then((response) => {
+              this.$emit("refetchUserData");
+            })
+            .catch((error) => {
+              console.error(error);
+            });
+        });
     },
   },
 };

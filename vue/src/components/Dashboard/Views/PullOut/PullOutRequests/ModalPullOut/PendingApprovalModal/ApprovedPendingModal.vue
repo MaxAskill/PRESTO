@@ -20,7 +20,7 @@
             <div class="col-12 pull-left">
               <fg-input
                 label="Name of Sales Representative / Retail Area Supervisor"
-                v-model="transferredData.createdBy"
+                v-model="authorizedPersonnel"
               ></fg-input>
             </div>
             <div class="col-6">
@@ -48,13 +48,7 @@
           </div>
         </div>
         <div class="modal-footer px-5">
-          <button
-            class="btn btn-secondary"
-            data-bs-target="#approvalModal"
-            data-bs-toggle="modal"
-          >
-            Close
-          </button>
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
           <button
             :disabled="isDisabled"
             type="button"
@@ -83,7 +77,7 @@ Vue.use(Select);
 Vue.use(Option);
 Vue.use(DatePicker);
 export default {
-  props: ["transferredData", "itemData"],
+  props: ["transferredData", "itemData", "dateData"],
   components: {
     ApprovalModal,
   },
@@ -111,16 +105,30 @@ export default {
       dateStarted: "",
       dateEnded: "",
       isDisabled: true,
+      authorizedPersonnel: "",
     };
   },
   watch: {
     "transferredData.name": function (val, oldVal) {
       this.validateGenerate();
     },
+    dateData: {
+      handler(val) {
+        this.transferDate();
+      },
+      deep: true,
+    },
     dateStarted: "validateGenerate",
     dateEnded: "validateGenerate",
   },
   methods: {
+    transferDate() {
+      console.log("Dates:", this.dateData);
+      this.dateStarted = this.dateData[0].dateStart;
+      this.dateEnded = this.dateData[0].dateEnd;
+      this.authorizedPersonnel = this.dateData[0].authorizedPersonnel;
+      console.log("Transfer Date:", this.dateStarted, this.dateEnded);
+    },
     generateLetter() {
       var tempDateStart =
         this.dateStarted.toString().split(" ")[1] +
@@ -136,6 +144,7 @@ export default {
         ", " +
         this.dateEnded.toString().split(" ")[3];
 
+      console.log("Date Started: ", this.dateStarted, "Date Ended:", this.dateEnded);
       for (var x = 0; x < this.itemData.length; x++) {
         axiosClient
           .post("/updateItemQuantity", {
@@ -163,23 +172,22 @@ export default {
         })
         .then((response) => {
           // console.log("Success:", response.data);
-          window.open(
-            "http://192.168.0.7:40/api/generatePDF?name=" +
-              this.transferredData.createdBy +
-              "&plID=" +
-              this.transferredData.plID +
-              "&dateStart=" +
-              tempDateStart +
-              "&dateEnd=" +
-              tempDateEnd +
-              "&email=" +
-              this.transferredData.promoEmail +
-              "&userID=" +
-              sessionStorage.getItem("UserID") +
-              "&company=" +
-              sessionStorage.getItem("Company"),
-            "_blank"
-          );
+          const baseUrl = "http://192.168.0.7:40/api/generatePDF";
+          const queryParams = new URLSearchParams({
+            name: this.transferredData.createdBy,
+            plID: this.transferredData.plID,
+            dateStart: tempDateStart,
+            dateEnd: tempDateEnd,
+            email: this.transferredData.promoEmail,
+            userID: sessionStorage.getItem("UserID"),
+            status: "approved",
+            company: sessionStorage.getItem("Company"),
+            regenerate: "generate",
+          });
+
+          const fullUrl = `${baseUrl}?${queryParams}`;
+
+          window.open(fullUrl, "_blank");
           setTimeout(() => {
             window.location.reload();
           }, 3000); // Reload after 3 seconds

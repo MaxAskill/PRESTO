@@ -17,8 +17,23 @@
         </div>
         <div class="modal-body">
           <div class="">
+            <input
+              type="text"
+              placeholder="Reason"
+              v-model="reason"
+              list="reasonsList"
+              class="input-datalist w-100"
+            />
+
+            <datalist id="reasonsList">
+              <option
+                v-for="reasonLabel in reasonLabelList"
+                :value="reasonLabel.reasonLabel"
+                :key="reasonLabel.id"
+              ></option>
+            </datalist>
             <!-- <fg-input label="Reason" placeholder="Reason" v-model="reason"></fg-input> -->
-            <el-select class="denied-select-box" size="large" v-model="reason">
+            <!-- <el-select class="denied-select-box" size="large" v-model="reason">
               <el-option
                 v-for="reasonLabel in reasonLabelList"
                 class="denied-select-box"
@@ -27,7 +42,7 @@
                 :key="reasonLabel.id"
               >
               </el-option>
-            </el-select>
+            </el-select> -->
           </div>
         </div>
         <div class="modal-footer px-5">
@@ -98,7 +113,11 @@ export default {
     },
     fetchData() {
       axiosClient
-        .get("/fetchReasonLabel")
+        .get("/fetchReasonLabel", {
+          params: {
+            company: sessionStorage.getItem("Company"),
+          },
+        })
         .then((response) => {
           this.reasonLabelList = response.data;
         })
@@ -112,7 +131,7 @@ export default {
           company: sessionStorage.getItem("Company"),
           id: this.transferredData.plID,
           userID: sessionStorage.getItem("UserID"),
-          promoName: this.transferredData.name,
+          promoName: this.transferredData.createdBy,
           email: this.transferredData.promoEmail,
           reason: this.reason,
         })

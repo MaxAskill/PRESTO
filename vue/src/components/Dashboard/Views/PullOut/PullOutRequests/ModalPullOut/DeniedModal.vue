@@ -456,6 +456,8 @@ export default {
     submit() {
       console.log("Transaction Number:", this.transferredData.plID);
       console.log("Company", this.transferredData.company);
+      var company1 = this.transferredData.company.split("(")[1];
+      var company = company1.split(")")[0];
       // location.href =
       //   "http://192.168.0.7:4040/#/pull-out/requisition-form?transactionID=" +
       //   this.transferredData.plID +
@@ -466,7 +468,7 @@ export default {
         path: "/pull-out/requisition-form",
         query: {
           transactionID: this.transferredData.plID,
-          company: this.transferredData.company,
+          company: company,
         },
       });
     },

@@ -9,7 +9,6 @@
       aria-labelledby="approvalModalLabel"
       aria-hidden="true"
     >
-      import ViewPendingModal from "./PendingApprovalModal/ViewPendingModal.vue";
       <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
           <div class="modal-header">
@@ -344,14 +343,16 @@ P {{ totalNumbers.totalAmount }}</textarea
         </div>
       </div>
     </div>
-    <RegenerateApprovedModal
+    <!-- <RegenerateApprovedModal
       :transferredData="transferredData"
       :itemData="itemData"
-    ></RegenerateApprovedModal>
+      :dateData="dateData"
+    ></RegenerateApprovedModal> -->
     <DeniedPendingModal :transferredData="transferredData"></DeniedPendingModal>
     <ApprovedPendingModal
       :transferredData="transferredData"
       :itemData="itemData"
+      :dateData="dateData"
     ></ApprovedPendingModal>
     <ViewPendingModal :viewImages="viewImages"></ViewPendingModal>
   </div>
@@ -360,7 +361,7 @@ P {{ totalNumbers.totalAmount }}</textarea
 import Vue from "vue";
 import { Table, TableColumn, Select, Option } from "element-ui";
 import axiosClient from "../../../../../../axios";
-import RegenerateApprovedModal from "./RegenerateApprovedModal.vue";
+// import RegenerateApprovedModal from "./RegenerateApprovedModal.vue";
 import { createPopper } from "@popperjs/core/lib/popper-lite.js";
 import PPagination from "../../../../../UIComponents/Pagination.vue";
 import ApprovedPendingModal from "./PendingApprovalModal/ApprovedPendingModal.vue";
@@ -374,13 +375,13 @@ Vue.use(Option);
 export default {
   components: {
     PPagination,
-    RegenerateApprovedModal,
+    // RegenerateApprovedModal,
     ApprovedPendingModal,
     DeniedPendingModal,
     ViewPendingModal,
     ViewPendingModal,
   },
-  props: ["transferredData", "itemData", "totalNumbers"],
+  props: ["transferredData", "itemData", "totalNumbers", "dateData"],
 
   watch: {
     transferredData(newValue) {

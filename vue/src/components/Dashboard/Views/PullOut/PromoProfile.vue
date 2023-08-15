@@ -10,7 +10,7 @@
       </members-card>
     </div> -->
       <!-- <div class="col-lg-8 col-md-7"> -->
-      <div class="col-lg-6 col-md-8 mx-auto">
+      <div class="col-lg-9 col-md-10 mx-auto">
         <div class="card">
           <!-- <div class="card-header d-flex">
           <i
@@ -22,45 +22,33 @@
           <div class="card-body">
             <form>
               <div class="row">
-                <div class="col-sm-6 form-floating">
-                  <input
-                    v-show="!editMode"
+                <div class="col-sm-5">
+                  <fg-input
+                    label="Name"
                     type="text"
-                    class="form-control-plaintext"
-                    id="floatingInputName"
                     placeholder="Paper dashboard"
                     v-model.trim="user.name"
                     readonly
-                  />
-                  <!-- </fg-input> -->
-                  <label v-show="!editMode" for="floatingInputName">Name</label>
-                  <fg-input
-                    v-show="editMode"
-                    type="text"
-                    label="Name"
-                    placeholder="Paper dashboard"
-                    v-model.trim="edit.Name"
                   >
                   </fg-input>
                 </div>
-                <div class="col-sm-6 form-floating">
-                  <input
-                    v-show="!editMode"
+                <div class="col-sm-5">
+                  <fg-input
+                    label="Email"
                     type="text"
-                    class="form-control-plaintext"
-                    id="floatingInputEmail"
                     placeholder="Username"
                     v-model.trim="user.email"
                     readonly
-                  />
-                  <!-- </fg-input> -->
-                  <label v-show="!editMode" for="floatingInputEmail">Email</label>
+                  >
+                  </fg-input>
+                </div>
+                <div class="col-sm-2">
                   <fg-input
-                    v-show="editMode"
+                    label="Date Registered"
                     type="text"
-                    label="Email"
-                    placeholder="Username"
-                    v-model.trim="edit.Email"
+                    placeholder="Date Registered"
+                    v-model="user.date"
+                    readonly
                   >
                   </fg-input>
                 </div>
@@ -70,43 +58,117 @@
                 <span class="col-sm-3">Chain Code</span>
                 <span class="col-sm-6">Branch Name</span>
               </div> -->
-              <div class="row" v-show="!editMode" v-for="user in userMultiple">
-                <div class="col-sm-3 form-floating">
-                  <input
+              <div class="row" v-show="!editMode">
+                <div class="col-sm-3">
+                  <fg-input
+                    label="Company"
                     type="text"
-                    class="form-control-plaintext"
-                    id="floatingInputCompany"
                     placeholder="Company"
                     v-model="user.company"
                     readonly
-                  />
-                  <!-- </fg-input> -->
-                  <label for="floatingInputCompany">Company</label>
+                  >
+                  </fg-input>
                 </div>
-                <div class="col-sm-2 form-floating">
-                  <input
+                <div class="col-sm-2">
+                  <fg-input
+                    label="Chain Code"
                     type="text"
-                    class="form-control-plaintext"
-                    id="floatingInputChainCode"
                     placeholder="Chain Code"
                     v-model="user.chainCode"
                     readonly
-                  />
-                  <!-- </fg-input> -->
-                  <label for="floatingInputChainCode">Chain Code</label>
+                  >
+                  </fg-input>
                 </div>
-                <div class="col-sm-7 form-floating">
-                  <input
+                <div class="col-sm-7">
+                  <fg-input
+                    label="Branch Name"
                     type="text"
-                    class="form-control-plaintext"
-                    id="floatingInputBranchName"
                     placeholder="Branch Name"
                     v-model="user.branchName"
                     readonly
-                  />
-                  <!-- </fg-input> -->
-                  <label for="floatingInputBranchName">Branch Name</label>
+                  >
+                  </fg-input>
                 </div>
+              </div>
+
+              <div class="row mx-1" v-show="!editMode">
+                <el-table
+                  class="p-0"
+                  :data="tableData"
+                  border
+                  max-height="350"
+                  :header-cell-style="headerCellStyle"
+                  :cell-style="cellStyle"
+                  style="width: 100%"
+                >
+                  <!-- Index Column -->
+                  <el-table-column header-align="center">
+                    <template slot="header" slot-scope="scope">
+                      Temporary Branch
+                    </template>
+                    <el-table-column label="" class="el-table-mod" width="40">
+                      <template slot-scope="scope">
+                        <span>{{ scope.$index + 1 }}</span>
+                      </template>
+                    </el-table-column>
+
+                    <el-table-column
+                      v-for="column in tableColumns"
+                      :key="column.label"
+                      :prop="column.prop"
+                      :label="column.label"
+                      :min-width="column.minWidth"
+                      header-align="center"
+                    >
+                    </el-table-column>
+                    <el-table-column
+                      label="Request Status"
+                      width="130"
+                      header-align="center"
+                      align="center"
+                    >
+                      <template slot-scope="scope">
+                        <el-tooltip
+                          v-if="scope.row.request == 'remove'"
+                          content="Pending request to remove this branch."
+                          placement="top"
+                        >
+                          <el-tag class="m-0" type="danger">For Removal</el-tag>
+                        </el-tooltip>
+                        <el-tooltip
+                          v-else-if="scope.row.request == 'additional'"
+                          content="Pending request to add this branch."
+                          placement="top"
+                        >
+                          <el-tag class="m-0" color="white" type="warning"
+                            >New Branch</el-tag
+                          >
+                        </el-tooltip>
+                        <el-tooltip
+                          v-else
+                          content="Your request to add this branch is Approved by the Agent."
+                          placement="top"
+                        >
+                          <el-tag class="m-0" color="white" type="success"
+                            >Approved</el-tag
+                          >
+                        </el-tooltip>
+                      </template>
+                    </el-table-column>
+                    <el-table-column
+                      prop="start_date"
+                      label="Start Date"
+                      min-width="130"
+                      header-align="center"
+                    ></el-table-column>
+                    <el-table-column
+                      prop="end_date"
+                      label=" Expiry Date"
+                      min-width="130"
+                      header-align="center"
+                    ></el-table-column>
+                  </el-table-column>
+                </el-table>
               </div>
 
               <div class="row" v-show="editMode">
@@ -187,7 +249,20 @@
                 v-for="(brM, index) in branchMultiple"
                 :key="index"
               >
-                <div class="col-sm-10">
+                <span class="headerBranch" v-if="brM.permanent">Permanent Branch</span>
+                <span class="headerBranch" v-else-if="!brM.permanent && index == 1"
+                  >Temporary Branch</span
+                >
+                <div class="col-sm-12" v-if="brM.permanent">
+                  <fg-input
+                    type="text"
+                    placeholder="Select Branch Name"
+                    v-model="brM.branch"
+                    disabled
+                  >
+                  </fg-input>
+                </div>
+                <div class="col-sm-10" v-else>
                   <fg-input
                     type="text"
                     placeholder="Select Branch Name"
@@ -207,7 +282,7 @@
                   <i class="nc-icon nc-simple-delete"></i>
                 </p-button>
               </div> -->
-                <div class="col-sm-2 gap-2 inputBtnBranch">
+                <div v-if="!brM.permanent" class="col-sm-2 gap-2 inputBtnBranch">
                   <p-button
                     v-if="index != editIndex"
                     type="warning"
@@ -252,56 +327,28 @@
                 </div>
               </div>
 
-              <div class="row">
-                <div class="col-sm-12 form-floating" v-show="!editMode">
-                  <input
-                    type="text"
-                    class="form-control-plaintext text-center"
-                    id="floatingInputDateRegistered"
-                    placeholder="Date Registered"
-                    v-model="user.date"
-                    readonly
-                  />
-                  <!-- </fg-input> -->
-                  <label for="floatingInputDateRegistered">Date Registered</label>
-                </div>
-                <div class="col-sm-12" v-show="editMode">
-                  <fg-input
-                    type="text"
-                    label="Date Registered"
-                    placeholder="Date Registered"
-                    v-model="user.date"
-                    readonly
-                  >
-                  </fg-input>
-                </div>
-                <!-- <div class="col-sm-6 form-floating">
-                  <input
-                    type="text"
-                    class="form-control-plaintext"
-                    id="floatingInputStatus"
-                    placeholder="Status"
-                    v-model="user.status"
-                    readonly
-                  />
-                  <label for="floatingInputStatus">Status</label>
-                </div> -->
-              </div>
-
               <div class="clearfix"></div>
             </form>
           </div>
           <div class="card-footer">
             <div class="gap-2 d-flex justify-content-center">
-              <button
-                v-show="!editMode"
-                class="btn btn-info btn-fill btn-wd"
-                @click.prevent="editProfile"
-                :disabled="user.withRequest"
+              <span
+                id="btnRequest"
+                class="d-inline-block"
+                tabindex="0"
+                data-bs-toggle="tooltip"
+                data-bs-placement="bottom"
               >
-                Edit Profile
-              </button>
-              <button
+                <button
+                  v-show="!editMode"
+                  class="btn btn-info btn-fill btn-wd"
+                  @click.prevent="editProfile"
+                  :disabled="user.withRequest"
+                >
+                  Request to Update Temporary Branch
+                </button>
+              </span>
+              <!-- <button
                 v-show="!editMode"
                 class="btn btn-success btn-fill btn-wd"
                 data-bs-toggle="modal"
@@ -310,7 +357,7 @@
                 @click="fetchDataPromoRequest"
               >
                 View Pending Request
-              </button>
+              </button> -->
               <button
                 v-show="editMode"
                 class="btn btn-danger btn-fill btn-wd"
@@ -332,6 +379,8 @@
       </div>
     </div>
     <PromoRequestBranchConfirmationModal
+      :remove="removeBranch"
+      :additional="additionalBranch"
       @confirm="updateProfileWithRequest($event)"
     ></PromoRequestBranchConfirmationModal>
     <PromoViewPendingRequestModal
@@ -341,22 +390,29 @@
       @refetchUserData="fetchData"
     >
     </PromoViewPendingRequestModal>
+    <PromoRequestBranchNotification></PromoRequestBranchNotification>
   </div>
 </template>
 <script>
 import axiosClient from "../../../../axios";
 import linkName from "../../../../linkName";
-import { Select, Option } from "element-ui";
+import { Select, Option, Table, TableColumn, Tooltip, Tag } from "element-ui";
 import PromoRequestBranchConfirmationModal from "./PromoRequestBranchConfirmationModal.vue";
 import PromoViewPendingRequestModal from "./PromoViewPendingRequest.vue";
+import PromoRequestBranchNotification from "./PromoRequestBranchNotification.vue";
 import axios from "axios";
 
 export default {
   components: {
     [Option.name]: Option,
     [Select.name]: Select,
+    [Table.name]: Table,
+    [TableColumn.name]: TableColumn,
+    [Tooltip.name]: Tooltip,
+    [Tag.name]: Tag,
     PromoRequestBranchConfirmationModal,
     PromoViewPendingRequestModal,
+    PromoRequestBranchNotification,
   },
   data() {
     return {
@@ -366,6 +422,9 @@ export default {
         date: "",
         status: "",
         withRequest: null,
+        company: "",
+        chainCode: "",
+        branchName: "",
       },
       userRequest: [],
       userMultiple: [],
@@ -387,6 +446,48 @@ export default {
       editBranchMode: false,
       editIndex: null,
       isBranchChanged: true,
+      removeBranch: [],
+      additionalBranch: [],
+
+      tableColumns: [
+        {
+          prop: "company",
+          label: "Company",
+          minWidth: 130,
+        },
+        {
+          prop: "chainCode",
+          label: "Chain Code",
+          minWidth: 120,
+        },
+        {
+          prop: "branchName",
+          label: "Branch Name",
+          minWidth: 220,
+        },
+        // {
+        //   prop: "request",
+        //   label: "Request Status",
+        //   minWidth: 130,
+        // },
+        // {
+        //   prop: "start_date",
+        //   label: "Start Date",
+        //   minWidth: 150,
+        // },
+        // {
+        //   prop: "end_date",
+        //   label: "End Date",
+        //   minWidth: 120,
+        // },
+      ],
+      headerCellStyle: {
+        fontSize: "10px",
+      },
+      cellStyle: {
+        fontSize: "12px !important",
+      },
+      tableData: [],
     };
   },
   watch: {
@@ -398,14 +499,12 @@ export default {
       deep: true,
     },
     branchMultiple: "validateAddBranch",
-    // "edit.Name": function (val, oldaval) {
-    //   this.validateUpdateProfile();
-    // },
-    // "edit.Email": function () {
-    //   this.validateUpdateProfile();
-    // },
   },
   mounted() {
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    const tooltipList = [...tooltipTriggerList].map(
+      (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl)
+    );
     this.fetchData();
     if (window.resolveRouteChange) {
       window.resolveRouteChange();
@@ -436,6 +535,7 @@ export default {
         .get("/fetchChainName", {
           params: {
             chainCode: this.edit.ChainCode,
+            company: this.edit.Company,
           },
         })
         .then((response) => {
@@ -455,9 +555,11 @@ export default {
         var company1 = userM.company.split("(")[1];
         var company = company1.split(")")[0];
         this.branchMultiple.push({
+          id: userM.id,
           company: company,
           chainCode: userM.chainCode,
           branch: userM.branchName,
+          permanent: userM.permanent,
         });
       });
 
@@ -490,6 +592,7 @@ export default {
             this.branchMultiple[i].company = this.edit.Company;
             this.branchMultiple[i].chainCode = this.edit.ChainCode;
             this.branchMultiple[i].branch = this.edit.BranchName;
+            this.branchMultiple[i].permanent = false;
             break;
           }
         } else {
@@ -552,7 +655,6 @@ export default {
           },
         })
         .then((response) => {
-          console.log("Users Profile Data:", response.data);
           this.user.name = response.data[0].name;
           this.user.email = response.data[0].email;
           this.user.date = response.data[0].date;
@@ -562,7 +664,30 @@ export default {
           if (response.data[0].position == "User") {
             this.userMultiple = response.data;
           }
-          console.log("UserMultiple: ", this.userMultiple);
+          this.tableData = [];
+          let ctr = 0;
+          for (let temp of response.data) {
+            // response.data.forEach((temp) => {
+            if (!temp.permanent) this.tableData.push(temp);
+            else {
+              this.user.company = temp.company;
+              this.user.chainCode = temp.chainCode;
+              this.user.branchName = temp.branchName;
+            }
+            if (temp.request == "remove" || temp.request == "additional") ctr++;
+          }
+          if (ctr > 0) {
+            this.user.withRequest = true;
+            let tooltipReq = bootstrap.Tooltip.getInstance("#btnRequest");
+            tooltipReq._config.title =
+              "You still have a pending request. Kindly wait for the approval by your agent.";
+            tooltipReq.update();
+          } else {
+            this.user.withRequest = false;
+            let tooltip = bootstrap.Tooltip.getInstance("#btnRequest");
+            tooltip.disable();
+          }
+          console.log("PROMO: ", response.data);
         })
         .catch((error) => {
           console.error(error);
@@ -586,18 +711,22 @@ export default {
         });
     },
     updateProfileWithRequest(confirm) {
-      console.log(" POST with branch ");
-      if (confirm)
-        this.branchMultiple.forEach((ctr) => {
+      console.log(" POST with remove branch ", this.removeBranch);
+      console.log(" POST with add branch ", this.additionalBranch);
+      if (confirm) {
+        // this.branchMultiple.forEach((ctr) => {
+        this.removeBranch.forEach((ctr) => {
           axiosClient
             .post("/postPromoUserBranch", {
               userID: sessionStorage.getItem("UserID"),
               company: ctr.company,
               chainCode: ctr.chainCode,
               branchName: ctr.branch,
+              req: "remove",
+              id: ctr.id,
             })
             .then((response) => {
-              console.log("Success Add Branch", response.data);
+              console.log("Success Remove Branch", response.data);
               this.cancelProfile();
               this.fetchData();
             })
@@ -605,6 +734,29 @@ export default {
               console.error(error);
             });
         });
+        this.additionalBranch.forEach((ctr) => {
+          axiosClient
+            .post("/postPromoUserBranch", {
+              userID: sessionStorage.getItem("UserID"),
+              company: ctr.company,
+              chainCode: ctr.chainCode,
+              branchName: ctr.branch,
+              req: "additional",
+            })
+            .then((response) => {
+              console.log("Success Additional Branch", response.data);
+              this.cancelProfile();
+              this.fetchData();
+            })
+            .catch((error) => {
+              console.error(error);
+            });
+        });
+        const requestBranchNotificationModal = new bootstrap.Modal(
+          "#requestBranchNotification"
+        );
+        requestBranchNotificationModal.show();
+      }
       //this.branchMultiple
     },
     updateProfile() {
@@ -615,6 +767,44 @@ export default {
       ) {
         let requestBranchModal = new bootstrap.Modal("#requestBranchConfirmation");
         requestBranchModal.show();
+
+        this.removeBranch = [];
+        this.userMultiple.forEach((temp) => {
+          var removeB = true;
+          for (let i = 1; i < this.branchMultiple.length; i++) {
+            if (temp.branchName == this.branchMultiple[i].branch) {
+              removeB = false;
+              break;
+            }
+          }
+          if (!temp.permanent && removeB) {
+            this.removeBranch.push({
+              id: temp.id,
+              company: temp.company,
+              chainCode: temp.chainCode,
+              branch: temp.branchName,
+            });
+          }
+        });
+
+        this.additionalBranch = [];
+        this.branchMultiple.forEach((req) => {
+          var additionalB = true;
+          for (let i = 1; i < this.userMultiple.length; i++) {
+            if (req.branch == this.userMultiple[i].branchName) {
+              additionalB = false;
+              break;
+            }
+          }
+          if (!req.permanent && additionalB) {
+            req.request = "additional";
+            this.additionalBranch.push({
+              company: req.company,
+              chainCode: req.chainCode,
+              branch: req.branch,
+            });
+          }
+        });
       } else console.log("POST || update only name & email");
     },
     validateAddBranch() {
@@ -640,12 +830,6 @@ export default {
         if (temp) this.isBranchChanged = false;
         else this.isBranchChanged = true;
       }
-      console.log(
-        this.user.name === this.edit.Name,
-        this.user.email === this.edit.Email,
-        this.branchMultiple.length == this.userMultiple.length,
-        !this.isBranchChanged
-      );
       if (
         this.user.name === this.edit.Name &&
         this.user.email === this.edit.Email &&
@@ -686,15 +870,13 @@ export default {
   padding-left: 12px;
   padding-right: 24px;
 }
-.labelRows {
-  font-size: 0.8571em;
-  color: #9a9a9a;
-  margin-bottom: 5px;
-}
 .form-control-plaintext {
   margin: 4px;
   border: solid;
   border-width: 1px;
   border-radius: 5px;
+}
+.tagStyle {
+  border-radius: 0px !important;
 }
 </style>

@@ -245,11 +245,14 @@ class UpdateController extends Controller
                             ->get()
                             ->first();
 
-            if($old_data->quantity != $request->quantity || $old_data->boxLabel != $request->boxLabel){
-                $status = "edited";
+            if($request->status != "draft"){
+                if($old_data->quantity != $request->quantity || $old_data->boxLabel != $request->boxLabel){
+                    $status = "edited";
+                }
             }
+
             $data = DB::select('DELETE FROM pullOutItemsTblNBFI
-                                WHERE plID = \''.$request->plID.'\'');
+                                WHERE id = \''.$request->id.'\'');
             $item = new PullOutItemModelNBFI();
             $price = DB::table('nbfi_items')
                         ->select('EffectivePrice')
@@ -268,12 +271,13 @@ class UpdateController extends Controller
                             ->get()
                             ->first();
 
-            if($old_data->quantity != $request->quantity || $old_data->boxLabel != $request->boxLabel){
-                $status = "edited";
+            if($request->status != "draft"){
+                if($old_data->quantity != $request->quantity || $old_data->boxLabel != $request->boxLabel){
+                    $status = "edited";
+                }
             }
-
             $data = DB::select('DELETE FROM pullOutItemsTbl
-                                WHERE plID = \''.$request->plID.'\'');
+                                WHERE id = \''.$request->id.'\'');
 
             $item = new PullOutItemModel();
             $price = DB::table('epc_items')
@@ -313,10 +317,12 @@ class UpdateController extends Controller
     }
 
     public function updateUserBranchByRequest(Request $request){
-        $date = now()->timezone('Asia/Manila');
+        // $date = now()->timezone('Asia/Manila');
+        $dateStart = Carbon::createFromFormat('Y-m-d\TH:i:s.v\Z', $request->input('dateStart'))
+                    ->addDay();
         $dateEnd = Carbon::createFromFormat('Y-m-d\TH:i:s.v\Z', $request->input('dateEnd'))
                     ->addDay();
-        DB::table('userBranchMaintenance')->where('userID', $request->userID)->where('request', null)->delete();
-        DB::select("UPDATE userBranchMaintenance SET request = null, created_date = \"".$date."\", date_end = \"".$dateEnd."\" WHERE userID = \"".$request->userID."\" AND request = true");
+        DB::table('userBranchMaintenance')->where('id', $request->id)->where('request', 'remove')->delete();
+        DB::select("UPDATE userBranchMaintenance SET request = null, date_start = \"".$dateStart."\", date_end = \"".$dateEnd."\" WHERE id = \"".$request->id."\" AND request = 'additional'");
     }
 }

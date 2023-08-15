@@ -261,7 +261,7 @@
                       <!-- <th scope="col" class="nowrap" style="font-size: 10px">Action</th> -->
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody class="text-center">
                     <tr
                       v-for="(item, index) in queriedData"
                       :key="item.id"

@@ -25,6 +25,7 @@ use App\Models\EpcReasonModel;
 use App\Models\ImageBranchModel;
 use App\Models\UserBranchModel;
 use App\Models\RemarksModel;
+use App\Models\pullOutLetterDates;
 use App\Http\Controllers\BrevoSMService;
 use Image;
 
@@ -107,7 +108,7 @@ class PostController extends Controller
                             ->select('a.chainCode', 'a.branchName', 'a.transactionType',
                             DB::raw('CAST(a.dateTime AS DATE) as date'), 'b.quantity',
                             'b.amount', 'b.status', 'b.boxLabel',
-                            'c.ItemDescription as itemDescription', 'b.itemCode', 'b.brand')
+                            'c.ItemDescription as itemDescription', 'b.itemCode', 'b.brand', 'a.company')
                             ->where('a.id', $id)
                             ->get();
 
@@ -146,7 +147,7 @@ class PostController extends Controller
                             ->select('a.chainCode', 'a.branchName', 'a.transactionType',
                             DB::raw('CAST(a.dateTime AS DATE) as date'), 'b.quantity',
                             'b.amount', 'b.status', 'b.boxLabel',
-                            'c.ItemDescription as itemDescription', 'b.itemCode', 'b.brand')
+                            'c.ItemDescription as itemDescription', 'b.itemCode', 'b.brand', 'a.company')
                             ->where('a.id', $id)
                             ->get();
 
@@ -215,33 +216,53 @@ class PostController extends Controller
         //FORMATTING AMOUNT
         $formattedAmount = number_format($totalAmount, 2, '.', ',');
         // var_dump($boxCount);
-        //TRANSFERRING INTO ARRAY TO BE EASY ACCESS ON SINGLE DATA
-        $info = [
-            'name' => $request->name,
-            'boxCount' => $boxCount,
-            'totalQuantity' => $totalQuantity,
-            'totalAmount' => $formattedAmount,
-            'date' => $formattedDate,
-            'branchName' => $tempdata[0]->branchName,
-            'chainCode' => $tempdata[0]->chainCode,
-            'dateStart' => $request->dateStart,
-            'dateEnd' => $request->dateEnd,
-            'company' => $request->company
-        ];
+        if($request->regenerate == "regenerate"){
+            //TRANSFERRING INTO ARRAY TO BE EASY ACCESS ON SINGLE DATA
+            $info = [
+                'name' => $request->name,
+                'boxCount' => $boxCount,
+                'totalQuantity' => $totalQuantity,
+                'totalAmount' => $formattedAmount,
+                'date' => $formattedDate,
+                'branchName' => $tempdata[0]->branchName,
+                'chainCode' => $tempdata[0]->chainCode,
+                'dateStart' => $formattedDateStart,
+                'dateEnd' => $formattedDateEnd,
+                'company' => $tempdata[0]->company
+            ];
+        }else{
+            //TRANSFERRING INTO ARRAY TO BE EASY ACCESS ON SINGLE DATA
+            $info = [
+                'name' => $request->name,
+                'boxCount' => $boxCount,
+                'totalQuantity' => $totalQuantity,
+                'totalAmount' => $formattedAmount,
+                'date' => $formattedDate,
+                'branchName' => $tempdata[0]->branchName,
+                'chainCode' => $tempdata[0]->chainCode,
+                'dateStart' => $request->dateStart,
+                'dateEnd' => $request->dateEnd,
+                'company' => $tempdata[0]->company
+            ];
+        }
+
 
         //CONVERTING IT INTO STRING FOR THE FILE NAME
         $string = strval($tempdata[0]->branchName);
         $today = date('Y-m-d');
 
         //CONDITION OF PDF TO BE SHOW
-        if($tempdata[0]->transactionType == "CPO - BranchDisposal"){
+        //CPO - BranchDisposal
+        if($tempdata[0]->transactionType == "CPO Item for Disposal in the Store c/o Supervisor"){
             $file = "itemDisposal";
         }
-        else if($tempdata[0]->transactionType == "CPO - Warehouse(DC)"){
-            $file = "directPullOut";
-        }
-        else{
+        //CPO - Store
+        else if($tempdata[0]->transactionType == "CPO for Transfer to Another Store"){
             $file = "pullOutLetter";
+        }
+        //CPO - Warehouse(DC)
+        else{
+            $file = "directPullOut";
         }
 
         //LOADING IT INTO THE PDF
@@ -273,12 +294,18 @@ class PostController extends Controller
                     ->where('id', $request->userID)
                     ->first()->name;
 
+        $promoName = DB::table('users')
+                        ->select('name')
+                        ->where('email', $request->email)
+                        ->first()->name;
+
+
         //SEND EMAIL IF APPROVED
         $mail = array(
             'transactionID' => $request->plID,
-            'status' => 'Approved',
+            'status' => $request->status,
             'email' => $request->email,
-            'name' => $request->name,
+            'name' => $promoName,
             'viewToEmail' => $viewToEmail,
             'adminName' => $name,
             'viewEmail' => $viewToEmail,
@@ -292,7 +319,8 @@ class PostController extends Controller
             'quantities' => $quantities,
         );
 
-        Mail::to($request->email)->send(new MailNotify($mail));
+        if($request->regenerate == "generate")
+            Mail::to($request->email)->send(new MailNotify($mail));
 
         $date = now()->timezone('Asia/Manila'); // GETTING THE TIME ZONE IN PH
 
@@ -659,23 +687,24 @@ class PostController extends Controller
     }
 
     public function deleteUserBranch(Request $request){
-        if($request->userType == "Promo")
-            DB::table('userBranchMaintenance')->where('userID', $request->userID)->where('request', true)->delete();
-        else if($request->userType == "Agent")
-            DB::table('userBranchMaintenance')->where('userID', $request->userID)->where('request', true)
+        if($request->req == 'additional'){
+            DB::table('userBranchMaintenance')->where('userID', $request->userID)->where('request', 'additional')
             ->where(function ($query) use ($request) {
                 $query->where('company', $request->company)
-                      ->where('chainCode', $request->chainCode)
-                      ->where('branchName', $request->branchName);
+                    ->where('chainCode', $request->chainCode)
+                    ->where('branchName', $request->branchName);
             })->delete();
+        } else if($request->req == 'remove') {
+            DB::select("UPDATE userBranchMaintenance SET request = null WHERE userID = \"".$request->userID."\" AND company = \"".$request->company."\" AND chainCode = \"".$request->chainCode."\" AND branchName = \"".$request->branchName."\"");
+        }
     }
 
     public function postUserBranch(Request $request){
 
         $date = now()->timezone('Asia/Manila'); // GETTING THE TIME ZONE IN PH
 
-        $dateEnd = Carbon::createFromFormat('Y-m-d\TH:i:s.v\Z', $request->input('dateEnd'))
-                    ->addDay(); // Add one day to the dateEnd
+        // $dateEnd = Carbon::createFromFormat('Y-m-d\TH:i:s.v\Z', $request->input('dateEnd'))
+        //             ->addDay(); // Add one day to the dateEnd
 
         // $dateEnd = Carbon::parse($request->input('dateEnd'))->format('Y-m-d');
 
@@ -686,8 +715,9 @@ class PostController extends Controller
         $promo->chainCode = $request->chainCode;
         $promo->branchName = $request->branchName;
         $promo->created_date = $date;
-        $promo->date_end = $dateEnd;
+        // $promo->date_end = $dateEnd;
         $promo->status = 'Activated';
+        $promo->permanent = true;
 
 
         $promo->save();
@@ -797,19 +827,24 @@ class PostController extends Controller
     }
 
     public function postPromoUserBranch(Request $request){
-
+        // print_r($request->all());
         $date = now()->timezone('Asia/Manila'); // GETTING THE TIME ZONE IN PH
+        if($request->req === "remove")
+            DB::select("UPDATE userBranchMaintenance SET request = 'remove' WHERE id = \"".$request->id."\"");
 
-        $promoBranch = new UserBranchModel();
-        $promoBranch->userID = $request->userID;
-        $promoBranch->company = $request->company;
-        $promoBranch->chainCode = $request->chainCode;
-        $promoBranch->branchName = $request->branchName;
-        $promoBranch->created_date = $date;
-        $promoBranch->request = '1';
-        $promoBranch->status = 'Activated';
+        else if ($request->req === "additional"){
+            $promoBranch = new UserBranchModel();
+            $promoBranch->userID = $request->userID;
+            $promoBranch->company = $request->company;
+            $promoBranch->chainCode = $request->chainCode;
+            $promoBranch->branchName = $request->branchName;
+            $promoBranch->created_date = $date;
+            $promoBranch->request = $request->req;
+            $promoBranch->status = 'Activated';
+            $promoBranch->permanent = false;
 
-        $promoBranch->save();
+            $promoBranch->save();
+        }
 
         $log = new TransactionModel();
         $log->dateTime = $date;
@@ -819,6 +854,27 @@ class PostController extends Controller
         $log->new_data = json_encode($request->all());
         $log->save();
 
+
+    }
+
+    public function postDatesLetter(Request $request){
+
+        $dateStart = Carbon::createFromFormat('Y-m-d\TH:i:s.v\Z', $request->input('dateStarted'))
+                    ->addDay(); // Add one day to the dateStart
+
+        $dateEnd = Carbon::createFromFormat('Y-m-d\TH:i:s.v\Z', $request->input('dateEnded'))
+                    ->addDay(); // Add one day to the dateEnd
+
+        $letterDate = new pullOutLetterDates();
+        $letterDate->plID = $request->id;
+        $letterDate->company = $request->company;
+        $letterDate->authorizedPersonnel = $request->authorizedPersonnel;
+        $letterDate->dateStart = $dateStart;
+        $letterDate->dateEnd = $dateEnd;
+
+        $letterDate->save();
+
+        return response()->json($dateEnd);
 
     }
 

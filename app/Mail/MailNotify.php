@@ -24,8 +24,10 @@ class MailNotify extends Mailable
 
     function build(){
 
-        if($this->data["status"] == "Approved"){
+        if($this->data["status"] == "approved"){
             $this->approved();
+        }else if($this->data["status"] == "endorsement"){
+            $this->endorsement();
         }else if($this->data["status"] == "Denied"){
             $this->denied();
         }else if($this->data["status"] == "Unprocessed"){
@@ -38,6 +40,10 @@ class MailNotify extends Mailable
     function approved(){
         return $this->from("helpdesk@everydayproductscorp.com")->subject("Approved Pull Out")
             ->view($this->data["viewEmail"])->with('data', $this->data);
+    }
+    function endorsement(){
+        return $this->from("helpdesk@everydayproductscorp.com")->subject("For Approval Pull Out")
+            ->view("EmailEndorsement")->with('data', $this->data);
     }
     function denied(){
         return $this->from("helpdesk@everydayproductscorp.com")->subject("Denied Pull Out")

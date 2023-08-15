@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="row mx-1 justify-content-between">
+    <!-- <div class="row mx-1 justify-content-between">
       <div class="col-4 pl">
         <fg-input
           class="input-md"
@@ -26,54 +26,93 @@
           </el-option>
         </el-select>
       </div>
-    </div>
+    </div> -->
     <div class="row mx-2">
       <el-table
-        class="table-striped"
+        class="p-0"
         :data="queriedData"
         border
+        max-height="650"
         style="width: 100%"
         :header-cell-style="headerCellStyle"
         :cell-style="cellStyle"
       >
         <!-- Index Column -->
-        <el-table-column label="" class="el-table-mod" width="40">
-          <template slot-scope="scope">
-            <span>{{
-              (pagination.currentPage - 1) * pagination.perPage + scope.$index + 1
-            }}</span>
+        <el-table-column>
+          <template slot="header" slot-scope="scope">
+            <fg-input
+              class="input-md"
+              placeholder="Search"
+              v-model="searchQuery"
+              addon-right-icon="nc-icon nc-zoom-split"
+              style="width: 50%"
+            >
+            </fg-input>
           </template>
+          <el-table-column label="" class="el-table-mod" width="40">
+            <template slot-scope="scope">
+              <span>{{
+                (pagination.currentPage - 1) * pagination.perPage + scope.$index + 1
+              }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            class="el-table-mod text-break"
+            v-for="(n, index) in 6"
+            :key="index"
+            :min-width="tableColumns[index].minWidth"
+            :prop="tableColumns[index].prop"
+            :label="tableColumns[index].label"
+            header-align="center"
+          >
+          </el-table-column>
         </el-table-column>
-        <el-table-column
-          class="el-table-mod text-break"
-          v-for="column in tableColumns"
-          :key="column.label"
-          :min-width="column.minWidth"
-          :prop="column.prop"
-          :label="column.label"
-          header-align="center"
-        >
-        </el-table-column>
-        <el-table-column
-          :min-width="50"
-          class-name="td-actions el-table-mod"
-          header-align="center"
-          label="Details"
-        >
-          <template slot-scope="props">
-            <div class="container d-flex justify-content-center">
-              <p-button
-                type="info"
-                size="sm"
-                icon
-                data-bs-toggle="modal"
-                data-bs-target="#unprocessModal"
-                @click="openModal(props.row)"
+        <el-table-column fixed="right" width="170">
+          <template slot="header" slot-scope="scope">
+            <el-select
+              class="select-default"
+              v-model="pagination.perPage"
+              placeholder="Per page"
+            >
+              <el-option
+                class="select-default"
+                v-for="item in pagination.perPageOptions"
+                :key="item"
+                :label="item"
+                :value="item"
               >
-                <i class="nc-icon nc-single-copy-04"></i>
-              </p-button>
-            </div>
+              </el-option>
+            </el-select>
           </template>
+          <el-table-column
+            :key="tableColumns[6].label"
+            :width="tableColumns[6].minWidth"
+            :prop="tableColumns[6].prop"
+            :label="tableColumns[6].label"
+            header-align="center"
+          >
+          </el-table-column>
+          <el-table-column
+            :width="70"
+            class-name="td-actions el-table-mod"
+            header-align="center"
+            label="Details"
+          >
+            <template slot-scope="props">
+              <div class="container d-flex justify-content-center">
+                <p-button
+                  type="info"
+                  size="sm"
+                  icon
+                  data-bs-toggle="modal"
+                  data-bs-target="#unprocessModal"
+                  @click="openModal(props.row)"
+                >
+                  <i class="nc-icon nc-single-copy-04"></i>
+                </p-button>
+              </div>
+            </template>
+          </el-table-column>
         </el-table-column>
       </el-table>
     </div>
@@ -176,7 +215,7 @@ export default {
         {
           prop: "plID",
           label: "TRANSACTION NO.",
-          minWidth: 45,
+          minWidth: 120,
         },
         {
           prop: "branchName",
@@ -186,27 +225,27 @@ export default {
         {
           prop: "transactionType",
           label: "TRANSACTION TYPE",
-          minWidth: 200,
+          minWidth: 170,
         },
         {
           prop: "date",
           label: "DATE",
-          minWidth: 50,
+          minWidth: 130,
         },
         {
           prop: "time",
           label: "TIME",
-          minWidth: 50,
+          minWidth: 120,
         },
         {
           prop: "SLA_count",
           label: "Remaining  Days",
-          minWidth: 40,
+          minWidth: 150,
         },
         {
           prop: "SLA_status",
           label: "SLA Status",
-          minWidth: 50,
+          minWidth: 100,
         },
       ],
       headerCellStyle: {

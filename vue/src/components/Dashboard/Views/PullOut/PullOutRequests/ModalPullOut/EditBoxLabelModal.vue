@@ -26,7 +26,7 @@
               >
                 <thead>
                   <tr>
-                    <th scope="col" class="nowrap">Box Number</th>
+                    <th scope="col" class="nowrap" style="max-width: 2%">Box Number</th>
                     <th scope="col" class="nowrap">Box Label</th>
                   </tr>
                 </thead>
@@ -36,7 +36,7 @@
                     :key="boxLabel.id"
                   >
                     <td class="input-container">
-                      <el-select
+                      <!-- <el-select
                         class="table-select-box"
                         size="large"
                         :key="index"
@@ -52,12 +52,13 @@
                           :label="boxNumber"
                         >
                         </el-option>
-                      </el-select>
+                      </el-select> -->
 
-                      <!-- {{ boxLabel.id }} -->
+                      {{ boxLabel.id }}
                     </td>
-                    <td class="input-container">
-                      <input
+                    <td class="input-container" style="padding: 5px">
+                      {{ boxLabel.boxLabel }}
+                      <!-- <input
                         type="text"
                         @focus="handleClick(index, boxLabel.boxLabel)"
                         @blur="handleBoxLabel(index, boxLabel.boxLabel)"
@@ -71,7 +72,7 @@
                         <option v-for="remark in remarksList" :value="remark">
                           {{ remark }}
                         </option>
-                      </datalist>
+                      </datalist> -->
                       <button
                         class="table-delete-modal pull-left"
                         data-bs-toggle="modal"
@@ -291,23 +292,21 @@ export default {
     transferBoxLabel(deleteboxLabel) {
       this.deleteBoxLabel = deleteboxLabel;
       this.deleteBoxLabel.boxLength = this.transferredData.boxLabels.length;
-      console.log("Transfer: ", this.deleteBoxLabel);
+      console.log("Transfer DELETE: ", this.deleteBoxLabel);
+      console.log("ITEMSSS ", this.transferredData.items);
     },
     removeBoxLabel(confirm) {
       if (confirm) {
         let localData = this.transferredData.boxLabels.findIndex(
           (tablerow) => tablerow.id === this.deleteBoxLabel.id
         );
-
-        console.log("deleteboxLabel", this.deleteBoxLabel);
-        console.log("dasd", localData);
-        console.log("before", this.transferredData.boxLabels[localData].id);
-
+        // console.log("deleteboxLabel", this.deleteBoxLabel);
+        // console.log("dasd", localData);
+        // console.log("before", this.transferredData.boxLabels[localData].id);
         // Remove objects with the same ID from the original list
         this.transferredData.items = this.transferredData.items.filter(
           (obj) => obj.boxNumber !== this.transferredData.boxLabels[localData].id
         );
-
         if (Object.keys(this.transferredData.boxLabels).length !== 0) {
           for (let key in this.transferredData.boxLabels) {
             if (this.transferredData.boxLabels.hasOwnProperty(key)) {
@@ -318,13 +317,19 @@ export default {
             }
           }
         }
-
         if (localData >= 0) {
           this.transferredData.boxLabels.splice(localData, 1);
           this.newItemInputBox.splice(localData, 1);
           this.notifyVue("DeleteBoxLabel", "bottom", "right");
         }
-
+        // console.log("Before Box Label after deletion:", this.transferredData.boxLabels);
+        this.transferredData.boxLabels.forEach((key, index) => {
+          // console.log("Index: ", index);
+          this.transferredData.boxLabels[index].id = index + 1;
+        });
+        this.$emit("TransferDataBoxNumber", this.transferredData.boxLabels);
+        this.$emit("DeletedBoxNumber", this.deleteBoxLabel.boxNumber);
+        // console.log("New Box Label after deletion:", this.transferredData.boxLabels);
         // console.log("after", this.transferredData);
         // this.$emit("closeModal", this.transferredData);
       }

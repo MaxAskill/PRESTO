@@ -84,11 +84,10 @@ Vue.use(Select);
 Vue.use(Option);
 Vue.use(DatePicker);
 export default {
-  props: ["transferredData", "itemData"],
+  props: ["transferredData", "itemData", "dateData"],
   components: {
     ApprovedModal,
   },
-  watch: {},
   computed: {
     /***
      * Searches through table data and returns a paginated array.
@@ -112,16 +111,30 @@ export default {
       dateStarted: "",
       dateEnded: "",
       isDisabled: true,
+      authorizedPersonnel: "",
     };
   },
   watch: {
     "transferredData.name": function (val, oldVal) {
       this.validateGenerate();
     },
+    dateData: {
+      handler(val) {
+        this.transferDate();
+      },
+      deep: true,
+    },
     dateStarted: "validateGenerate",
     dateEnded: "validateGenerate",
   },
   methods: {
+    transferDate() {
+      console.log("Dates:", this.dateData);
+      this.dateStarted = this.dateData[0].dateStart;
+      this.dateEnded = this.dateData[0].dateEnd;
+      this.authorizedPersonnel = this.dateData[0].authorizedPersonnel;
+      console.log("Transfer Date:", this.dateStarted, this.dateEnded);
+    },
     generateLetter() {
       var tempDateStart =
         this.dateStarted.toString().split(" ")[1] +
@@ -137,6 +150,7 @@ export default {
         ", " +
         this.dateEnded.toString().split(" ")[3];
 
+      console.log("Date Start:", this.dateStarted, "Date End:", this.dateEnded);
       window.open(
         "http://192.168.0.7:40/api/generatePDF?name=" +
           this.transferredData.name +

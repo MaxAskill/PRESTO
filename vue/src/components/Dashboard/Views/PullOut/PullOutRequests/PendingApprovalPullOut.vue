@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="row mx-1 justify-content-between">
+    <!-- <div class="row mx-1 justify-content-between">
       <div class="col-4">
         <fg-input
           class="input-md"
@@ -26,54 +26,85 @@
           </el-option>
         </el-select>
       </div>
-    </div>
+    </div> -->
     <div class="row mx-2">
       <el-table
-        class="table-striped"
+        class="p-0"
         :data="queriedData"
         border
+        max-height="650"
         style="width: 100%"
         :header-cell-style="headerCellStyle"
         :cell-style="cellStyle"
       >
         <!-- Index Column -->
-        <el-table-column label="" class="el-table-mod" width="40">
-          <template slot-scope="scope">
-            <span>{{
-              (pagination.currentPage - 1) * pagination.perPage + scope.$index + 1
-            }}</span>
+        <el-table-column>
+          <template slot="header" slot-scope="scope">
+            <fg-input
+              class="input-md"
+              placeholder="Search"
+              v-model="searchQuery"
+              addon-right-icon="nc-icon nc-zoom-split"
+              style="width: 50%"
+            >
+            </fg-input>
           </template>
+          <el-table-column label="" class="el-table-mod" width="40">
+            <template slot-scope="scope">
+              <span>{{
+                (pagination.currentPage - 1) * pagination.perPage + scope.$index + 1
+              }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            class="el-table-mod"
+            v-for="column in tableColumns"
+            :key="column.label"
+            :min-width="column.minWidth"
+            :prop="column.prop"
+            :label="column.label"
+            header-align="center"
+          >
+          </el-table-column>
         </el-table-column>
-        <el-table-column
-          class="el-table-mod"
-          v-for="column in tableColumns"
-          :key="column.label"
-          :min-width="column.minWidth"
-          :prop="column.prop"
-          :label="column.label"
-          header-align="center"
-        >
-        </el-table-column>
-        <el-table-column
-          :min-width="60"
-          class-name="td-actions el-table-mod"
-          label="Details"
-          header-align="center"
-        >
-          <template slot-scope="props">
-            <div class="container d-flex justify-content-center">
-              <p-button
-                type="info"
-                size="sm"
-                icon
-                data-bs-toggle="modal"
-                data-bs-target="#approvalModal"
-                @click="openModal(props.row)"
+        <el-table-column fixed="right" :width="100">
+          <template slot="header" slot-scope="scope">
+            <el-select
+              class="select-default"
+              v-model="pagination.perPage"
+              placeholder="Per page"
+            >
+              <el-option
+                class="select-default"
+                v-for="item in pagination.perPageOptions"
+                :key="item"
+                :label="item"
+                :value="item"
               >
-                <i class="nc-icon nc-single-copy-04"></i>
-              </p-button>
-            </div>
+              </el-option>
+            </el-select>
           </template>
+          <el-table-column
+            :width="100"
+            class-name="td-actions el-table-mod"
+            label="Details"
+            header-align="center"
+          >
+            <template slot-scope="props">
+              <div class="container d-flex justify-content-center">
+                <p-button
+                  type="primary"
+                  size="sm"
+                  icon
+                  data-bs-toggle="modal"
+                  data-bs-target="#approvalModal"
+                  @click="openModal(props.row)"
+                >
+                  <i class="nc-icon nc-single-copy-04"></i>
+                </p-button>
+              </div>
+            </template>
+          </el-table-column>
         </el-table-column>
       </el-table>
     </div>
@@ -94,6 +125,7 @@
     <ApprovalModal
       :transferredData="transferredData"
       :itemData="itemData"
+      :dateData="dateData"
       :listBoxLabel="listBoxLabel"
       :totalNumbers="totalNumbers"
       @closeModal="closeModal"
@@ -177,7 +209,7 @@ export default {
         {
           prop: "plID",
           label: "TRANSACTION NO.",
-          minWidth: 50,
+          minWidth: 150,
         },
         {
           prop: "branchName",
@@ -187,17 +219,17 @@ export default {
         {
           prop: "transactionType",
           label: "TRANSACTION TYPE",
-          minWidth: 200,
+          minWidth: 170,
         },
         {
           prop: "date",
           label: "DATE",
-          minWidth: 50,
+          minWidth: 120,
         },
         {
           prop: "time",
           label: "TIME",
-          minWidth: 50,
+          minWidth: 110,
         },
       ],
       headerCellStyle: {
@@ -209,12 +241,28 @@ export default {
       tableData: [],
       listBoxLabel: [],
       totalNumbers: [],
+      dateData: "",
     };
   },
   methods: {
     openModal(data) {
       this.transferredData = data;
 
+      axiosClient
+        .get("/fetchPullOutLetterDates", {
+          params: {
+            plID: this.transferredData.plID,
+            company: sessionStorage.getItem("Company"),
+          },
+        })
+        .then((response) => {
+          console.log("Success Pull Out Letter Date", response.data);
+          this.dateData = response.data;
+          console.log("Transfer for Props Dates:", this.dateData);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
       axiosClient
         .get("/fetchPullOutRequestItem", {
           params: {

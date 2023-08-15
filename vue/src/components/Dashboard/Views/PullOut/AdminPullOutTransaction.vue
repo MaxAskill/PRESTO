@@ -85,7 +85,7 @@
                 >{{ props.row.status }}</badge
               >
               <badge
-                v-else-if="props.row.status === 'unprocessed'"
+                v-else-if="props.row.status === 'For Review'"
                 slot="header"
                 type="warning"
                 >{{ props.row.status }}</badge
@@ -93,7 +93,7 @@
               <badge
                 v-else-if="props.row.status === 'For Approval'"
                 slot="header"
-                type="info"
+                type="primary"
                 >{{ props.row.status }}</badge
               >
               <!-- <badge v-else slot="header" type="success" @click="openModal(props.row)">{{

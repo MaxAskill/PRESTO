@@ -13,8 +13,24 @@
         <div class="modal-header">
           <h6 class="modal-title">Request for Changing of Branch</h6>
         </div>
-        <div class="modal-body text-center">
-          <p>Do you want to submit this request to change your assigned branch?</p>
+        <div class="modal-body px-sm-5 py-sm-3 px-3 py-2 text-center">
+          <span class="spanLabel" v-if="remove.length != 0">
+            You want to <b>remove</b> this as your Temporary Branch:
+          </span>
+          <div class="divBranch" v-for="req in remove" v-if="remove.length != 0">
+            <span>{{ req.branch }}</span>
+          </div>
+          <div class="mt-3">
+            <span class="spanLabel" v-if="additional.length != 0"
+              >You want to <b>add</b> this as your Temporary Branch:
+            </span>
+          </div>
+          <div class="divBranch" v-for="req in additional" v-if="additional.length != 0">
+            <span>{{ req.branch }}</span>
+          </div>
+          <p class="m-0 mb-2 mt-4">
+            Do you want to submit this request to change your assigned branch?
+          </p>
         </div>
         <div class="modal-footer d-flex justify-content-center">
           <button
@@ -37,6 +53,7 @@ import Vue from "vue";
 import axiosClient from "../../../../axios";
 
 export default {
+  props: ["remove", "additional"],
   components: {},
   watch: {},
   computed: {
@@ -63,5 +80,13 @@ export default {
 .tr_num {
   font-size: 35px;
   font-weight: 700;
+}
+.spanLabel {
+  font-size: 0.8571em;
+  color: #9a9a9a;
+}
+.divBranch {
+  font-size: 13px;
+  font-weight: 600;
 }
 </style>

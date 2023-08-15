@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="row mx-2 justify-content-between">
+    <!-- <div class="row mx-2 justify-content-between">
       <div class="col-4 px-1">
         <fg-input
           class="input-md"
@@ -38,10 +38,10 @@
           </PButton>
         </div>
       </div>
-    </div>
+    </div> -->
     <div class="row mx-2">
       <el-table
-        class="table-striped"
+        class="p-0"
         :data="queriedData"
         border
         style="width: 100%"
@@ -49,60 +49,103 @@
         :cell-style="cellStyle"
       >
         <!-- Index Column -->
-        <el-table-column label="" class="el-table-mod" width="40">
-          <template slot-scope="scope">
-            <span>{{
-              (pagination.currentPage - 1) * pagination.perPage + scope.$index + 1
-            }}</span>
+        <el-table-column>
+          <template slot="header" slot-scope="scope">
+            <fg-input
+              class="input-md"
+              placeholder="Search"
+              v-model="searchQuery"
+              addon-right-icon="nc-icon nc-zoom-split"
+              style="width: 50%"
+            >
+            </fg-input>
           </template>
+          <el-table-column label="" class="el-table-mod" width="40">
+            <template slot-scope="scope">
+              <span>{{
+                (pagination.currentPage - 1) * pagination.perPage + scope.$index + 1
+              }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            class="el-table-mod"
+            v-for="column in tableColumns"
+            :key="column.label"
+            :min-width="column.minWidth"
+            :prop="column.prop"
+            :label="column.label"
+            header-align="center"
+          >
+          </el-table-column>
         </el-table-column>
-        <el-table-column
-          class="el-table-mod"
-          v-for="column in tableColumns"
-          :key="column.label"
-          :min-width="column.minWidth"
-          :prop="column.prop"
-          :label="column.label"
-          header-align="center"
-        >
-        </el-table-column>
-        <el-table-column
-          :min-width="50"
-          class-name="td-actions el-table-mod"
-          label="Details"
-          header-align="center"
-        >
-          <template slot-scope="props">
-            <div class="container d-flex justify-content-center">
-              <p-button
-                type="info"
-                size="sm"
-                icon
-                data-bs-toggle="modal"
-                data-bs-target="#deniedModal"
-                @click="openModal(props.row)"
+        <el-table-column fixed="right" width="100">
+          <template slot="header" slot-scope="scope">
+            <el-select
+              class="select-default"
+              v-model="pagination.perPage"
+              placeholder="Per page"
+            >
+              <el-option
+                class="select-default"
+                v-for="item in pagination.perPageOptions"
+                :key="item"
+                :label="item"
+                :value="item"
               >
-                <i class="fa fa-file-text-o"></i>
-              </p-button>
-            </div>
+              </el-option>
+            </el-select>
           </template>
+          <el-table-column
+            width="100"
+            class-name="td-actions el-table-mod"
+            label="Details"
+            header-align="center"
+          >
+            <template slot-scope="props">
+              <div class="container d-flex justify-content-center">
+                <p-button
+                  type="info"
+                  size="sm"
+                  icon
+                  data-bs-toggle="modal"
+                  data-bs-target="#deniedModal"
+                  @click="openModal(props.row)"
+                >
+                  <i class="fa fa-file-text-o"></i>
+                </p-button>
+              </div>
+            </template>
+          </el-table-column>
         </el-table-column>
-        <el-table-column
-          :min-width="50"
-          class-name="td-actions"
-          label="Check Box"
-          header-align="center"
-        >
-          <template slot-scope="props">
-            <div class="container d-flex justify-content-center">
-              <p-checkbox
-                @click="clickExport"
-                :checked="false"
-                v-model="checkedBranch[props.row.plID]"
-                :value="props.row.plID"
-              ></p-checkbox>
-            </div>
+        <el-table-column fixed="right" width="150">
+          <template slot="header" slot-scope="scope">
+            <PButton
+              type="success"
+              data-bs-target="#exportDenied"
+              data-bs-toggle="modal"
+              class="p-0"
+              style="height: 40px; width: 100%; font-size: 12px"
+            >
+              Export Excel
+            </PButton>
           </template>
+          <el-table-column
+            width="150"
+            class-name="td-actions"
+            label="Check Box"
+            header-align="center"
+          >
+            <template slot-scope="props">
+              <div class="container d-flex justify-content-center">
+                <p-checkbox
+                  @click="clickExport"
+                  :checked="false"
+                  v-model="checkedBranch[props.row.plID]"
+                  :value="props.row.plID"
+                ></p-checkbox>
+              </div>
+            </template>
+          </el-table-column>
         </el-table-column>
       </el-table>
     </div>
@@ -217,7 +260,7 @@ export default {
         {
           prop: "plID",
           label: "TRANSACTION ID",
-          minWidth: 50,
+          minWidth: 150,
         },
         {
           prop: "branchName",
@@ -227,17 +270,17 @@ export default {
         {
           prop: "transactionType",
           label: "TRANSACTION TYPE",
-          minWidth: 200,
+          minWidth: 170,
         },
         {
           prop: "date",
           label: "DATE",
-          minWidth: 50,
+          minWidth: 100,
         },
         {
           prop: "time",
           label: "TIME",
-          minWidth: 50,
+          minWidth: 90,
         },
       ],
       headerCellStyle: {
@@ -247,6 +290,16 @@ export default {
         fontSize: "12px",
       },
       tableData: [],
+      headerRow: [
+        "Branch Name",
+        "Brand",
+        "Transaction Type",
+        "Box Label",
+        "Item Code",
+        "Quantity",
+        "Date",
+        "Time",
+      ],
     };
   },
   watch: {

@@ -288,21 +288,24 @@
             >
               View
             </button>
-            <button
+            <button class="btn btn-success" @click="generateLetter">
+              GENERATE LETTER
+            </button>
+            <!-- <button
               class="btn btn-success"
               data-bs-target="#regenerateApproved"
               data-bs-toggle="modal"
             >
               GENERATE LETTER
-            </button>
+            </button> -->
           </div>
         </div>
       </div>
     </div>
-    <RegenerateApprovedModal
+    <!-- <RegenerateApprovedModal
       :transferredData="transferredData"
       :itemData="itemData"
-    ></RegenerateApprovedModal>
+    ></RegenerateApprovedModal> -->
     <ViewApprovedModal :viewImages="viewImages"></ViewApprovedModal>
   </div>
 </template>
@@ -310,7 +313,7 @@
 import Vue from "vue";
 import { Table, TableColumn, Select, Option } from "element-ui";
 import axiosClient from "../../../../../../axios";
-import RegenerateApprovedModal from "./RegenerateApprovedModal.vue";
+// import RegenerateApprovedModal from "./RegenerateApprovedModal.vue";
 import { createPopper } from "@popperjs/core/lib/popper-lite.js";
 import PPagination from "../../../../../UIComponents/Pagination.vue";
 import ViewApprovedModal from "./ApprovedModal/ViewApprovedModal.vue";
@@ -322,7 +325,7 @@ Vue.use(Option);
 export default {
   components: {
     PPagination,
-    RegenerateApprovedModal,
+    // RegenerateApprovedModal,
     ViewApprovedModal,
   },
   props: ["transferredData", "itemData"],
@@ -449,6 +452,29 @@ export default {
     };
   },
   methods: {
+    generateLetter() {
+      window.open(
+        "http://192.168.0.7:40/api/generatePDF?name=" +
+          this.transferredData.authorizedPersonnel +
+          "&plID=" +
+          this.transferredData.plID +
+          "&dateStart=" +
+          this.transferredData.dateStart +
+          "&dateEnd=" +
+          this.transferredData.dateEnd +
+          "&email=" +
+          this.transferredData.promoEmail +
+          "&userID=" +
+          sessionStorage.getItem("UserID") +
+          "&company=" +
+          sessionStorage.getItem("Company") +
+          "&regenerate=regenerate",
+        "_blank"
+      );
+      setTimeout(() => {
+        window.location.reload();
+      }, 3000); // Reload after 3 seconds
+    },
     viewImage() {
       console.log("Transaction Number:", this.transferredData);
 

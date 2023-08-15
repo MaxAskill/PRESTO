@@ -131,7 +131,7 @@ export default {
           company: sessionStorage.getItem("Company"),
           id: this.transferredData.plID,
           userID: sessionStorage.getItem("UserID"),
-          promoName: this.transferredData.name,
+          promoName: this.transferredData.createdBy,
           email: this.transferredData.promoEmail,
           reason: this.reason,
         })

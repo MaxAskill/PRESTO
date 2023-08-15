@@ -48,7 +48,7 @@ export default {
     reloadPage() {
       // window.location.href = "http://192.168.0.7:4040/#/pull-out/pullout-transaction";
       this.$router.push({
-        path: "/pull-out/pullout-transaction",
+        path: "/pull-out/requisition-draft",
       });
     },
   },

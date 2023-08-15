@@ -7,6 +7,14 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAdminController extends Controller
 {
+    //User Maintenance (BBMS) Sample Connection to another database
+    public function fetchUsersBBMS(){
+
+        $data = DB::connection('bbmsDB')->table('users')->select('email', 'name')->get();
+
+        return response()->json($data);
+    }
+
     //User Maintenance
     public function fetchUsers(){
 
@@ -229,6 +237,13 @@ class FetchAdminController extends Controller
                     ->get();
         }
 
+        foreach($data as $item){
+                if($item->status == "endorsement"){
+                        $item->status = "For Approval";
+                }else if($item->status == "unprocessed"){
+                        $item->status = "For Review";
+                }
+        }
         return response()->json($data);
     }
 }

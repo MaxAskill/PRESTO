@@ -96,7 +96,7 @@ export default {
       form: {
         fullName: "",
         email: "",
-        company: "",
+        company: null,
         password: "",
         password_confirmation: "",
         position: "",

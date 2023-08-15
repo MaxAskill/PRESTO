@@ -5,7 +5,7 @@
         <!-- <div class="card-header">
         <h4 class="title">Pull-Out Transactions</h4>
       </div> -->
-        <div class="row mx-2 justify-content-between">
+        <!-- <div class="row mx-2 justify-content-between">
           <div class="col-4 pl-1 pr-0">
             <fg-input
               class="input-md"
@@ -31,96 +31,115 @@
               </el-option>
             </el-select>
           </div>
-        </div>
+        </div> -->
         <div class="row mx-2">
           <el-table
-            class="table-striped pad-tbl"
+            class="p-0"
             :data="queriedData"
             border
-            style="width: 100%"
+            max-height="650"
             :header-cell-style="headerCellStyle"
             :cell-style="cellStyle"
+            style="width: 100%"
           >
             <!-- Index Column -->
-            <el-table-column label="" class="el-table-mod" width="40">
-              <template slot-scope="scope">
-                <span>{{
-                  (pagination.currentPage - 1) * pagination.perPage + scope.$index + 1
-                }}</span>
+            <el-table-column>
+              <template slot="header" slot-scope="scope">
+                <fg-input
+                  class="input-md"
+                  placeholder="Search"
+                  v-model="searchQuery"
+                  addon-right-icon="nc-icon nc-zoom-split"
+                  style="width: 50%"
+                >
+                </fg-input>
               </template>
-            </el-table-column>
-            <el-table-column
-              v-for="column in tableColumns"
-              :key="column.label"
-              :min-width="column.minWidth"
-              :prop="column.prop"
-              :label="column.label"
-              header-align="center"
-            >
-            </el-table-column>
-            <el-table-column
-              :min-width="60"
-              class-name="td-actions"
-              label="Status"
-              header-align="center"
-            >
-              <template slot-scope="props">
-                <p-button
-                  v-if="props.row.status === 'approved'"
-                  type="success"
-                  size="sm"
-                  data-bs-toggle="modal"
-                  data-bs-target="#pullOutTransactionModal"
-                  @click="transferData(props.row)"
-                >
-                  Approved
-                </p-button>
-                <p-button
-                  v-else-if="props.row.status === 'unprocessed'"
-                  type="warning"
-                  size="sm"
-                  data-bs-toggle="modal"
-                  data-bs-target="#pullOutTransactionModal"
-                  @click="transferData(props.row)"
-                >
-                  Unprocessed
-                </p-button>
-                <p-button
-                  v-else-if="props.row.status === 'endorsement'"
-                  type="danger"
-                  size="sm"
-                  data-bs-toggle="modal"
-                  data-bs-target="#pullOutTransactionModal"
-                  @click="transferData(props.row)"
-                >
-                  For Approval
-                </p-button>
-                <p-button
-                  v-else
-                  type="info"
-                  size="sm"
-                  data-bs-toggle="modal"
-                  data-bs-target="#pullOutTransactionModal"
-                  @click="transferData(props.row)"
-                >
-                  Denied
-                </p-button>
-                <!-- <badge
-                v-if="props.row.status === 'approved'"
-                slot="header"
-                type="success"
-                >{{ props.row.status }}</badge
+              <el-table-column label="" class="el-table-mod" width="40">
+                <template slot-scope="scope">
+                  <span>{{
+                    (pagination.currentPage - 1) * pagination.perPage + scope.$index + 1
+                  }}</span>
+                </template>
+              </el-table-column>
+
+              <el-table-column
+                v-for="column in tableColumns"
+                :key="column.label"
+                :prop="column.prop"
+                :label="column.label"
+                :min-width="column.minWidth"
+                header-align="center"
               >
-              <badge
-                v-else-if="props.row.status === 'unprocessed'"
-                slot="header"
-                type="warning"
-                >{{ props.row.status }}</badge
-              >
-              <button v-else class="denied-btn" @click="denied(props.row)">
-                {{ props.row.status }}
-              </button> -->
+              </el-table-column>
+            </el-table-column>
+
+            <el-table-column fixed="right" width="140">
+              <template slot="header" slot-scope="scope">
+                <el-select
+                  class="select-default"
+                  v-model="pagination.perPage"
+                  placeholder="Per page"
+                >
+                  <el-option
+                    class="select-default"
+                    v-for="item in pagination.perPageOptions"
+                    :key="item"
+                    :label="item"
+                    :value="item"
+                  >
+                  </el-option>
+                </el-select>
               </template>
+              <el-table-column
+                width="140"
+                class-name="td-actions"
+                label="Status"
+                header-align="center"
+                fixed="right"
+              >
+                <template slot-scope="props">
+                  <p-button
+                    v-if="props.row.status === 'approved'"
+                    type="success"
+                    size="sm"
+                    data-bs-toggle="modal"
+                    data-bs-target="#pullOutTransactionModal"
+                    @click="transferData(props.row)"
+                  >
+                    Approved
+                  </p-button>
+                  <p-button
+                    v-else-if="props.row.status === 'unprocessed'"
+                    type="warning"
+                    size="sm"
+                    data-bs-toggle="modal"
+                    data-bs-target="#pullOutTransactionModal"
+                    @click="transferData(props.row)"
+                  >
+                    For Review
+                  </p-button>
+                  <p-button
+                    v-else-if="props.row.status === 'endorsement'"
+                    type="primary"
+                    size="sm"
+                    data-bs-toggle="modal"
+                    data-bs-target="#pullOutTransactionModal"
+                    @click="transferData(props.row)"
+                  >
+                    For Approval
+                  </p-button>
+                  <p-button
+                    v-else
+                    type="danger"
+                    size="sm"
+                    data-bs-toggle="modal"
+                    data-bs-target="#pullOutTransactionModal"
+                    @click="transferData(props.row)"
+                  >
+                    Denied
+                  </p-button>
+                </template>
+              </el-table-column>
             </el-table-column>
           </el-table>
         </div>
@@ -240,12 +259,12 @@ export default {
         total: 0,
       },
       searchQuery: "",
-      propsToSearch: ["chainCode", "branchCode", "branchName", "status"],
+      propsToSearch: ["plID", "branchName", "transactionType", "date", "time"],
       tableColumns: [
         {
           prop: "plID",
           label: "Transaction No.",
-          minWidth: 50,
+          minWidth: 150,
         },
         {
           prop: "branchName",
@@ -255,17 +274,17 @@ export default {
         {
           prop: "transactionType",
           label: "Transaction Type",
-          minWidth: 200,
+          minWidth: 170,
         },
         {
           prop: "date",
           label: "Creation Date",
-          minWidth: 50,
+          minWidth: 130,
         },
         {
           prop: "time",
           label: "Creation Time",
-          minWidth: 50,
+          minWidth: 120,
         },
       ],
       headerCellStyle: {
@@ -283,6 +302,7 @@ export default {
         transactionNumber: "",
         transactionType: "",
         status: "",
+        createdBy: "",
         createdDate: "",
         reviewedBy: "",
         reviewedDate: "",
@@ -301,6 +321,7 @@ export default {
       this.transactionData.branchName = row.branchName;
       this.transactionData.transactionNumber = row.plID;
       this.transactionData.status = row.status;
+      this.transactionData.createdBy = row.createdBy;
       this.transactionData.createdDate = row.date;
       this.transactionData.reviewedBy = row.reviewedBy;
       this.transactionData.reviewedDate = row.reviewedDate;
@@ -443,9 +464,6 @@ export default {
   display: flex;
   justify-content: center; /* Center horizontally */
   align-items: center; /* Center vertically */
-}
-.pad-tbl {
-  padding: 0px 0px;
 }
 .btn-margin {
   margin: 0px 0px;

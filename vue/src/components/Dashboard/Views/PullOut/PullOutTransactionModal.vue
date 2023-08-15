@@ -263,6 +263,14 @@
         </div>
         <div class="modal-footer d-flex justify-content-center">
           <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button
+            v-if="transactionData.status == 'denied'"
+            class="btn btn-warning"
+            @click="denied(transactionData)"
+            data-bs-dismiss="modal"
+          >
+            Edit
+          </button>
           <!-- <button class="btn btn-primary" data-bs-dismiss="modal">Okay</button> -->
         </div>
       </div>
@@ -416,17 +424,20 @@ export default {
     },
     denied(row) {
       console.log("Company", row);
+      var company1 = row.company.split("(")[1];
+      var company = company1.split(")")[0];
+      console.log("Company After", company);
       // location.href =
       //   "http://192.168.0.7:4040/#/pull-out/requisition-form?transactionID=" +
-      //   row.plID +
+      //   row.transactionNumber +
       //   "&company=" +
-      //   row.company;
+      //   company;
 
       this.$router.push({
         path: "/pull-out/requisition-form",
         query: {
-          transactionID: row.plID,
-          company: row.company,
+          transactionID: row.transactionNumber,
+          company: company,
         },
       });
     },

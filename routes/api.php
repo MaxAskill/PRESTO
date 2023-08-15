@@ -49,7 +49,7 @@ Route::get('/users',[FetchController::class, 'users']);
     Route::get('/fetchSameItem', [FetchController::class, 'fetchSameItem']);
     // Route::get('/data', [FetchController::class, 'fetchData']);
     Route::get('/fetchChain', [FetchController::class, 'fetchChain']);
-    Route::get('/fetchChainByUser', [FetchController::class, 'fetchChainByUser']);
+    Route::get('/fetchChainByUser', [FetchController::class, 'fetchChainCodeByUser']);
     Route::get('/fetchSameItems', [FetchController::class, 'fetchSameItems']);
     Route::get('/fetchChainCode', [FetchController::class, 'fetchChainCode']);
     Route::get('/fetchBranch', [FetchController::class, 'fetchBranch']);
@@ -74,6 +74,7 @@ Route::get('/users',[FetchController::class, 'users']);
     Route::post('/postRemarks', [PostController::class, 'postRemarks']);
     Route::post('/upload', [PostController::class, 'upload']);
     Route::post('/postPromoUserBranch', [PostController::class, 'postPromoUserBranch']);
+    Route::post('/postDatesLetter', [PostController::class, 'postDatesLetter']);
 
     Route::get('/fetchPullOutReq', [FetchController::class, 'fetchPullOutRequest']);
     Route::get('/fetchReasonLabel', [FetchController::class, 'getReasons']);
@@ -98,6 +99,7 @@ Route::get('/users',[FetchController::class, 'users']);
     Route::get('/usersProfile', [FetchController::class, 'usersProfile']);
     Route::get('/fetchImageBranchDoc', [FetchController::class, 'fetchImageBranchDoc']);
     Route::get('/fetchItemsBarcode', [FetchController::class, 'fetchItemsBarcode']);
+    Route::get('/fetchPullOutLetterDates', [FetchController::class, 'fetchPullOutLetterDates']);
 
     Route::get('/generatePDF', [PostController::class, 'generatePDF']);
     Route::get('/generatePDF1', [PostController::class, 'generatePDF1']);
