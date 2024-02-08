@@ -1,9 +1,6 @@
 <template>
   <div class="card card-transactions">
     <div class="card-body">
-      <!-- <div class="card-header">
-        <h4 class="title">Pull-Out Transactions</h4>
-      </div> -->
       <div class="row mx-2 justify-content-between">
         <div class="col-4">
           <fg-input
@@ -76,8 +73,7 @@
             label="Status"
             header-align="center"
           >
-            <template slot-scope="props">
-              <!-- {{ props.row.status }} -->
+            <template #default="props">
               <badge
                 v-if="props.row.status === 'approved'"
                 slot="header"
@@ -96,19 +92,7 @@
                 type="primary"
                 >{{ props.row.status }}</badge
               >
-              <!-- <badge v-else slot="header" type="success" @click="openModal(props.row)">{{
-                props.row.status
-              }}</badge> -->
-              <!-- <p-button
-                v-else
-                type="danger"
-                size="sm"
-                data-bs-toggle="modal"
-                data-bs-target="#approvedModal"
-                @click="openModal(props.row)"
-              >
-                {{ props.row.status }}
-              </p-button> -->
+
               <button v-else class="denied-btn" @click="denied(props.row)">
                 {{ props.row.status }}
               </button>
@@ -135,16 +119,7 @@
 </template>
 <script>
 import Vue from "vue";
-// import {
-//   Collapse,
-//   CollapseItem,
-//   Tabs,
-//   TabPane,
-//   Card,
-//   Button,
-// } from "src/components/UIComponents";
 import { Table, TableColumn, Select, Option } from "element-ui";
-// import PButton from "../../../../UIComponents/Button.vue";
 import PButton from "../../../UIComponents/Button.vue";
 import PPagination from "../../../UIComponents/Pagination.vue";
 import axiosClient from "../../../../axios";
@@ -267,13 +242,6 @@ export default {
   },
   methods: {
     denied(row) {
-      console.log("Company", row);
-      // location.href =
-      //   "http://192.168.0.7:4040/#/pull-out/requisition-form?transactionID=" +
-      //   row.plID +
-      //   "&company=" +
-      //   row.company;
-
       this.$router.push({
         path: "/pull-out/requisition-form",
         query: {
@@ -290,7 +258,6 @@ export default {
           },
         })
         .then((response) => {
-          console.log("Pull Out Request", response.data);
           this.tableData = response.data;
         })
         .catch((error) => {
@@ -307,9 +274,6 @@ export default {
         tempStatus = "Active";
       }
 
-      console.log("Branch ID:", row.id);
-      console.log("BranchCode:", row.branchCode);
-
       axiosClient
         .post("/updateBranch", {
           company: this.company,
@@ -317,17 +281,12 @@ export default {
           status: tempStatus,
           userID: sessionStorage.getItem("UserID"),
         })
-        .then((response) => {
-          console.log("Success Update Branch:", response.data);
-        })
+        .then((response) => {})
         .catch((error) => {
           console.error(error);
         });
-      // alert(`Your want to edit ${row.status}`);
     },
     handleDelete(index, row) {
-      console.log("ID:", row.id, row.company);
-
       let indexToDelete = this.tableData.findIndex((tableRow) => tableRow.id === row.id);
       if (indexToDelete >= 0) {
         this.tableData.splice(indexToDelete, 1);

@@ -21,7 +21,7 @@
         <chart-card
           :chart-data="activeUsersChart.data"
           chart-id="activity-chart"
-          chart-title="TOTAL EARNINGS IN LAST TEN QUARTERS"
+          chart-title="TOTAL EARNINGS IN LA\ST TEN QUARTERS"
         >
           <span slot="title">$34,657</span>
           <badge slot="title-label" type="success">+18%</badge>

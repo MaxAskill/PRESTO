@@ -1,32 +1,5 @@
 <template>
   <div>
-    <!-- <div class="row mx-1 justify-content-between">
-      <div class="col-4">
-        <fg-input
-          class="input-md"
-          placeholder="Search"
-          v-model="searchQuery"
-          addon-right-icon="nc-icon nc-zoom-split"
-        >
-        </fg-input>
-      </div>
-      <div class="col-1">
-        <el-select
-          class="select-default"
-          v-model="pagination.perPage"
-          placeholder="Per page"
-        >
-          <el-option
-            class="select-default"
-            v-for="item in pagination.perPageOptions"
-            :key="item"
-            :label="item"
-            :value="item"
-          >
-          </el-option>
-        </el-select>
-      </div>
-    </div> -->
     <div class="row mx-2">
       <el-table
         class="p-0"
@@ -223,12 +196,22 @@ export default {
         },
         {
           prop: "date",
-          label: "DATE",
+          label: "DATE CREATED",
           minWidth: 120,
         },
         {
           prop: "time",
           label: "TIME",
+          minWidth: 110,
+        },
+        {
+          prop: "pullOutStartDate",
+          label: "Pull Out Start Date",
+          minWidth: 110,
+        },
+        {
+          prop: "pullOutEndDate",
+          label: "Pull Out End Date",
           minWidth: 110,
         },
       ],
@@ -256,9 +239,7 @@ export default {
           },
         })
         .then((response) => {
-          console.log("Success Pull Out Letter Date", response.data);
           this.dateData = response.data;
-          console.log("Transfer for Props Dates:", this.dateData);
         })
         .catch((error) => {
           console.error(error);
@@ -271,7 +252,6 @@ export default {
           },
         })
         .then((response) => {
-          console.log("Success Item Response:", response.data);
           this.itemData = response.data[0];
           this.totalNumbers = response.data[1];
 
@@ -285,7 +265,6 @@ export default {
                 boxNumber: obj.boxNumber,
                 boxLabel: obj.boxLabel,
               });
-              // console.log(`Object ${obj.boxNumber} saved.`);
             }
           });
         })
@@ -304,7 +283,6 @@ export default {
           },
         })
         .then((response) => {
-          console.log("Pull Out Request Endorsement", response.data);
           this.tableData = response.data;
         })
         .catch((error) => {
@@ -315,22 +293,6 @@ export default {
 };
 </script>
 <style lang="scss">
-// .el-table .td-actions {
-//   button.btn {
-//     margin-right: 5px;
-//   }
-// }
-// .p-margin {
-//   margin-bottom: 0px;
-// }
-// .pl {
-//   padding-left: 4px;
-//   padding-right: 0px;
-// }
-// .pr {
-//   padding-left: 0px;
-//   padding-right: 4px;
-// }
 .el-table-mod {
   padding-top: 10px !important;
   padding-bottom: 10px !important;

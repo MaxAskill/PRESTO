@@ -41,8 +41,6 @@
   </div>
 </template>
 <script>
-import Vue from "vue";
-import axiosClient from "../../../../axios";
 import PromoRequestBranchModal from "./PromoRequestBranchModal.vue";
 
 export default {

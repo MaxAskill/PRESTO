@@ -31,6 +31,12 @@ import Notifications from '../components/Dashboard/Views/Components/Notification
 import Icons from '../components/Dashboard/Views/Components/Icons.vue'
 import Typography from '../components/Dashboard/Views/Components/Typography.vue'
 
+// Components pages
+const BBMSHomePage = () => import(/* webpackChunkName: "tables" */ '../components/Dashboard/Views/BBMS/BBMSHomePage');
+const BBMSNewBranchForm = () => import(/* webpackChunkName: "tables" */ '../components/Dashboard/Views/BBMS/BBMSNewBranchForm');
+const BBMSBranchDeactivation = () => import(/* webpackChunkName: "tables" */ '../components/Dashboard/Views/BBMS/BranchDeactivation');
+const BBMSBrandDeactivation = () => import(/* webpackChunkName: "tables" */ '../components/Dashboard/Views/BBMS/BrandDeactivation');
+
 // Forms pages
 const RegularForms  = () => import(/* webpackChunkName: "forms" */ '../components/Dashboard/Views/Forms/RegularForms.vue')
 const ExtendedForms = () => import(/* webpackChunkName: "forms" */ '../components/Dashboard/Views/Forms/ExtendedForms.vue');
@@ -52,6 +58,7 @@ const PullOutTransaction = () => import(/* webpackChunkName: "tables" */ '../com
 const AllPullOutTransaction = () => import(/* webpackChunkName: "tables" */ '../components/Dashboard/Views/PullOut/AdminPullOutTransaction.vue');
 const ApprovalPullOutTransaction = () => import(/* webpackChunkName: "tables" */ '../components/Dashboard/Views/PullOut/ApprovalTransaction.vue');
 const PromoAccount = () => import(/* webpackChunkName: "tables" */ '../components/Dashboard/Views/PullOut/PromoAccount.vue');
+const PullOutAnalytics = () => import(/* webpackChunkName: "tables" */ '../components/Dashboard/Views/PullOut/Analytics.vue');
 // Maps pages
 const GoogleMaps = () => import(/* webpackChunkName: "maps" */ '../components/Dashboard/Views/Maps/GoogleMaps.vue')
 const FullScreenMap = () => import(/* webpackChunkName: "maps" */ '../components/Dashboard/Views/Maps/FullScreenMap.vue')
@@ -126,6 +133,39 @@ let componentsMenu = {
 
   ]
 }
+
+let bbmsMenu = {
+  path: '/bbms',
+  component: DashboardLayout,
+  redirect: '/bbms/bbmshome',
+  children: [
+    {
+      path: 'bbmshome',
+      name: 'BBMS Home Page',
+      component: BBMSHomePage,
+      meta: {requiresAuth: true},
+    },
+    {
+      path: 'bbmsform',
+      name: 'BBMS New Branch Form',
+      component: BBMSNewBranchForm,
+      meta: {requiresAuth: true},
+    },
+    {
+      path: 'bbmsbranchdeactivation',
+      name: 'BBMS Branch Deactivation',
+      component: BBMSBranchDeactivation,
+      meta: {requiresAuth: true},
+    },
+    {
+      path: 'bbmsbranddeactivation',
+      name: 'BBMS Brand Deactivation',
+      component: BBMSBrandDeactivation,
+      meta: {requiresAuth: true},
+    },
+  ]
+}
+
 let formsMenu = {
   path: '/forms',
   component: DashboardLayout,
@@ -234,6 +274,12 @@ let pullOutMenu = {
       path: 'promodisers-account',
       name: 'Promodiser\'s Account',
       component: PromoAccount,
+      meta: {requiresAuth: true},
+    },
+    {
+      path: 'analytics',
+      name: 'Analytics',
+      component: PullOutAnalytics,
       meta: {requiresAuth: true},
     },
     {
@@ -361,6 +407,7 @@ const routes = [
     meta: { isGuest: true}
   },
   componentsMenu,
+  bbmsMenu,
   formsMenu,
   tablesMenu,
   mapsMenu,

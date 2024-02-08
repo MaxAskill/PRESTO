@@ -70,9 +70,13 @@ class AuthController extends Controller
 
         if($request->position == "Agent"){
             $status = "Active";
+            $request->position = "Reviewer";
         }else{
             $status = "Inactive";
         }
+
+        // Formatted date and time in 'Asia/Manila'
+        $formattedDateTimeManila = now()->setTimezone('Asia/Manila')->format('Y-m-d H:i:s');
 
         $user = User::create([
             'name' => $request->name,
@@ -80,7 +84,8 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
             'company' => $request->company,
             'position' => $request->position,
-            'status' => $status
+            'status' => $status,
+            'email_verified_at' => $formattedDateTimeManila,
         ]);
         // $token = $user->createToken('main')->plainTextToken;
 

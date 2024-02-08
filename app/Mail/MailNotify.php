@@ -38,19 +38,19 @@ class MailNotify extends Mailable
     }
 
     function approved(){
-        return $this->from("helpdesk@everydayproductscorp.com")->subject("Approved Pull Out")
+        return $this->from("helpdesk@everydayproductscorp.com")->subject("Pull Out Request has been Approved")
             ->view($this->data["viewEmail"])->with('data', $this->data);
     }
     function endorsement(){
-        return $this->from("helpdesk@everydayproductscorp.com")->subject("For Approval Pull Out")
+        return $this->from("helpdesk@everydayproductscorp.com")->subject("Pull Out Request has been Reviewed")
             ->view("EmailEndorsement")->with('data', $this->data);
     }
     function denied(){
-        return $this->from("helpdesk@everydayproductscorp.com")->subject("Denied Pull Out")
+        return $this->from("helpdesk@everydayproductscorp.com")->subject("Pull Out Request has been Denied")
             ->view('EmailDenied')->with('data', $this->data);
     }
     function unprocessed(){
-        return $this->from("helpdesk@everydayproductscorp.com")->subject("Unprocessed Pull Out")
+        return $this->from("helpdesk@everydayproductscorp.com")->subject("Pull Out Request is still Pending")
                 ->view('EmailUnprocessed')->with('data', $this->data);
     }
     function verifyEmail(){

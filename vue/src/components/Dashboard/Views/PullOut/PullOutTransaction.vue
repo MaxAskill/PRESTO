@@ -2,36 +2,6 @@
   <div>
     <div class="card card-transactions">
       <div class="card-body">
-        <!-- <div class="card-header">
-        <h4 class="title">Pull-Out Transactions</h4>
-      </div> -->
-        <!-- <div class="row mx-2 justify-content-between">
-          <div class="col-4 pl-1 pr-0">
-            <fg-input
-              class="input-md"
-              placeholder="Search"
-              v-model="searchQuery"
-              addon-right-icon="nc-icon nc-zoom-split"
-            >
-            </fg-input>
-          </div>
-          <div class="col-1 pl-0 pr-1">
-            <el-select
-              class="select-default"
-              v-model="pagination.perPage"
-              placeholder="Per page"
-            >
-              <el-option
-                class="select-default"
-                v-for="item in pagination.perPageOptions"
-                :key="item"
-                :label="item"
-                :value="item"
-              >
-              </el-option>
-            </el-select>
-          </div>
-        </div> -->
         <div class="row mx-2">
           <el-table
             class="p-0"
@@ -168,16 +138,7 @@
 </template>
 <script>
 import Vue from "vue";
-// import {
-//   Collapse,
-//   CollapseItem,
-//   Tabs,
-//   TabPane,
-//   Card,
-//   Button,
-// } from "src/components/UIComponents";
 import { Table, TableColumn, Select, Option } from "element-ui";
-// import PButton from "../../../../UIComponents/Button.vue";
 import PButton from "../../../UIComponents/Button.vue";
 import PPagination from "../../../UIComponents/Pagination.vue";
 import axiosClient from "../../../../axios";
@@ -253,7 +214,7 @@ export default {
     return {
       company: "NBFI",
       pagination: {
-        perPage: 5,
+        perPage: 10,
         currentPage: 1,
         perPageOptions: [5, 10, 25, 50],
         total: 0,
@@ -315,7 +276,6 @@ export default {
   },
   methods: {
     transferData(row) {
-      // console.log("Data:", row);
       this.transactionData.company = row.company;
       this.transactionData.chainCode = row.chainCode;
       this.transactionData.branchName = row.branchName;
@@ -329,8 +289,6 @@ export default {
       this.transactionData.approvedBy = row.approvedBy;
       this.transactionData.approvedDate = row.approvedDate;
 
-      console.log("Transaction Number:", row.plID);
-      console.log("Company:", row.company);
       var company1 = row.company.split("(")[1];
       var company = company1.split(")")[0];
 
@@ -342,15 +300,11 @@ export default {
           },
         })
         .then((response) => {
-          console.log("Data:", response.data);
           this.itemData = response.data[0];
-          console.log("Item Data:", this.itemData);
         })
         .catch((error) => {
           console.error(error);
         });
-
-      // console.log("Transaction Number:", this.row.plID);
 
       axiosClient
         .get("/fetchImageBranchDoc", {
@@ -360,32 +314,13 @@ export default {
           },
         })
         .then((response) => {
-          console.log("Pull out path image:", response.data);
-          console.log("Pull out path image length:", response.data.length);
-
           this.viewImages = response.data.imagePaths;
-          // for (var x = 0; x < response.data.length; x++) {
-          //   this.viewImages.push(
-          //     "http://192.168.0.7:40/public/uploads/" +
-          //       sessionStorage.getItem("Company") +
-          //       "/" +
-          //       response.data[x].path
-          //   );
-          // }
-          // console.log("Images:", this.viewImages);
         })
         .catch((error) => {
           console.error(error);
         });
     },
     denied(row) {
-      console.log("Company", row);
-      // location.href =
-      //   "http://192.168.0.7:4040/#/pull-out/requisition-form?transactionID=" +
-      //   row.plID +
-      //   "&company=" +
-      //   row.company;
-
       this.$router.push({
         path: "/pull-out/requisition-form",
         query: {
@@ -408,7 +343,6 @@ export default {
           this.tableData = response.data.map((item, index) => {
             return { index: index + 1, ...item };
           });
-          console.log("Pull Out Request Transaction:", this.tableData);
         })
         .catch((error) => {
           console.error(error);
@@ -424,9 +358,6 @@ export default {
         tempStatus = "Active";
       }
 
-      console.log("Branch ID:", row.id);
-      console.log("BranchCode:", row.branchCode);
-
       axiosClient
         .post("/updateBranch", {
           company: this.company,
@@ -434,17 +365,12 @@ export default {
           status: tempStatus,
           userID: sessionStorage.getItem("UserID"),
         })
-        .then((response) => {
-          console.log("Success Update Branch:", response.data);
-        })
+        .then((response) => {})
         .catch((error) => {
           console.error(error);
         });
-      // alert(`Your want to edit ${row.status}`);
     },
     handleDelete(index, row) {
-      console.log("ID:", row.id, row.company);
-
       let indexToDelete = this.tableData.findIndex((tableRow) => tableRow.id === row.id);
       if (indexToDelete >= 0) {
         this.tableData.splice(indexToDelete, 1);

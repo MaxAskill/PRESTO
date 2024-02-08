@@ -33,10 +33,6 @@
   </div>
 </template>
 <script>
-import Vue from "vue";
-import axiosClient from "../../../../../../axios";
-import axios from "axios";
-
 export default {
   components: {},
   watch: {},

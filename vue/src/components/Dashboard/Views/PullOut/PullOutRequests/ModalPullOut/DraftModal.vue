@@ -24,10 +24,6 @@
   </div>
 </template>
 <script>
-import Vue from "vue";
-import axiosClient from "../../../../../../axios";
-import axios from "axios";
-
 export default {
   props: ["transferTransactionID"],
   components: {},
@@ -46,7 +42,6 @@ export default {
   mounted() {},
   methods: {
     reloadPage() {
-      // window.location.href = "http://192.168.0.7:4040/#/pull-out/pullout-transaction";
       this.$router.push({
         path: "/pull-out/requisition-draft",
       });

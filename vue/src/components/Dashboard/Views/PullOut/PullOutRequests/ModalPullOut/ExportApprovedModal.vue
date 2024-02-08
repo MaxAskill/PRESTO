@@ -42,8 +42,6 @@
 <script>
 import Vue from "vue";
 import { Table, TableColumn, Select, Option } from "element-ui";
-import axiosClient from "../../../../../../axios";
-import axios from "axios";
 
 Vue.use(Table);
 Vue.use(TableColumn);

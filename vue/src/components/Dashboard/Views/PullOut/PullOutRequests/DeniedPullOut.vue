@@ -1,44 +1,5 @@
 <template>
   <div>
-    <!-- <div class="row mx-2 justify-content-between">
-      <div class="col-4 px-1">
-        <fg-input
-          class="input-md"
-          placeholder="Search"
-          v-model="searchQuery"
-          addon-right-icon="nc-icon nc-zoom-split"
-        >
-        </fg-input>
-      </div>
-      <div class="col-3 row">
-        <div class="col-6 pr">
-          <el-select
-            class="select-default"
-            v-model="pagination.perPage"
-            placeholder="Per page"
-          >
-            <el-option
-              class="select-default"
-              v-for="item in pagination.perPageOptions"
-              :key="item"
-              :label="item"
-              :value="item"
-            >
-            </el-option>
-          </el-select>
-        </div>
-        <div class="col-6 whitespace-nowrap">
-          <PButton
-            type="success"
-            data-bs-target="#exportDenied"
-            data-bs-toggle="modal"
-            class="btn-margin"
-          >
-            Export Excel
-          </PButton>
-        </div>
-      </div>
-    </div> -->
     <div class="row mx-2">
       <el-table
         class="p-0"
@@ -166,6 +127,7 @@
     <denied-modal
       :transferredData="transferredData"
       :itemData="itemData"
+      :totalNumbers="totalNumbers"
       @closeModal="closeModal"
     >
     </denied-modal>
@@ -260,7 +222,7 @@ export default {
         {
           prop: "plID",
           label: "TRANSACTION ID",
-          minWidth: 150,
+          minWidth: 80,
         },
         {
           prop: "branchName",
@@ -273,8 +235,13 @@ export default {
           minWidth: 170,
         },
         {
+          prop: "reason",
+          label: "REASON",
+          minWidth: 120,
+        },
+        {
           prop: "date",
-          label: "DATE",
+          label: "DATE CREATED",
           minWidth: 100,
         },
         {
@@ -300,6 +267,8 @@ export default {
         "Date",
         "Time",
       ],
+      listBoxLabel: [],
+      totalNumbers: [],
     };
   },
   watch: {
@@ -381,8 +350,21 @@ export default {
           },
         })
         .then((response) => {
-          // console.log("Success Item Response:", response.data);
           this.itemData = response.data[0];
+          this.totalNumbers = response.data[1];
+
+          this.listBoxLabel = [];
+          this.itemData.forEach((obj) => {
+            const index = this.listBoxLabel.findIndex(
+              (savedObj) => savedObj.boxNumber === obj.boxNumber
+            );
+            if (index === -1) {
+              this.listBoxLabel.push({
+                boxNumber: obj.boxNumber,
+                boxLabel: obj.boxLabel,
+              });
+            }
+          });
         })
         .catch((error) => {
           console.error(error);
@@ -399,7 +381,6 @@ export default {
           },
         })
         .then((response) => {
-          console.log("Pull Out Request Denied", response.data);
           this.tableData = response.data;
         })
         .catch((error) => {

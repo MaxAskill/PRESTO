@@ -55,7 +55,7 @@
               </div>
               <!-- <div class="row labelRows" v-show="!editMode">
                 <span class="col-sm-3">Company</span>
-                <span class="col-sm-3">Chain Code</span>
+                <span class="col-sm-3">Chain Name</span>
                 <span class="col-sm-6">Branch Name</span>
               </div> -->
               <div class="row" v-show="!editMode">
@@ -71,9 +71,9 @@
                 </div>
                 <div class="col-sm-2">
                   <fg-input
-                    label="Chain Code"
+                    label="Chain Name"
                     type="text"
-                    placeholder="Chain Code"
+                    placeholder="Chain Name"
                     v-model="user.chainCode"
                     readonly
                   >
@@ -146,7 +146,7 @@
                         </el-tooltip>
                         <el-tooltip
                           v-else
-                          content="Your request to add this branch is Approved by the Agent."
+                          content="Your request to add this branch is Approved by the authorized Officer."
                           placement="top"
                         >
                           <el-tag class="m-0" color="white" type="success"
@@ -192,11 +192,11 @@
                   </fg-input>
                 </div>
                 <div class="col-md-6">
-                  <fg-input label="Chain Code">
+                  <fg-input label="Chain Name">
                     <el-select
                       class="select-default"
                       size="large"
-                      placeholder="Select Chain Code"
+                      placeholder="Select Chain Name"
                       v-model="edit.ChainCode"
                       @change="fetchChainName()"
                     >
@@ -457,7 +457,7 @@ export default {
         },
         {
           prop: "chainCode",
-          label: "Chain Code",
+          label: "Chain Name",
           minWidth: 120,
         },
         {
@@ -521,13 +521,9 @@ export default {
           },
         })
         .then((response) => {
-          //console.log("Chain Code Response:", response.data);
           this.chainCodeList = response.data;
         })
-        .catch((error) => {
-          //console.error(error);
-        });
-      // this.notifyVue("bottom", "right");
+        .catch((error) => {});
       this.isChainCode = false;
     },
     fetchChainName() {
@@ -539,16 +535,12 @@ export default {
           },
         })
         .then((response) => {
-          //console.log("Chain Name Response:", response.data);
           this.branchList = response.data;
         })
-        .catch((error) => {
-          //console.error(error);
-        });
+        .catch((error) => {});
       this.isBranchName = false;
     },
     editProfile() {
-      // alert("Your data: " + JSON.stringify(this.user));
       this.edit.Name = this.user.name;
       this.edit.Email = this.user.email;
       this.userMultiple.forEach((userM) => {
@@ -609,26 +601,13 @@ export default {
           chainCode: this.edit.ChainCode,
           branch: this.edit.BranchName,
         });
-      // this.branchMultiple.forEach((item) => {
-      //   if (this.editBranchMode && this.edit.BranchName != item.branch) {
-      //     item.company = this.edit.Company;
-      //     item.chainCode = this.edit.ChainCode;
-      //     item.branch = this.edit.BranchName;
-      //   } else if (item.branch != this.edit.BranchName)
-      //     this.branchMultiple.push({
-      //       company: this.edit.Company,
-      //       chainCode: this.edit.ChainCode,
-      //       branch: this.edit.BranchName,
-      //     });
-      // });
+
       this.edit.Company = "";
       this.edit.ChainCode = "";
       this.edit.BranchName = "";
       this.chainCodeList = [];
       this.branchList = [];
       this.editBranchMode = false;
-
-      console.log("Add Branch", this.branchMultiple);
     },
     removeBranchInput(index) {
       this.branchMultiple.splice(index, 1);
@@ -660,14 +639,12 @@ export default {
           this.user.date = response.data[0].date;
           this.user.status = response.data[0].status;
           this.user.withRequest = response.data[0].withRequest;
-          this.withRequest = response.data[0].withRequest;
           if (response.data[0].position == "User") {
             this.userMultiple = response.data;
           }
           this.tableData = [];
           let ctr = 0;
           for (let temp of response.data) {
-            // response.data.forEach((temp) => {
             if (!temp.permanent) this.tableData.push(temp);
             else {
               this.user.company = temp.company;
@@ -680,14 +657,13 @@ export default {
             this.user.withRequest = true;
             let tooltipReq = bootstrap.Tooltip.getInstance("#btnRequest");
             tooltipReq._config.title =
-              "You still have a pending request. Kindly wait for the approval by your agent.";
+              "You still have a pending request. Kindly wait for the approval by the authorized Officer.";
             tooltipReq.update();
           } else {
             this.user.withRequest = false;
             let tooltip = bootstrap.Tooltip.getInstance("#btnRequest");
             tooltip.disable();
           }
-          console.log("PROMO: ", response.data);
         })
         .catch((error) => {
           console.error(error);
@@ -701,20 +677,15 @@ export default {
           },
         })
         .then((response) => {
-          console.log("Pull Out User Promo Request: ", response.data);
           this.userRequest = response.data;
           this.dateCreated = response.data[0].dateCreated;
-          console.log("User Reuest: ", this.dateCreated);
         })
         .catch((error) => {
           console.error(error);
         });
     },
     updateProfileWithRequest(confirm) {
-      console.log(" POST with remove branch ", this.removeBranch);
-      console.log(" POST with add branch ", this.additionalBranch);
       if (confirm) {
-        // this.branchMultiple.forEach((ctr) => {
         this.removeBranch.forEach((ctr) => {
           axiosClient
             .post("/postPromoUserBranch", {
@@ -726,7 +697,6 @@ export default {
               id: ctr.id,
             })
             .then((response) => {
-              console.log("Success Remove Branch", response.data);
               this.cancelProfile();
               this.fetchData();
             })
@@ -744,7 +714,6 @@ export default {
               req: "additional",
             })
             .then((response) => {
-              console.log("Success Additional Branch", response.data);
               this.cancelProfile();
               this.fetchData();
             })

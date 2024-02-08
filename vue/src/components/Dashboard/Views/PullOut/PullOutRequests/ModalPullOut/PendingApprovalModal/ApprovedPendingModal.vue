@@ -19,7 +19,7 @@
           <div class="row">
             <div class="col-12 pull-left">
               <fg-input
-                label="Name of Sales Representative / Retail Area Supervisor"
+                label="Assigned Personnel for Pull-Out/Promodiser/Accredited Service Representative"
                 v-model="authorizedPersonnel"
               ></fg-input>
             </div>
@@ -49,7 +49,7 @@
         </div>
         <div class="modal-footer px-5">
           <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button
+          <el-button
             :disabled="isDisabled"
             type="button"
             class="btn btn-success"
@@ -57,7 +57,7 @@
             @click="generateLetter"
           >
             Generate Letter
-          </button>
+          </el-button>
         </div>
       </div>
     </div>
@@ -69,7 +69,7 @@ import Vue from "vue";
 import { DatePicker, Table, TableColumn, Select, Option } from "element-ui";
 import axiosClient from "../../../../../../../axios";
 import ApprovalModal from "../ApprovalModal.vue";
-import axios from "axios";
+import { Loading } from "element-ui";
 
 Vue.use(Table);
 Vue.use(TableColumn);
@@ -129,77 +129,129 @@ export default {
       this.authorizedPersonnel = this.dateData[0].authorizedPersonnel;
       console.log("Transfer Date:", this.dateStarted, this.dateEnded);
     },
-    generateLetter() {
-      var tempDateStart =
-        this.dateStarted.toString().split(" ")[1] +
-        " " +
-        this.dateStarted.toString().split(" ")[2] +
-        ", " +
-        this.dateStarted.toString().split(" ")[3];
+    async generateLetter() {
+      const status =
+        sessionStorage.getItem("Position") == "Reviewer" ? "endorsement" : "approved";
+      console.log("Personnel:", this.authorizedPersonnel);
+      var dates = await axiosClient.post("/postDatesLetter", {
+        id: this.transferredData.plID,
+        authorizedPersonnel: this.authorizedPersonnel,
+        company: sessionStorage.getItem("Company"),
+        dateStarted: this.dateStarted,
+        dateEnded: this.dateEnded,
+        status: status,
+      });
 
-      var tempDateEnd =
-        this.dateEnded.toString().split(" ")[1] +
-        " " +
-        this.dateEnded.toString().split(" ")[2] +
-        ", " +
-        this.dateEnded.toString().split(" ")[3];
+      console.log("Dates", dates);
 
-      console.log("Date Started: ", this.dateStarted, "Date Ended:", this.dateEnded);
-      for (var x = 0; x < this.itemData.length; x++) {
-        axiosClient
-          .post("/updateItemQuantity", {
-            company: sessionStorage.getItem("Company"),
-            id: this.itemData[x].id,
-            boxNumber: this.itemData[x].boxNumber,
-            boxLabel: this.itemData[x].boxLabel,
-            quantity: this.itemData[x].quantity,
-            userID: sessionStorage.getItem("UserID"),
-          })
-          .then((response) => {
-            // console.log("Success Save", response.data);
-          })
-          .catch((error) => {
-            console.error(error);
-          });
-      }
-      axiosClient
-        .post("/updateBranchStatusApprover", {
+      await axiosClient
+        .post("/updateBranchStatus", {
           company: sessionStorage.getItem("Company"),
           id: this.transferredData.plID,
-          // name: this.userName,
           status: "approved",
           userID: sessionStorage.getItem("UserID"),
+          editStatus: false,
         })
-        .then((response) => {
-          // console.log("Success:", response.data);
-          const baseUrl = "http://192.168.0.7:40/api/generatePDF";
-          const queryParams = new URLSearchParams({
-            name: this.transferredData.createdBy,
-            plID: this.transferredData.plID,
-            dateStart: tempDateStart,
-            dateEnd: tempDateEnd,
-            email: this.transferredData.promoEmail,
-            userID: sessionStorage.getItem("UserID"),
-            status: "approved",
-            company: sessionStorage.getItem("Company"),
-            regenerate: "generate",
-          });
-
-          const fullUrl = `${baseUrl}?${queryParams}`;
-
-          window.open(fullUrl, "_blank");
-          setTimeout(() => {
-            window.location.reload();
-          }, 3000); // Reload after 3 seconds
-        })
+        .then((response) => {})
         .catch((error) => {
           console.error(error);
         });
+
+      var holderName = this.convertToAlphanumeric("name");
+      var holderplID = this.convertToAlphanumeric("plID");
+      var holderDateStart = this.convertToAlphanumeric("dateStart");
+      var holderDateEnd = this.convertToAlphanumeric("dateEnd");
+      var holderEmail = this.convertToAlphanumeric("email");
+      var holderUserID = this.convertToAlphanumeric("userID");
+      var holderStatus = this.convertToAlphanumeric("status");
+      var holderCompany = this.convertToAlphanumeric("company");
+      var holderRegenerate = this.convertToAlphanumeric("regenerate");
+
+      await window.open(
+        "http://192.168.0.7:90/api/generatePDF?" +
+          holderName +
+          "=" +
+          this.authorizedPersonnel +
+          "&" +
+          holderplID +
+          "=" +
+          this.transferredData.plID +
+          "&" +
+          holderDateStart +
+          "=" +
+          this.dateStarted +
+          "&" +
+          holderDateEnd +
+          "=" +
+          this.dateEnded +
+          "&" +
+          holderEmail +
+          "=" +
+          this.transferredData.promoEmail +
+          "&" +
+          holderUserID +
+          "=" +
+          sessionStorage.getItem("UserID") +
+          "&" +
+          holderStatus +
+          "=approved" +
+          "&" +
+          holderCompany +
+          "=" +
+          sessionStorage.getItem("Company") +
+          "&" +
+          holderRegenerate +
+          "=generate",
+        "_blank"
+      );
+      let loadingInstance = Loading.service({
+        fullscreen: true,
+        lock: true,
+        text: "Loading",
+        spinner: "el-icon-loading",
+        background: "rgba(0, 0, 0, 0.7)",
+      });
+
+      setTimeout(() => {
+        loadingInstance.close();
+        this.$router.push({
+          path: "/pull-out/requests",
+        });
+      }, 3000);
+      // setTimeout(() => {
+      //   this.$router.push({
+      //     path: "/pull-out/requests",
+      //   });
+      // }, 3000); // Reload after 3 seconds
     },
     validateGenerate() {
       if (this.transferredData.createdBy && this.dateStarted && this.dateEnded)
         this.isDisabled = false;
       else this.isDisabled = true;
+    },
+    convertToAlphanumeric(input) {
+      let result = "";
+
+      for (let i = 0; i < input.length; i++) {
+        const char = input[i];
+        const charCode = char.charCodeAt(0);
+
+        // Check if the character is alphanumeric
+        if (
+          (char >= "0" && char <= "9") ||
+          (char >= "a" && char <= "z") ||
+          (char >= "A" && char <= "Z")
+        ) {
+          // Convert the character code to a base-36 alphanumeric representation
+          const alphanumericChar = charCode.toString(36);
+          result += alphanumericChar;
+        } else {
+          // Non-alphanumeric characters are left unchanged
+          result += char;
+        }
+      }
+
+      return result;
     },
   },
 };

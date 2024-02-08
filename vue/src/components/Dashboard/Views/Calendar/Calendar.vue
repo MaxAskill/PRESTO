@@ -19,13 +19,13 @@ import interactionPlugin from "@fullcalendar/interaction";
 import { INITIAL_EVENTS, createEventId } from "./event-utils";
 import Swal from "sweetalert2";
 
-  export default {
-    components: {
-      FullCalendar
-    },
-    data() {
-      return {
-        calendarOptions: {
+export default {
+  components: {
+    FullCalendar,
+  },
+  data() {
+    return {
+      calendarOptions: {
         plugins: [
           dayGridPlugin,
           timeGridPlugin,
@@ -43,63 +43,73 @@ import Swal from "sweetalert2";
         eventClick: this.handleEventClick,
         eventsSet: this.handleEvents,
       },
+      listConferenceRoom: [
+        "AT HOME Conference Room",
+        "BARBIZON Conference Room",
+        "MONALISA Conference Room",
+        "SASSA Conference Room",
+        "SWIMLAB Conference Room",
+      ],
+    };
+  },
+  methods: {
+    handleWeekendsToggle() {
+      this.calendarOptions.weekends = !this.calendarOptions.weekends; // update a property
+    },
+    handleDateSelect(selectInfo) {
+      console.log("Selected Date: ", selectInfo);
+      var sample = this.listConferenceRoom;
+      // on select we show the Sweet Alert modal with an input
+      const swalWithBootstrapButtons = Swal.mixin({
+        customClass: {
+          confirmButton: "btn btn-success",
+          cancelButton: "btn btn-danger",
+        },
+        buttonsStyling: false,
+      });
+      const listConferenceRoom = this.listConferenceRoom;
+      swalWithBootstrapButtons
+        .fire({
+          title: "Create an Event",
+          html: `<input type="text" id="md-input" class="form-control">
+          <label>Mabuhay ${listConferenceRoom}</label>`,
+          showCancelButton: true,
+        })
+        .then(() => {
+          var title = document.getElementById("md-input").value;
+          let calendarApi = selectInfo.view.calendar;
+          calendarApi.unselect(); // clear date selection
+          if (title) {
+            calendarApi.addEvent({
+              id: createEventId(),
+              title,
+              start: selectInfo.startStr,
+              end: selectInfo.endStr,
+              allDay: selectInfo.allDay,
+            });
+            // console.log("Event Added: ", title);
+          }
+        });
+    },
+    handleEventClick(clickInfo) {
+      if (
+        confirm(`Are you sure you want to delete the event '${clickInfo.event.title}'`)
+      ) {
+        clickInfo.event.remove();
       }
     },
-    methods: {
-      handleWeekendsToggle() {
-        this.calendarOptions.weekends = !this.calendarOptions.weekends; // update a property
-      },
-      handleDateSelect(selectInfo) {
-        // on select we show the Sweet Alert modal with an input
-        const swalWithBootstrapButtons = Swal.mixin({
-          customClass: {
-            confirmButton: "btn btn-success",
-            cancelButton: "btn btn-danger",
-          },
-          buttonsStyling: false,
-        });
-        swalWithBootstrapButtons
-          .fire({
-            title: "Create an Event",
-            html: `<input type="text" id="md-input" class="form-control">`,
-            showCancelButton: true,
-          })
-          .then(() => {
-            var title = document.getElementById("md-input").value;
-            let calendarApi = selectInfo.view.calendar;
-            calendarApi.unselect(); // clear date selection
-            if (title) {
-              calendarApi.addEvent({
-                id: createEventId(),
-                title,
-                start: selectInfo.startStr,
-                end: selectInfo.endStr,
-                allDay: selectInfo.allDay,
-              });
-            }
-          });
-      },
-      handleEventClick(clickInfo) {
-        if (
-          confirm(
-            `Are you sure you want to delete the event '${clickInfo.event.title}'`
-          )
-        ) {
-          clickInfo.event.remove();
-        }
-      },
-      handleEvents(events) {
-        this.currentEvents = events;
-      },
-    }
-  }
+    handleEvents(events) {
+      this.currentEvents = events;
+    },
+  },
+};
 </script>
 <style>
-  #fullCalendar {
-    min-height: 300px;
-  }
+#fullCalendar {
+  min-height: 300px;
+}
 
-  .el-loading-spinner .path {
-    stroke: #66615B !important;
-  }
+.el-loading-spinner .path {
+  stroke: #66615b !important;
+}
 </style>

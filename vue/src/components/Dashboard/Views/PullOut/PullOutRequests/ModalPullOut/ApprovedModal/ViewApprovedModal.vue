@@ -17,10 +17,6 @@
             </h1>
           </div>
           <div class="modal-body">
-            <!-- <div v-for="(path, index) in viewImages" :key="index">
-              <img :src="path" :alt="'Image ' + (index + 1)" style="width: 100%" />
-            </div> -->
-
             <div class="row">
               <div
                 class="responsive col-2"
@@ -38,9 +34,6 @@
             <div class="clearfix"></div>
           </div>
           <div class="modal-footer mrgn-footer">
-            <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-              Close
-            </button> -->
             <button
               type="button"
               class="btn btn-secondary"

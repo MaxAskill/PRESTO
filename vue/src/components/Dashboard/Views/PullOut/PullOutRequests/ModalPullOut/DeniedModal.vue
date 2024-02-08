@@ -225,6 +225,24 @@
                 </div>
               </div>
             </div>
+            <div class="row">
+              <div class="col-12">
+                <div class="form-group">
+                  <label
+                    class="selector-label d-flex justify-content-center align-items-center"
+                    >Reason</label
+                  >
+                  <p
+                    rows="1"
+                    readonly
+                    class="form-control control-form text-center font-weight-bold"
+                    style="text-transform: capitalize"
+                  >
+                    {{ transferredData.reason }}
+                  </p>
+                </div>
+              </div>
+            </div>
             <div class="col-sm-12 pt-5">
               <fg-input
                 class="input-md"
@@ -255,6 +273,34 @@
                 </el-table-column>
               </el-table>
             </div>
+            <div class="d-flex justify-content-end pagination-info">
+              <p class="category p-margin">
+                Showing {{ from + 1 }} to {{ to }} of {{ total }} entries
+              </p>
+            </div>
+            <div class="d-flex justify-content-center">
+              <p-pagination
+                class="pull-right"
+                v-model="pagination.currentPage"
+                :per-page="pagination.perPage"
+                :total="pagination.total"
+              >
+              </p-pagination>
+            </div>
+            <div class="row">
+              <div class="col-sm-6 text-center">
+                <label> Number of Boxes</label><br />
+                <span class="font-weight-bold label-size">
+                  {{ totalNumbers.boxCount }}
+                </span>
+              </div>
+              <div class="col-sm-6 text-center">
+                <label> Number of Items</label><br />
+                <span class="font-weight-bold label-size">
+                  {{ totalNumbers.totalItems }}
+                </span>
+              </div>
+            </div>
           </div>
           <div class="modal-footer mrgn-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
@@ -268,6 +314,9 @@
               @click="viewImage"
             >
               View
+            </button>
+            <button type="submit" class="btn btn-info" @click="exportExcel">
+              Export Excel
             </button>
             <button
               type="submit"
@@ -291,6 +340,7 @@ import axiosClient from "../../../../../../axios";
 import { createPopper } from "@popperjs/core/lib/popper-lite.js";
 import PPagination from "../../../../../UIComponents/Pagination.vue";
 import ViewDeniedModal from "./DeniedModal/ViewDeniedModal.vue";
+import XLSX from "../../../../../../../node_modules/xlsx/dist/xlsx.full.min.js";
 
 Vue.use(Table);
 Vue.use(TableColumn);
@@ -301,7 +351,7 @@ export default {
     PPagination,
     ViewDeniedModal,
   },
-  props: ["transferredData", "itemData"],
+  props: ["transferredData", "totalNumbers", "itemData"],
   watch: {
     transferredData(newValue) {
       if (newValue === "") {
@@ -414,6 +464,28 @@ export default {
           minWidth: 100,
         },
       ],
+      headerRowNBFI: [
+        "Item Code",
+        "Item Description",
+        "Size",
+        "Color",
+        "Brand",
+        "Box Number",
+        "Box Label",
+        "Quantity",
+        "Amount",
+      ],
+      headerRowEPC: [
+        "Item Code",
+        "Item Description",
+        "Size",
+        "Color",
+        "Sub-Category",
+        "Box Number",
+        "Box Label",
+        "Quantity",
+        "Amount",
+      ],
       headerCellStyle: {
         fontSize: "10px",
       },
@@ -424,9 +496,64 @@ export default {
     };
   },
   methods: {
-    viewImage() {
-      console.log("Transaction Number:", this.transferredData);
+    exportExcel() {
+      var dataArray = "";
+      const selectedItems = [this.transferredData.plID];
 
+      axiosClient
+        .get("/fetchAllItemsRequestExport", {
+          params: {
+            company: sessionStorage.getItem("Company"),
+            plID: selectedItems,
+          },
+        })
+        .then((response) => {
+          this.excelBranch = response.data;
+          dataArray = this.excelBranch.map((obj) => [
+            obj.itemCode,
+            obj.ItemDescription,
+            obj.Size,
+            obj.Color,
+            obj.brand,
+            obj.boxNumber,
+            obj.boxLabel,
+            obj.quantity,
+            obj.amount,
+          ]);
+
+          const currentDate = new Date();
+          const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+          const currentDateString = currentDate
+            .toLocaleDateString("en-PH", options)
+            .replace(/\//g, "-");
+
+          if (sessionStorage.getItem("Company") == "NBFI") {
+            dataArray = [this.headerRowNBFI, ...dataArray];
+          } else {
+            dataArray = [this.headerRowEPC, ...dataArray];
+          }
+
+          const workbook = XLSX.utils.book_new();
+          const worksheet = XLSX.utils.aoa_to_sheet(dataArray);
+
+          XLSX.utils.book_append_sheet(workbook, worksheet, "Raw Data");
+          const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+          const blob = new Blob([excelBuffer], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          });
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download =
+            currentDateString + "_ " + this.transferredData.branchName + ".xlsx";
+          link.click();
+          window.URL.revokeObjectURL(url);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    },
+    viewImage() {
       axiosClient
         .get("/fetchImageBranchDoc", {
           params: {
@@ -435,42 +562,51 @@ export default {
           },
         })
         .then((response) => {
-          console.log("Pull out path image:", response.data);
-          console.log("Pull out path image length:", response.data.length);
-
           this.viewImages = response.data.imagePaths;
-          // for (var x = 0; x < response.data.length; x++) {
-          //   this.viewImages.push(
-          //     "http://192.168.0.7:40/public/uploads/" +
-          //       sessionStorage.getItem("Company") +
-          //       "/" +
-          //       response.data[x].path
-          //   );
-          // }
-          // console.log("Images:", this.viewImages);
         })
         .catch((error) => {
           console.error(error);
         });
     },
     submit() {
-      console.log("Transaction Number:", this.transferredData.plID);
-      console.log("Company", this.transferredData.company);
       var company1 = this.transferredData.company.split("(")[1];
       var company = company1.split(")")[0];
-      // location.href =
-      //   "http://192.168.0.7:4040/#/pull-out/requisition-form?transactionID=" +
-      //   this.transferredData.plID +
-      //   "&company=" +
-      //   this.transferredData.company;
+      var tempTransactionID = this.convertToAlphanumeric("transactionID");
+      var tempcompany = this.convertToAlphanumeric("company");
 
-      this.$router.push({
+      const routeParams = {
         path: "/pull-out/requisition-form",
         query: {
-          transactionID: this.transferredData.plID,
-          company: company,
+          [tempTransactionID]: this.transferredData.plID,
+          [tempcompany]: this.convertToAlphanumeric(company),
         },
-      });
+      };
+
+      this.$router.push(routeParams);
+    },
+    convertToAlphanumeric(input) {
+      let result = "";
+
+      for (let i = 0; i < input.length; i++) {
+        const char = input[i];
+        const charCode = char.charCodeAt(0);
+
+        // Check if the character is alphanumeric
+        if (
+          (char >= "0" && char <= "9") ||
+          (char >= "a" && char <= "z") ||
+          (char >= "A" && char <= "Z")
+        ) {
+          // Convert the character code to a base-36 alphanumeric representation
+          const alphanumericChar = charCode.toString(36);
+          result += alphanumericChar;
+        } else {
+          // Non-alphanumeric characters are left unchanged
+          result += char;
+        }
+      }
+
+      return result;
     },
   },
 };

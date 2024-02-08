@@ -225,7 +225,6 @@
                 </div>
               </div>
             </div>
-
             <div class="row">
               <div class="col-sm-12 pt-5">
                 <fg-input
@@ -274,6 +273,20 @@
               >
               </p-pagination>
             </div>
+            <div class="row">
+              <div class="col-sm-6 text-center">
+                <label> Number of Boxes</label><br />
+                <span class="font-weight-bold label-size">
+                  {{ totalNumbers.boxCount }}
+                </span>
+              </div>
+              <div class="col-sm-6 text-center">
+                <label> Number of Items</label><br />
+                <span class="font-weight-bold label-size">
+                  {{ totalNumbers.totalItems }}
+                </span>
+              </div>
+            </div>
           </div>
           <div class="modal-footer mrgn-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
@@ -288,24 +301,17 @@
             >
               View
             </button>
+            <button type="submit" class="btn btn-info" @click="exportExcel">
+              Export Excel
+            </button>
             <button class="btn btn-success" @click="generateLetter">
               GENERATE LETTER
             </button>
-            <!-- <button
-              class="btn btn-success"
-              data-bs-target="#regenerateApproved"
-              data-bs-toggle="modal"
-            >
-              GENERATE LETTER
-            </button> -->
           </div>
         </div>
       </div>
     </div>
-    <!-- <RegenerateApprovedModal
-      :transferredData="transferredData"
-      :itemData="itemData"
-    ></RegenerateApprovedModal> -->
+
     <ViewApprovedModal :viewImages="viewImages"></ViewApprovedModal>
   </div>
 </template>
@@ -313,10 +319,10 @@
 import Vue from "vue";
 import { Table, TableColumn, Select, Option } from "element-ui";
 import axiosClient from "../../../../../../axios";
-// import RegenerateApprovedModal from "./RegenerateApprovedModal.vue";
 import { createPopper } from "@popperjs/core/lib/popper-lite.js";
 import PPagination from "../../../../../UIComponents/Pagination.vue";
 import ViewApprovedModal from "./ApprovedModal/ViewApprovedModal.vue";
+import XLSX from "../../../../../../../node_modules/xlsx/dist/xlsx.full.min.js";
 
 Vue.use(Table);
 Vue.use(TableColumn);
@@ -328,7 +334,7 @@ export default {
     // RegenerateApprovedModal,
     ViewApprovedModal,
   },
-  props: ["transferredData", "itemData"],
+  props: ["transferredData", "totalNumbers", "itemData"],
 
   watch: {
     transferredData(newValue) {
@@ -439,10 +445,21 @@ export default {
         {
           prop: "amount",
           label: "Amount",
-          minWidth: 100,
+          minWidth: 50,
         },
       ],
       viewImages: "",
+      headerRow: [
+        "Item Code",
+        "Item Description",
+        "Size",
+        "Color",
+        "Brand",
+        "Box Number",
+        "Box Label",
+        "Quantity",
+        "Amount",
+      ],
       headerCellStyle: {
         fontSize: "10px",
       },
@@ -452,28 +469,102 @@ export default {
     };
   },
   methods: {
+    exportExcel() {
+      var dataArray = "";
+      const selectedItems = [this.transferredData.plID];
+
+      axiosClient
+        .get("/fetchAllItemsRequestExport", {
+          params: {
+            company: sessionStorage.getItem("Company"),
+            plID: selectedItems,
+          },
+        })
+        .then((response) => {
+          this.excelBranch = response.data;
+          dataArray = this.excelBranch.map((obj) => [
+            obj.itemCode,
+            obj.ItemDescription,
+            obj.Size,
+            obj.Color,
+            obj.brand,
+            obj.boxNumber,
+            obj.boxLabel,
+            obj.quantity,
+            obj.amount,
+          ]);
+
+          const currentDate = new Date();
+          const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+          const currentDateString = currentDate
+            .toLocaleDateString("en-PH", options)
+            .replace(/\//g, "-");
+
+          dataArray = [this.headerRow, ...dataArray];
+          const workbook = XLSX.utils.book_new();
+          const worksheet = XLSX.utils.aoa_to_sheet(dataArray);
+
+          XLSX.utils.book_append_sheet(workbook, worksheet, "Raw Data");
+          const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+          const blob = new Blob([excelBuffer], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          });
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download =
+            currentDateString + "_ " + this.transferredData.branchName + ".xlsx";
+          link.click();
+          window.URL.revokeObjectURL(url);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    },
     generateLetter() {
+      var holderName = this.convertToAlphanumeric("name");
+      var holderplID = this.convertToAlphanumeric("plID");
+      var holderDateStart = this.convertToAlphanumeric("dateStart");
+      var holderDateEnd = this.convertToAlphanumeric("dateEnd");
+      var holderEmail = this.convertToAlphanumeric("email");
+      var holderUserID = this.convertToAlphanumeric("userID");
+      var holderStatus = this.convertToAlphanumeric("status");
+      var holderCompany = this.convertToAlphanumeric("company");
+      var holderRegenerate = this.convertToAlphanumeric("regenerate");
       window.open(
-        "http://192.168.0.7:40/api/generatePDF?name=" +
+        "http://192.168.0.7:90/api/generatePDF?" +
+          holderName +
+          "=" +
           this.transferredData.authorizedPersonnel +
-          "&plID=" +
+          "&" +
+          holderplID +
+          "=" +
           this.transferredData.plID +
-          "&dateStart=" +
+          "&" +
+          holderDateStart +
+          "=" +
           this.transferredData.dateStart +
-          "&dateEnd=" +
+          "&" +
+          holderDateEnd +
+          "=" +
           this.transferredData.dateEnd +
-          "&email=" +
+          "&" +
+          holderEmail +
+          "=" +
           this.transferredData.promoEmail +
-          "&userID=" +
+          "&" +
+          holderUserID +
+          "=" +
           sessionStorage.getItem("UserID") +
-          "&company=" +
-          sessionStorage.getItem("Company") +
-          "&regenerate=regenerate",
+          "&" +
+          holderStatus +
+          "=approved" +
+          "&" +
+          holderCompany +
+          "=" +
+          sessionStorage.getItem("Company"),
         "_blank"
       );
-      setTimeout(() => {
-        window.location.reload();
-      }, 3000); // Reload after 3 seconds
     },
     viewImage() {
       console.log("Transaction Number:", this.transferredData);
@@ -490,19 +581,34 @@ export default {
           console.log("Pull out path image length:", response.data.length);
 
           this.viewImages = response.data.imagePaths;
-          // for (var x = 0; x < response.data.length; x++) {
-          //   this.viewImages.push(
-          //     "http://192.168.0.7:40/public/uploads/" +
-          //       sessionStorage.getItem("Company") +
-          //       "/" +
-          //       response.data[x].path
-          //   );
-          // }
-          // console.log("Images:", this.viewImages);
         })
         .catch((error) => {
           console.error(error);
         });
+    },
+    convertToAlphanumeric(input) {
+      let result = "";
+
+      for (let i = 0; i < input.length; i++) {
+        const char = input[i];
+        const charCode = char.charCodeAt(0);
+
+        // Check if the character is alphanumeric
+        if (
+          (char >= "0" && char <= "9") ||
+          (char >= "a" && char <= "z") ||
+          (char >= "A" && char <= "Z")
+        ) {
+          // Convert the character code to a base-36 alphanumeric representation
+          const alphanumericChar = charCode.toString(36);
+          result += alphanumericChar;
+        } else {
+          // Non-alphanumeric characters are left unchanged
+          result += char;
+        }
+      }
+
+      return result;
     },
   },
 };

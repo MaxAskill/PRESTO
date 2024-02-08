@@ -41,7 +41,7 @@
           :label="column.label"
         >
         </el-table-column>
-        <el-table-column :width="200" class-name="td-actions" label="Status">
+        <el-table-column :min-width="70" class-name="td-actions" label="Status">
           <template slot-scope="props">
             <p-button
               v-if="props.row.status === 'Active'"
@@ -58,6 +58,28 @@
               @click="handleEdit(props.$index, props.row)"
             >
               Inactive
+            </p-button>
+          </template>
+        </el-table-column>
+        <el-table-column :min-width="70" class-name="td-actions" label="Actions">
+          <template slot-scope="props">
+            <p-button
+              type="success"
+              size="sm"
+              icon
+              data-bs-toggle="modal"
+              data-bs-target="#editbrandmodal"
+              @click="editPersonnel(props.row)"
+            >
+              <i class="fa fa-edit"></i>
+            </p-button>
+            <p-button
+              type="danger"
+              size="sm"
+              icon
+              @click="handleDelete(props.$index, props.row)"
+            >
+              <i class="fa fa-trash-o" aria-hidden="true"></i>
             </p-button>
           </template>
         </el-table-column>
@@ -78,6 +100,7 @@
       </p-pagination>
     </div>
     <AddBrandModal :transferredData="company"></AddBrandModal>
+    <EditBrandModal :personnelDetail="selectedPersonnel"></EditBrandModal>
   </div>
 </template>
 <script>
@@ -87,6 +110,7 @@ import PButton from "../../../../UIComponents/Button.vue";
 import PPagination from "../../../../UIComponents/Pagination.vue";
 import axiosClient from "../../../../../axios";
 import AddBrandModal from "../Maintenance/ModalMaintenance/AddBrandModal.vue";
+import EditBrandModal from "./ModalMaintenance/EditMaintenanceModal/EditBrandModal.vue";
 
 Vue.use(Table);
 Vue.use(TableColumn);
@@ -98,6 +122,7 @@ export default {
     PButton,
     PPagination,
     AddBrandModal,
+    EditBrandModal,
   },
   mounted() {
     this.fetchData();
@@ -169,9 +194,14 @@ export default {
         },
       ],
       tableData: [],
+      selectedPersonnel: {},
     };
   },
   methods: {
+    editPersonnel(personnelDetail) {
+      console.log("select branch", personnelDetail);
+      this.selectedPersonnel = personnelDetail;
+    },
     fetchData() {
       axiosClient
         .get("/fetchBrandMaintenance", {
@@ -187,7 +217,6 @@ export default {
         });
     },
     handleEdit(index, row) {
-      // alert(`Your want to edit ${row.branchName}`);
       var tempStatus = "";
       if (row.status === "Active") {
         row.status = "Inactive";
@@ -204,9 +233,7 @@ export default {
           userID: sessionStorage.getItem("UserID"),
           company: this.company,
         })
-        .then((response) => {
-          // console.log("Success Update Brand");
-        })
+        .then((response) => {})
         .catch((error) => {
           console.error(error);
         });

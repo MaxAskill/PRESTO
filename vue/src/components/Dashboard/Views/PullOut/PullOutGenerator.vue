@@ -1,8 +1,5 @@
 <template>
   <div class="card card-generator">
-    <!-- <div class="card-header">
-      <h4 class="title">Pull-Out Requisition Form</h4>
-    </div> -->
     <div class="card-body">
       <div class="row">
         <div class="col-sm-3">
@@ -35,11 +32,11 @@
           </fg-input>
         </div>
         <div class="col-sm-3">
-          <fg-input label="Chain Code" :disabled="isChainCode">
+          <fg-input label="Chain Name" :disabled="isChainCode">
             <el-select
               class="select-default"
               size="large"
-              placeholder="Select Chain Code"
+              placeholder="Select Chain Name"
               v-model="newTransaction.chainCode"
               @change="
                 fetchChainName(),
@@ -58,7 +55,7 @@
               </el-option>
             </el-select>
             <label v-show="isValid.chainCode" class="label-font"
-              >Chain Code is required.</label
+              >Chain Name is required.</label
             >
           </fg-input>
         </div>
@@ -88,10 +85,6 @@
         </div>
         <div class="col-sm-3">
           <fg-input label="Transaction Type" :disabled="isTransactionType">
-            <!-- &nbsp;<i
-              data-bs-toggle="tooltip"
-              class="nc-icon nc-alert-circle-i font-weight-bold"
-            ></i> -->
             <el-select
               class="select-default"
               size="large"
@@ -143,7 +136,7 @@
               data-bs-target="#editboxlabelModal"
               @click="openModal(newTransaction)"
             >
-              <i class="nc-icon nc-ruler-pencil font-weight-bold"></i> Edit Box Label
+              <i class="nc-icon nc-ruler-pencil font-weight-bold"></i> Delete Box Label
             </p-button>
           </div>
           <div
@@ -174,13 +167,6 @@
               @change="handleFileUpload"
             />
           </div>
-          <!-- <div class="col-xl-2 col-md-3 col-sm-12 p-0 h-div-32" v-show="isShowButton">
-            <span
-              onclick="document.getElementById('import_items_excel').click()"
-              class="span-upload-image py-1"
-              >{{ uploadExcelFileName }}</span
-            >
-          </div> -->
         </div>
         <div class="row">
           <div class="col-sm-12 p-0 mt-2" v-show="isBoxLabel">
@@ -260,7 +246,7 @@
               >
                 <form @submit.prevent="saveItem(boxLabel.boxNumber)">
                   <div class="row" v-if="newItem.id == showItemInput">
-                    <div class="col-xl-2 col-lg-2 col-md-2 col-sm-12 d-flex mt-2">
+                    <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12 d-flex mt-2">
                       <div class="col-6 text-center">
                         <input
                           type="radio"
@@ -281,7 +267,7 @@
                         <label for="item_12">12 Digit Barcode</label><br />
                       </div>
                     </div>
-                    <div class="col-xl-10 col-lg-10 col-md-10 col-sm-12 d-flex mt-2">
+                    <div class="col-xl-9 col-lg-9 col-md-9 col-sm-12 d-flex mt-2">
                       <input
                         type="text"
                         placeholder="Item Code"
@@ -290,6 +276,7 @@
                         @change="compareItemCode"
                         list="items"
                         class="input-datalist"
+                        maxlength="150"
                       />
 
                       <datalist id="items">
@@ -299,9 +286,7 @@
                           :key="item.ItemNo"
                         ></option>
                       </datalist>
-                      <!-- <fg-input placeholder="Item" v-model="newItemInput" class="w-100"></fg-input> -->
-                      <!-- <label> showItemInput: {{ showItemInput }}</label>
-                          <label> newItem.id: {{ newItem.id }}</label> -->
+
                       <p-button
                         native-type="submit"
                         type="default"
@@ -332,126 +317,9 @@
                       >Item code is empty.</label
                     >
                   </div>
-
-                  <!-- <div class="col-sm-12 d-flex" v-show="newItem.id != showItemInput">
-                          <fg-input :placeholder="newItem.id " v-model="newItem.item" class="w-100"></fg-input>
-                          <p-button type="default" size="sm"   class="font-weight-bold" @click.prevent="saveItem(boxLabel.boxLabel)">
-                            <i class="nc-icon nc-check-2 font-weight-bold"></i> {{ newItem.id }}
-                          </p-button>
-                          <p-button type="default" size="sm"   class="font-weight-bold" @click.prevent="cancelItem()">
-                            <i class="nc-icon nc-simple-remove font-weight-bold"></i>
-                          </p-button>
-                        </div> -->
                 </form>
               </div>
             </div>
-
-            <!-- before table -->
-            <!-- <div class="row">
-              <table
-                class="table table-bordered table-hover table-responsive-sm table-font-size font-weight-normal"
-              >
-                <thead>
-                  <tr>
-                    <th scope="col" class="text-nowrap">Item Code</th>
-                    <th scope="col" class="text-nowrap">Description</th>
-                    <th scope="col" class="text-nowrap">Size</th>
-                    <th scope="col" class="text-nowrap">Color</th>
-                    <th scope="col" class="text-nowrap" v-if="showCategoryBrand">
-                      Brand
-                    </th>
-                    <th scope="col" class="text-nowrap" v-else>Category</th>
-                    <th scope="col" class="text-nowrap">Quantity</th>
-                    <th scope="col" class="text-nowrap">Box Label</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr
-                    v-show="boxLabel.boxNumber == item.boxNumber"
-                    v-for="item in newTransaction.items"
-                    :key="item.code"
-                  >
-                    <th scope="row" class="px-3 d-flex">
-                      <button
-                        class="gendelete-buttons"
-                        @click.prevent="removeItem(item.code, item.boxNumber)"
-                      >
-                        <i class="nc-icon nc-simple-remove font-weight-bold"></i>
-                      </button>
-                      {{ item.code }}
-                    </th>
-                    <td class="cell px-3" style="width: 550px">
-                      {{ item.description }}
-                    </td>
-                    <td class="cell px-3" style="width: 10px">
-                      {{ item.size }}
-                    </td>
-                    <td class="cell px-3" style="width: 20px">
-                      {{ item.color }}
-                    </td>
-                    <td class="cell px-3" style="width: 300px">
-                      {{ item.categorybrand }}
-                    </td>
-                    <td class="cell">
-                      <span>
-                        <div class="btn-group btn-group-sm d-flex flex-row">
-                          <p-button
-                            type="default"
-                            round
-                            outline
-                            size="xs"
-                            @click="item.quantity > 0 ? item.quantity-- : 0"
-                          >
-                            <i class="nc-icon nc-simple-delete"></i>
-                          </p-button>
-                          <input
-                            type="text"
-                            @blur="handleQuantity(item)"
-                            v-model="item.quantity"
-                            class="table-input-box"
-                            style="width: 75px; text-align: center"
-                            @keypress="numberOnly"
-                          />
-                          <p-button
-                            type="default"
-                            round
-                            outline
-                            size="xs"
-                            @click="item.quantity++"
-                          >
-                            <i class="nc-icon nc-simple-add"></i>
-                          </p-button>
-                        </div>
-                      </span>
-                    </td>
-                    <td class="cell" style="width: 300px">
-                      <el-select
-                        class="table-select-box"
-                        size="large"
-                        v-model="item.boxNumber"
-                        @change="editBoxLabel(item.code, item.quantity, item.boxNumber)"
-                      >
-                        <el-option
-                          v-for="boxLabel in newTransaction.boxLabels"
-                          class="table-select-box"
-                          :value="boxLabel.boxNumber"
-                          :label="
-                            'Box No. ' +
-                            boxLabel.boxNumber +
-                            ' of ' +
-                            newTransaction.boxLabels.length +
-                            ' ' +
-                            boxLabel.boxLabel
-                          "
-                          :key="boxLabel.id"
-                        >
-                        </el-option>
-                      </el-select>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div> -->
 
             <!-- after table -->
             <div class="row">
@@ -467,15 +335,6 @@
                 @select-all="handleSelectAll"
                 :row-class-name="tableRowClassName"
               >
-                <!-- <el-table-column
-                  v-for="column in tableColumns"
-                  :prop="column.prop"
-                  :label="column.label"
-                  :type="column.type"
-                  :width="column.width"
-                  :min-width="column.minWidth"
-                >
-                </el-table-column> -->
                 <el-table-column
                   type="selection"
                   width="40"
@@ -496,7 +355,7 @@
                 <el-table-column
                   label="Size"
                   :width="isNBFI ? '60' : ''"
-                  :min-wdith="isNBFI ? '' : '150'"
+                  :min-width="isNBFI ? '' : '150'"
                 >
                   <template slot-scope="scope">
                     {{ scope.row.size }}
@@ -507,11 +366,7 @@
                     {{ scope.row.color }}
                   </template>
                 </el-table-column>
-                <el-table-column
-                  :label="isNBFI ? 'Brand' : 'Category'"
-                  min-width="300"
-                  v-if="isNBFI"
-                >
+                <el-table-column :label="isNBFI ? 'Brand' : 'Category'" min-width="300">
                   <template slot-scope="scope">
                     {{ scope.row.categorybrand }}
                   </template>
@@ -531,17 +386,22 @@
                       <input
                         type="text"
                         @blur="handleQuantity(scope.row)"
+                        @input="handleLimitQuantity(scope.row)"
                         v-model="scope.row.quantity"
                         class="table-input-box"
                         style="width: 75px; text-align: center"
+                        @paste="onPaste"
                         @keypress="numberOnly"
+                        min="1"
+                        max="150"
                       />
+
                       <p-button
                         type="default"
                         round
                         outline
                         size="xs"
-                        @click="scope.row.quantity++"
+                        @click="incrementQuantity(scope.row)"
                       >
                         <i class="nc-icon nc-simple-add"></i>
                       </p-button>
@@ -554,7 +414,13 @@
                       class="table-select-box"
                       size="large"
                       v-model="scope.row.boxNumber"
-                      @change="editBoxLabel(item.code, item.quantity, item.boxNumber)"
+                      @change="
+                        editBoxLabel(
+                          scope.row.code,
+                          scope.row.quantity,
+                          scope.row.boxNumber
+                        )
+                      "
                     >
                       <el-option
                         v-for="boxLabel in newTransaction.boxLabels"
@@ -576,30 +442,17 @@
                 </el-table-column>
               </el-table>
             </div>
-
-            <!-- <div class="row">
-                  <input
-                    placeholder="Input Items Remarks"
-                    v-model="remarks"
-                    @input="filterRemarks"
-                    class="input-datalist"
-                    list="remarks"
-                  />
-                  <datalist id="remarks">
-                    <option v-for="remark in filteredRemarks" :value="remark">
-                      {{ remark }}
-                    </option>
-                  </datalist>
-                </div> -->
           </collapse-item>
           <label v-show="isValid.item" class="label-font">Item is required.</label>
         </collapse>
         <!-- </card> -->
         <div class="row pt-5" v-if="showUploadImage">
           <div class="col-12 p-0">
-            <label
-              >Insert Image (Only JPG and PNG files with max 2 MB and 10 images)</label
-            ><br />
+            <label>
+              Upload Images (Up to 10 images [JPEG, PNG, and other image files] with a
+              maximum size of 2 MB per image will be accepted.)
+            </label>
+            <br />
           </div>
 
           <div class="col-xxl-2 col-xl-3 col-lg-4 col-md-6 p-0">
@@ -620,56 +473,61 @@
               @change="onFileChange"
             />
           </div>
-          <!-- <div class="col-xxl-2 col-xl-3 col-lg-4 col-md-6 p-0">
-            <span
-              class="span-upload-image"
-              onclick="document.getElementById('upload_image').click()"
-              >{{ uploadImageFileName }}</span
-            >
-          </div> -->
         </div>
         <div
           v-if="images"
           class="d-flex justify-content-center row my-2 column-gap-3 row-gap-2"
         >
           <div class="image-container" v-for="(image, index) in images">
-            <!-- <button @click="removeImage(index)">Remove image</button> style="max-width: 10%; padding: 5px"-->
-            <!-- <p-button
-              class="container-fluid pic-button"
-              type="danger"
-              @click="removeImage(index)"
-            >
-              <i slot="label" class="nc-icon nc-simple-remove"></i>
-              Remove Image
-            </p-button> -->
-            <!-- <p-button type="default" icon round>
-              <i class="fa fa-heart"></i>
-            </p-button> -->
             <div class="image-overlay" v-if="!isMobile">
-              <p-button
-                type="danger"
-                class="image-overlay-button m-0"
-                @click="removeImage(index)"
-                icon
-                round
+              <el-popconfirm
+                width="280"
+                confirm-button-text="Confirm"
+                cancel-button-text="Cancel"
+                icon-color="#c45656"
+                title="Are you sure you want to remove this image?"
+                @confirm="removeImage(true, index)"
+                @cancel="removeImage(false, index)"
               >
-                <i class="nc-icon nc-simple-remove"></i>
-              </p-button>
+                <el-button slot="reference" type="danger" icon="el-icon-delete" circle>
+                </el-button>
+              </el-popconfirm>
             </div>
-            <a class="imageClose" @click="removeImage(index)" v-if="isMobile">&times;</a>
+
+            <el-popconfirm
+              width="280"
+              confirm-button-text="Confirm"
+              cancel-button-text="Cancel"
+              icon-color="#c45656"
+              title="Are you sure you want to remove this image?"
+              @confirm="removeImage(true, index)"
+              @cancel="removeImage(false, index)"
+              ><a slot="reference" class="imageClose" v-if="isMobile"
+                >&times;</a
+              ></el-popconfirm
+            >
             <img class="imageUpload" :src="image" />
           </div>
         </div>
       </div>
       <div class="text-center mt-1">
-        <button
-          class="btn btn-warning btn-fill btn-wd mx-1 mb-0 mt-2"
-          data-bs-target="#confirmationDraftPullOut"
-          data-bs-toggle="modal"
-          v-show="isDenied"
+        <span
+          id="draftBTN"
+          class="d-inline-block"
+          tabindex="0"
+          data-bs-toggle="tooltip"
+          data-bs-placement="bottom"
         >
-          Save as Draft
-        </button>
+          <button
+            :disabled="isDisabledDraft"
+            class="btn btn-warning btn-fill btn-wd mx-1 mb-0 mt-2"
+            data-bs-target="#confirmationDraftPullOut"
+            data-bs-toggle="modal"
+            v-show="isDenied"
+          >
+            Save as Draft
+          </button></span
+        >
         <button
           class="btn btn-warning btn-fill btn-wd mx-1 mb-0 mt-2"
           @click.prevent="cancelTransaction"
@@ -678,7 +536,10 @@
           Cancel
         </button>
         <button
-          class="btn btn-info btn-fill btn-wd mx-1 mb-0 mt-2"
+          :disabled="isDisabledSubmit"
+          class="btn btn-success btn-fill btn-wd mx-1 mb-0 mt-2"
+          data-bs-target="#submiteditauthorizeddatemodal"
+          data-bs-toggle="modal"
           @click.prevent="submit"
           v-show="isApproved"
         >
@@ -712,6 +573,7 @@
       @DeletedBoxNumber="reArrangeItems($event)"
       @closeModal="closeModal()"
       @renameBoxLabel="editingBoxLabel($event)"
+      :tempRemoveItems="tempRemoveItems"
     ></EditBoxLabelModal>
 
     <TransactionReceiptModal
@@ -719,32 +581,44 @@
       :savingCounter="saving_counter"
     ></TransactionReceiptModal>
 
-    <!-- <EditSubmitTransactionReceiptModal
-      :transferTransactionID="transferTransactionID"
-      :savingCounter="saving_counter"
-    ></EditSubmitTransactionReceiptModal> -->
-
     <DraftModal :transferTransactionID="transferTransactionID"></DraftModal>
-    <ConfirmationSubmitPullOutModal
-      @confirm="submit($event)"
-    ></ConfirmationSubmitPullOutModal>
-    <ConfirmationDraftPullOutModal
-      @confirm="draft($event)"
-    ></ConfirmationDraftPullOutModal>
+    <ConfirmationSubmitPullOutModal @confirm="submit($event)">
+    </ConfirmationSubmitPullOutModal>
+
+    <ConfirmationDraftPullOutModal @confirm="draft($event)">
+    </ConfirmationDraftPullOutModal>
+
+    <SubmitEditAuthorizedDateModal
+      :transferTransactionID="transferTransactionID"
+      :transferTransactionPromoName="promoName"
+      :transferTransactionPromoEmail="promoEmail"
+      :savingCounter="saving_counter"
+      :dateStart="pullOutStartDate"
+      :dateEnd="pullOutEndDate"
+      :transactionDetails="transactionDetails"
+      :tempRemoveItems="tempRemoveItems"
+      :toSubmit="toSubmit"
+      :isDraft="isDraft"
+    ></SubmitEditAuthorizedDateModal>
   </div>
 </template>
 <script>
+import { Collapse, CollapseItem, Tabs, TabPane, Card } from "src/components/UIComponents";
 import {
-  Collapse,
-  CollapseItem,
-  Tabs,
-  TabPane,
-  Card,
-  Button,
-} from "src/components/UIComponents";
-import { DatePicker, TimeSelect, Slider, Tag, Input, Select, Option } from "element-ui";
+  DatePicker,
+  TimeSelect,
+  Slider,
+  Tag,
+  Input,
+  Select,
+  Option,
+  Message,
+  MessageBox,
+  Popconfirm,
+} from "element-ui";
 import PProgress from "src/components/UIComponents/Progress.vue";
 import PSwitch from "src/components/UIComponents/Switch.vue";
+import PButton from "src/components/UIComponents/Button.vue";
 import Vue from "vue";
 import NotificationTemplate from "../Components/NotificationTemplate";
 import NotifAddBoxLabel from "../Components/Notification/NotifSuccessAddBoxLabel.vue";
@@ -756,8 +630,9 @@ import NotifItemChangeBoxLabel from "../Components/Notification/NotifSuccessItem
 import NotifItemQuantity from "../Components/Notification/NotifSuccessItemQuantity.vue";
 import NotifRenameBoxLabel from "../Components/Notification/NotifSuccessRenameBoxLabel.vue";
 import NotifSubmitTransaction from "../Components/Notification/NotifSuccessSubmitTransaction.vue";
+import SubmitEditAuthorizedDateModal from "./PullOutRequests/ModalPullOut/SubmitEditAuthorizedDateModal.vue";
 import Swal from "sweetalert2";
-import { Table, TableColumn } from "element-ui";
+import { Table, TableColumn, Button } from "element-ui";
 import axiosClient from "../../../../axios";
 import EditBoxLabelModal from "./PullOutRequests/ModalPullOut/EditBoxLabelModal.vue";
 import TransactionReceiptModal from "./PullOutRequests/ModalPullOut/TransactionReceiptModal.vue";
@@ -766,12 +641,14 @@ import DraftModal from "./PullOutRequests/ModalPullOut/DraftModal.vue";
 import linkName from "../../../../linkName";
 import ConfirmationSubmitPullOutModal from "./PullOutRequests/ModalPullOut/ConfirmationSubmitPullOutModal.vue";
 import ConfirmationDraftPullOutModal from "./PullOutRequests/ModalPullOut/ConfirmationDraftPullOutModal.vue";
-// import axios, { isCancel } from "axios";
 import * as XLSX from "xlsx";
-// import EditSubmitTransactionReceiptModal from "./PullOutRequests/ModalPullOut/EditSubmitTransactionReceiptModal.vue";
+import { Loading } from "element-ui";
+import axios from "axios";
 
 Vue.use(Table);
 Vue.use(TableColumn);
+Vue.use(Popconfirm);
+Vue.use(Button);
 
 export default {
   components: {
@@ -780,9 +657,9 @@ export default {
     [Slider.name]: Slider,
     [Tag.name]: Tag,
     [Input.name]: Input,
-    [Button.name]: Button,
     [Option.name]: Option,
     [Select.name]: Select,
+    PButton,
     PSwitch,
     PProgress,
     TabPane,
@@ -807,9 +684,11 @@ export default {
     ConfirmationSubmitPullOutModal,
     ConfirmationDraftPullOutModal,
     EditSubmitTransactionReceiptModal,
+    SubmitEditAuthorizedDateModal,
   },
   data() {
     return {
+      isDisabledDraft: true,
       showCategoryBrand: true,
       showUploadImage: true,
       transferredData: "",
@@ -865,8 +744,8 @@ export default {
           company: "NBFI",
         },
         {
-          value: "CPO Back to WH via In-House Service",
-          label: "CPO Back to WH via In-House Service",
+          value: "CPO Back to WH via In-House Delivery Service",
+          label: "CPO Back to WH via In-House Delivery Service",
           company: "NBFI",
         },
         {
@@ -884,7 +763,6 @@ export default {
           label: "CPO Back to WH c/o Supervisor",
           company: "NBFI",
         },
-        // { value: "Concess Direct Pull-Out", label: "Concess Direct Pull-Out" },
       ],
       newBoxLabel: "",
       newItemInput: "",
@@ -943,6 +821,13 @@ export default {
       multipleSelection: [],
       deleteItemBtn: null,
       isNBFI: false,
+      promoName: "",
+      promoEmail: "",
+      pullOutStartDate: "",
+      pullOutEndDate: "",
+      transactionDetails: {},
+      tempRemoveItems: [],
+      toSubmit: "",
     };
   },
   computed: {
@@ -972,7 +857,6 @@ export default {
     tooltipExcel._config.title =
       "Only XLSX file with a standard Template (Column A: Box Number, Column B: Box Label, Column C: Item Code, Column D: Quantity)";
     tooltipExcel.update();
-    // this.processData();
     this.fetchEdit();
     this.fetchCompany();
     if (window.resolveRouteChange) {
@@ -1022,9 +906,17 @@ export default {
     },
   },
   methods: {
-    // cellClass() {
-    //   return "itemCodeStyle";
-    // },
+    handleLimitQuantity(row) {
+      if (row.quantity > 150) row.quantity = 150;
+    },
+    incrementQuantity(row) {
+      if (row.quantity < 150) {
+        row.quantity++;
+      } else {
+        // Optionally, you can display a message or take some action when the limit is reached.
+        console.log("Quantity limit reached (150).");
+      }
+    },
     tableRowClassName({ row, rowIndex }) {
       if (row.quantity == 0) return "warning-row";
       else return "";
@@ -1089,10 +981,27 @@ export default {
       }
     },
     deleteSelectedItems() {
-      this.multipleSelection.forEach((selected) => {
-        this.removeItem(selected.code, selected.boxNumber);
-      });
-      this.deleteItemBtn = null;
+      MessageBox.confirm(
+        "The item/s you have selected will be remove. Continue?",
+        "Removing of Items",
+        {
+          confirmButtonText: "Confirm",
+          cancelButtonText: "Cancel",
+          type: "warning",
+        }
+      )
+        .then(() => {
+          this.multipleSelection.forEach((selected) => {
+            this.removeItem(selected.code, selected.boxNumber);
+          });
+          this.deleteItemBtn = null;
+        })
+        .catch(() => {
+          Message({
+            type: "info",
+            message: "Removing of Items canceled.",
+          });
+        });
     },
     createTableData() {
       this.tableData = [];
@@ -1103,20 +1012,14 @@ export default {
           if (box.boxNumber == item.boxNumber) this.tableData[key].push(item);
         });
       });
-
-      console.log("Table DATA::::: ", this.tableData);
     },
     reArrangeItems(deletedBoxNumber) {
-      console.log("Deleted ID Box Number", deletedBoxNumber);
       this.newTransaction.items.forEach((temp) => {
         if (deletedBoxNumber < temp.boxNumber) temp.boxNumber--;
       });
     },
     reArrangeBoxNumber(transfer) {
-      console.log("Transfer from edit box Label", transfer);
-
       this.newTransaction.boxLabels = transfer;
-      console.log("New Transfer from edit box Label", this.newTransaction.boxLabels);
       this.newItemInputBox = [];
       this.newTransaction.boxLabels.forEach((boxLabel) => {
         var tempIdBox = {
@@ -1124,11 +1027,10 @@ export default {
         };
         this.newItemInputBox.push(tempIdBox);
       });
-
-      console.log("Itemssssss:", this.newTransaction.items);
     },
     clearItemInput() {
       this.newItemInput = "";
+      this.itemCodeList = [];
     },
     restrictChar($event) {
       let keyCode = $event.keyCode ? $event.keyCode : $event.which;
@@ -1143,7 +1045,6 @@ export default {
           var filteredItems = this.newTransaction.items.filter(
             (item) => item.boxNumber === box.boxNumber
           );
-          // console.log("Filtered Items", filteredItems);
           var uniqueCategory = [
             ...new Set(filteredItems.map((item) => item.categorybrand)),
           ];
@@ -1157,9 +1058,7 @@ export default {
           if (tempIndex > 0) box.boxLabel = box.boxLabel.substr(0, tempIndex).trim();
           box.boxLabel = box.boxLabel + strCategory;
         });
-        // console.log("Changes on Category Box Label");
       }
-      // console.log(this.newTransaction.boxLabels);
     },
     filterRemarks() {
       this.filteredRemarks = this.remarksList.filter((newBoxLabel) => {
@@ -1174,7 +1073,7 @@ export default {
 
       if (file && file.size > maxSizeInBytes) {
         // File size exceeds the limit
-        alert("Please select an image file smaller than 2MB.");
+        Message.error("Please select an image file smaller than 2MB.");
         // Clear the file input
         e.target.value = "";
         return;
@@ -1197,17 +1096,38 @@ export default {
         reader.readAsDataURL(files[index]);
       }
     },
-    removeImage(index) {
-      this.images.splice(index, 1);
-      this.uploadImageFileName = "Choose an Image";
+    removeImage(confirm, index) {
+      if (confirm) {
+        if (typeof this.images[index] == "string") {
+          let tempPath = this.images[index].split("/");
+          let removePath = tempPath[tempPath.length - 1];
+          axiosClient
+            .post("/deleteImage", {
+              company: this.newTransaction.company,
+              path: removePath,
+            })
+            .then((response) => {
+              console.log(response.data);
+            })
+            .catch((error) => {
+              console.error(error);
+            });
+        }
+
+        this.images.splice(index, 1);
+        this.uploadImageFileName = "Choose an Image";
+
+        Message({
+          type: "success",
+          message: "Image has been removed.",
+        });
+      }
     },
     clearImage() {
       document.getElementById("formFile").value = null;
       frame.src = "";
     },
     handleFileUploadImage() {
-      console.log("image:", this.files);
-      console.log("Transaction ID:", this.transferTransactionID);
       const config = {
         headers: {
           "content-type": "multipart/form-data",
@@ -1227,7 +1147,6 @@ export default {
             config
           )
           .then((response) => {
-            console.log("Success Upload Image", response.data);
             this.img_counter++;
             setTimeout(this.handleFileUploadImage, 2000);
           })
@@ -1237,7 +1156,6 @@ export default {
       }
     },
     handleFileUpload(event) {
-      console.log("File Name: ", event.target.files[0]);
       if (event.target.files.length != 0) {
         this.uploadExcelFileName = event.target.files[0].name;
         const file = event.target.files[0];
@@ -1254,17 +1172,12 @@ export default {
           // header: 1 indicates that the first row contains column headers
 
           // Save the JSON data to a Vue variable
-          console.log("Excel Data", jsonData);
           this.myData = jsonData;
           let arrayBox = [];
           for (var x = 0; x < this.myData.length; x++) {
             this.dataArray.push(this.myData[x]);
             arrayBox.push(this.myData[x][1]);
           }
-
-          console.log("Data:", this.dataArray);
-
-          console.log("Import Excel", this.dataArray.length);
 
           const filteredArray = arrayBox.filter((value, index, self) => {
             return self.indexOf(value) === index;
@@ -1295,15 +1208,6 @@ export default {
             this.newItemInputBox.push(tempItem);
           }
 
-          console.log(filteredArray);
-          // for (var x = 0; x < this.dataArray.length; x++) {
-          //   console.log("ItemCode", this.dataArray[x][2]);
-          // }
-          // var y = 0;
-          // while (y < this.dataArray.length) {
-
-          //   y++;
-          // }
           this.counter = 0;
           this.saveItemsExcel();
         };
@@ -1313,8 +1217,14 @@ export default {
     },
 
     saveItemsExcel() {
+      let loadingInstance = Loading.service({
+        fullscreen: true,
+        lock: true,
+        text: "Loading",
+        spinner: "el-icon-loading",
+        background: "rgb(255,0,0)",
+      });
       if (this.counter < this.dataArray.length) {
-        // console.log("Data", this.dataArray[this.counter - 1]);
         var boxNumber = this.dataArray[this.counter][0];
         var quantity = this.dataArray[this.counter][3];
         axiosClient
@@ -1325,7 +1235,6 @@ export default {
             },
           })
           .then((response) => {
-            console.log("Data", response.data);
             if (response.data.length == 0) {
               setTimeout(this.saveItemsExcel, 2000);
             }
@@ -1351,14 +1260,11 @@ export default {
                   quantity: quantity,
                   size: response.data[x].Size,
                   color: response.data[x].Color,
-                  // boxLabel: label,
                   boxNumber: parseInt(boxNumber),
                   category: response.data[x].Category,
                 };
                 this.newTransaction.items.push(tempItem);
               }
-
-              console.log("Items", this.newTransaction.items);
 
               this.isAddItem = true;
               this.notifyVue("AddItem", "bottom", "right");
@@ -1368,11 +1274,17 @@ export default {
           .catch((error) => {
             console.error(error);
           });
+      } else {
+        this.draft(true);
+        loadingInstance.close();
       }
       this.counter++;
     },
-
+    onPaste(event) {
+      event.preventDefault();
+    },
     numberOnly($event) {
+      console.log("Number Only:", $event);
       let keyCode = $event.keyCode ? $event.keyCode : $event.which;
       if (keyCode < 48 || keyCode > 57) {
         // 46 is dot
@@ -1400,9 +1312,7 @@ export default {
       for (let x in this.newTransaction.items) {
         if (this.newTransaction.items[x].quantity == 0) {
           itemsValidation = false;
-          // let tooltip = bootstrap.Tooltip.getInstance("#submitBTN");
-          // tooltip._config.title = "No items should have a quantity of 0.";
-          // tooltip.update();
+
           const submitTooltip = document.getElementById("submitBTN");
           const tooltip = new bootstrap.Tooltip(submitTooltip, {
             title: "No items should have a quantity of 0.",
@@ -1429,6 +1339,11 @@ export default {
           title: "Complete the form above to enable this button.",
         });
         tooltip.update();
+        const draftTooltip = document.getElementById("draftBTN");
+        const tooltipDraft = new bootstrap.Tooltip(draftTooltip, {
+          title: "Complete the form above to enable this button.",
+        });
+        tooltipDraft.update();
       } else if (this.newTransaction.boxLabels.length <= 0) {
         const submitTooltip = document.getElementById("submitBTN");
         const tooltip = new bootstrap.Tooltip(submitTooltip, {
@@ -1442,6 +1357,8 @@ export default {
         });
         tooltip.update();
       }
+
+      //Validation for Submit Button
       if (
         this.newTransaction.company &&
         this.newTransaction.chainCode &&
@@ -1454,6 +1371,18 @@ export default {
         let tooltip = bootstrap.Tooltip.getInstance("#submitBTN");
         tooltip.disable();
       } else this.isDisabledSubmit = true;
+
+      //validation for Draft Button
+      if (
+        this.newTransaction.company &&
+        this.newTransaction.chainCode &&
+        this.newTransaction.branchName &&
+        this.newTransaction.transactionType
+      ) {
+        this.isDisabledDraft = false;
+        let tooltip = bootstrap.Tooltip.getInstance("#draftBTN");
+        tooltip.disable();
+      } else this.isDisabledDraft = true;
     },
     editingBoxLabel({ index, value, tempBL }) {
       if (value) this.newTransaction.boxLabels[index].boxLabel = value;
@@ -1466,7 +1395,6 @@ export default {
         this.isBranchName = false;
         this.isTransactionType = false;
         this.isEditBLDisabled = true;
-        // console.log(this.newTransaction.boxLabels.length);
       } else this.isEditBLDisabled = false;
     },
     showButtons() {
@@ -1486,11 +1414,10 @@ export default {
         const uri = window.location.href;
         var transactionID = uri.split("?")[1];
         var id = transactionID.split("=")[1].split("&")[0];
-        // console.log("ID", id);
-        // console.log("Company", transactionID.split("=")[2]);
-        var company = transactionID.split("=")[2];
+
+        var company = this.decodeFromAlphanumeric(transactionID.split("=")[2]);
         this.isDraft = true;
-        console.log("Draft", this.isDraft);
+        this.transferTransactionID = id;
         axiosClient
           .get("/fetchEditDraftBranch", {
             params: {
@@ -1499,11 +1426,14 @@ export default {
             },
           })
           .then((response) => {
-            // console.log("Edit Branch:", response.data, this.itemss);
             this.newTransaction.company = response.data[0].company;
             this.newTransaction.branchName = response.data[0].branchName;
             this.newTransaction.chainCode = response.data[0].chainCode;
             this.newTransaction.transactionType = response.data[0].transactionType;
+            this.promoName = response.data[0].name;
+            this.promoEmail = response.data[0].promoEmail;
+            this.pullOutStartDate = response.data[0].dateStart;
+            this.pullOutEndDate = response.data[0].dateEnd;
 
             if (
               response.data[0].status == "denied" ||
@@ -1512,11 +1442,11 @@ export default {
             ) {
               this.isDenied = false;
               this.isCancel = true;
-            }
-
-            if (response.data[0].status == "endorsement") {
               this.isApproved = true;
               this.isSubmit = false;
+            } else {
+              this.isDenied = true;
+              this.isCancel = false;
             }
 
             axiosClient
@@ -1527,15 +1457,14 @@ export default {
                 },
               })
               .then((response) => {
-                // console.log("Edit Item:", response.data);
                 for (var x = 0; x < response.data.length; x++) {
                   this.newTransaction.items.push(response.data[x]);
                 }
 
                 const filteredData = this.newTransaction.items.filter(
                   (obj, index, self) => {
-                    const boxLabel = obj.boxLabel;
-                    return self.findIndex((o) => o.boxLabel === boxLabel) === index;
+                    const boxNumber = obj.boxNumber;
+                    return self.findIndex((o) => o.boxNumber === boxNumber) === index;
                   }
                 );
 
@@ -1546,10 +1475,7 @@ export default {
                   };
                 });
 
-                // console.log("Filtered Box label:", boxData);
-
                 for (var x = 0; x < boxData.length; x++) {
-                  // console.log("Box Label:", boxData[x].boxLabel);
                   this.newTransaction.boxLabels.push({
                     id: boxData[x].boxNumber,
                     boxNumber: boxData[x].boxNumber,
@@ -1558,11 +1484,9 @@ export default {
                   this.newItemInputBox.push({
                     id: boxData[x].boxNumber,
                   });
-                  console.log("New Box Label:", this.newTransaction.boxLabels);
                 }
 
-                this.isDraft = false;
-                console.log("Draft:", this.isDraft);
+                // this.isDraft = false;
                 if (this.newTransaction.company) {
                   this.isCompany = false;
                   this.isChainCode = false;
@@ -1584,33 +1508,40 @@ export default {
                 }
 
                 if (this.newTransaction.transactionType) {
-                  // console.log("Yes", this.isShowButton);
                   this.isCompany = false;
                   this.isChainCode = false;
                   this.isBranchName = false;
                   this.isTransactionType = false;
-                  // this.isShowButton = true;
-                  // console.log("Yes 2", this.isShowButton);
                 }
 
                 if (this.newTransaction.items.length) {
-                  // console.log("Disable", this.newTransaction.items.length);
                   this.isCompany = true;
                   this.isChainCode = true;
                   this.isBranchName = true;
                   this.isTransactionType = true;
-                  // this.isShowButton = true;
                 }
               })
               .catch((error) => {
-                // console.error(error);
+                console.error(error);
+              });
+            axiosClient
+              .get("/fetchImageBranchDoc", {
+                params: {
+                  transactionID: id,
+                  company: company,
+                },
+              })
+              .then((response) => {
+                this.images = response.data.imagePaths;
+              })
+              .catch((error) => {
+                console.error(error);
               });
           })
           .catch((error) => {
-            // console.error(error);
+            console.error(error);
           });
       } catch {
-        // console.log("No Edit");
         //Fetching Promo Info
         axiosClient
           .get("/fetchPromoBranchInfo", {
@@ -1619,22 +1550,18 @@ export default {
             },
           })
           .then((response) => {
-            // console.log("Promo Branch Info:", response.data);
             this.newTransaction.company = response.data[0].company;
             this.newTransaction.chainCode = response.data[0].chainCode;
             this.newTransaction.branchName = response.data[0].branchName;
             this.fetchChainCode();
             this.fetchChainName();
           })
-          .catch((error) => {
-            // console.error(error);
-          });
+          .catch((error) => {});
       }
     },
     cancelTransaction() {
-      // location.href = "http://192.168.0.7:4040/#/pull-out/requests";
       if (
-        sessionStorage.getItem("Position") == "Agent" ||
+        sessionStorage.getItem("Position") == "Reviewer" ||
         sessionStorage.getItem("Position") == "Approver"
       )
         this.$router.push({
@@ -1645,20 +1572,15 @@ export default {
           path: "/pull-out/pullout-transaction",
         });
     },
-    updateData(updatedData) {
-      // this.newTransaction.boxLabels = updatedData;
-      // console.log("das", updatedData);
-    },
+    updateData(updatedData) {},
     openModal(data) {
       data.boxLabels.forEach((box) => {
         let tempIndex = box.boxLabel.indexOf("[");
         if (tempIndex > 0) box.boxLabel = box.boxLabel.substr(0, tempIndex).trim();
       });
-      console.log("Edit: ", data);
       this.transferredData = data;
     },
     closeModal() {
-      // console.log("CLOSE");
       this.addCategoryBoxLabel();
       this.transferredData = "";
     },
@@ -1670,49 +1592,38 @@ export default {
     },
     removeItem(code, boxNumber) {
       this.validateSubmit();
-      console.log("New DATAs", code, boxNumber);
-      // this.images.splice(index, 1);
-      // this.newTransaction.items = this.newTransaction.items.filter(
-      //   (item) => item.code !== code || item.boxNumber !== boxNumber
-      // );
-      for (let key in this.newTransaction.items) {
-        console.log(
-          "Condition if will delete",
-          this.newTransaction.items[key].code === code ||
-            this.newTransaction.items[key].boxNumber === boxNumber
-        );
 
-        console.log("Items:", this.newTransaction.items[key].code);
-        console.log("Code:", code);
-        console.log("BoxNumbers:", this.newTransaction.items[key].boxNumber);
-        console.log("BoxNumber:", boxNumber);
+      for (let key in this.newTransaction.items) {
         if (
           this.newTransaction.items[key].code === code &&
           this.newTransaction.items[key].boxNumber === boxNumber
         ) {
-          console.log("Key:", key);
+          try {
+            this.tempRemoveItems.push(this.newTransaction.items[key].id);
+            const uri = window.location.href;
+            var transactionID = uri.split("?")[1];
+            var id = transactionID.split("=")[1].split("&")[0];
+            var company = transactionID.split("=")[2];
+            axiosClient
+              .post("/logsDeleteItemEdit", {
+                id: id,
+                itemCode: this.newTransaction.items[key].code,
+                boxNumber: this.newTransaction.items[key].boxNumber,
+                userID: sessionStorage.getItem("UserID"),
+              })
+              .then((response) => {})
+              .catch((error) => {
+                console.error(error);
+              });
+          } catch {}
           this.newTransaction.items.splice(key, 1);
           break;
         }
       }
-      // this.newTransaction.items.for((key, index) => {
-      //   console.log(
-      //     "Condition if will delete",
-      //     key.code === code || key.boxNumber === boxNumber
-      //   );
-      //   if (key.code === code || key.boxNumber === boxNumber) {
-      //     this.newTransaction.items.splice(index, 1);
-      //   }
-      // });
 
       this.notifyVue("DeleteItem", "bottom", "right");
-
-      // alert("Your data: " + JSON.stringify(data));
-
-      // console.log("New DATA", data);
     },
     fetchItems() {
-      // console.log("Barcode", this.barcode);
       if (this.newItemInput.length >= 4) {
         if (
           this.newTransaction.company == "NBFI" ||
@@ -1727,26 +1638,21 @@ export default {
               },
             }) // Make a GET request to the specified URL
             .then((response) => {
-              //console.log("Item Code Response: ", response.data);
               this.itemCodeList = response.data; // Update the 'data' variable with the retrieved data
             })
-            .catch((error) => {
-              // console.error(error.reponse); // Handle any errors that may occur
-            });
+            .catch((error) => {});
         } else {
           axiosClient
             .get("/fetchItems", {
               params: {
                 ItemNo: this.newItemInput,
+                barcode: this.barcode,
               },
             }) // Make a GET request to the specified URL
             .then((response) => {
-              //console.log("Item Code Response: ", response.data);
               this.itemCodeList = response.data; // Update the 'data' variable with the retrieved data
             })
-            .catch((error) => {
-              // console.error(error.reponse); // Handle any errors that may occur
-            });
+            .catch((error) => {});
         }
       } else if (this.newItemInput.length == 0) this.itemCodeList = [];
     },
@@ -1758,11 +1664,11 @@ export default {
       }
     },
     handleQuantity(item) {
-      //console.log("Item Quantity", item.quantity);
       if (!item.quantity) {
-        //console.log("Empty");
         item.quantity = 0;
       }
+
+      item.quantity = Math.min(Math.max(item.quantity, 0), 150);
       this.notifyVue("ItemQuantity", "bottom", "right");
     },
     notifyVue(notify, verticalAlign, horizontalAlign) {
@@ -1800,7 +1706,6 @@ export default {
 
       this.$notify({
         component: notification,
-        // icon: "nc-icon nc-bell-55",
         horizontalAlign: horizontalAlign,
         verticalAlign: verticalAlign,
         type: notifType,
@@ -1812,7 +1717,11 @@ export default {
     fetchCompany() {
       if ("User" != sessionStorage.getItem("Position"))
         axiosClient
-          .get("/fetchCompany")
+          .get("/fetchCompany", {
+            params: {
+              company: sessionStorage.getItem("Company"),
+            },
+          })
           .then((response) => {
             this.companyList = response.data;
           })
@@ -1836,8 +1745,6 @@ export default {
       if (company == "NBFI" || company == "ASC" || company == "CMC")
         this.showCategoryBrand = true;
       else this.showCategoryBrand = false;
-
-      // if (sessionStorage.getItem("Position") == "Admin") this.showUploadImage = true;
     },
     fetchChainCode() {
       if (
@@ -1857,13 +1764,11 @@ export default {
             },
           })
           .then((response) => {
-            //console.log("Chain Code Response:", response.data);
             this.chainCodeList = response.data;
           })
           .catch((error) => {
             console.error(error);
           });
-      // this.notifyVue("bottom", "right");
       else
         axiosClient
           .get("/fetchChain", {
@@ -1872,13 +1777,11 @@ export default {
             },
           })
           .then((response) => {
-            //console.log("Chain Code Response:", response.data);
             this.chainCodeList = response.data;
           })
           .catch((error) => {
             console.error(error);
           });
-      // this.notifyVue("bottom", "right");
 
       this.isChainCode = false;
     },
@@ -1892,7 +1795,6 @@ export default {
             },
           })
           .then((response) => {
-            //console.log("Chain Name Response:", response.data);
             this.branchNameList = response.data;
           })
           .catch((error) => {
@@ -1907,7 +1809,6 @@ export default {
             },
           })
           .then((response) => {
-            // console.log("Chain Name Response:", response.data);
             this.branchNameList = response.data;
           })
           .catch((error) => {
@@ -1921,9 +1822,10 @@ export default {
       this.isItem = false;
       this.isAddItem = false;
       this.showItemInput = boxNUMBER;
-      // console.log("clicked nUMBER:", this.showItemInput);
     },
     saveItem(boxNUMBER) {
+      console.log("ItemCode:", this.newItemInput);
+
       if (this.barcode == "item_16") {
         if (this.newItemInput.length > 16)
           this.newItemInput = this.newItemInput.slice(0, 16);
@@ -1939,7 +1841,6 @@ export default {
             },
           })
           .then((response) => {
-            // console.log("Item Barcode to Item No: ", response.data[0]);
             this.newItemInput = response.data[0].ItemNo;
           })
           .catch((error) => {
@@ -1947,9 +1848,7 @@ export default {
           });
       }
       var checkItemData = true;
-      // console.log("Length Item Code:", this.newItemCode.length > 16);
       setTimeout(() => {
-        // console.log("New Item Input:", this.newItemInput);
         axiosClient
           .get("/compareItemCode", {
             params: {
@@ -1958,12 +1857,9 @@ export default {
             },
           })
           .then((response) => {
-            // console.log("Success Item No:", response.data);
             if (response.data.length == 0) {
-              // console.log("No Item Retrieved");
               checkItemData = false;
             }
-            //console.log("Success Item Description", response.data[0].ItemDescription);
             this.newItemCode = response.data[0].ItemNo;
             this.newItemDescription = response.data[0].ItemDescription;
             this.newStyleCode = response.data[0].StyleCode;
@@ -1978,7 +1874,6 @@ export default {
                 },
               })
               .then((response) => {
-                //console.log("Success", response.data);
                 this.newBrand = response.data[0].brandNames;
               })
               .catch((error) => {
@@ -1988,16 +1883,12 @@ export default {
           .catch((error) => {
             this.missItemCode = 0;
             !this.newItemInput ? true : (this.isRightCode = true);
-            //console.log("Not Equal");
-            //console.error(error);
           });
       }, 300);
       var newResponseData;
 
       setTimeout(() => {
         if (checkItemData) {
-          // console.log("Check the value of checkItemData", checkItemData);
-          // console.log("Barcode Selected", this.barcode);
           let confirmSave = false;
           this.isNewItem = !this.newItemInput ? true : false;
 
@@ -2005,7 +1896,6 @@ export default {
             this.isRightCode = false;
             return 0;
           }
-          // console.log("Item Code from the input", this.newItemCode);
           axiosClient
             .get("/fetchSameItem", {
               params: {
@@ -2016,15 +1906,10 @@ export default {
               },
             })
             .then((response) => {
-              // console.log("Same Item:", response.data);
               newResponseData = response.data;
+              console.log("Fetch Same Item:", response.data);
             })
-            .catch((error) => {
-              //console.error(error);
-            });
-          // console.log("Confirm Save: ", confirmSave);
-          // console.log("Items: ", this.newTransaction.items);
-          // console.log(this.newListBoxLabel);
+            .catch((error) => {});
         }
       }, 500);
 
@@ -2037,19 +1922,11 @@ export default {
                 this.newTransaction.items[i].code == newResponseData[x].ItemNo &&
                 this.newTransaction.items[i].boxNumber == boxNUMBER
               ) {
-                // console.log("Old Item Code", this.newTransaction.items[i].code);
-                // console.log("New Item Code", newResponseData[x].ItemNo);
-                // console.log("Old Box Number", this.newTransaction.items[i].boxNumber);
-                // console.log("New Box Number", boxNUMBER);
-                // console.log("Same Item Code");
-                this.newTransaction.items[i].quantity =
-                  parseInt(this.newTransaction.items[x].quantity) + 1;
                 flag = false;
                 break;
               }
             }
             if (flag) {
-              // console.log("Company:", this.newTransaction.company);
               if (
                 this.newTransaction.company == "NBFI" ||
                 this.newTransaction.company == "CMC" ||
@@ -2066,7 +1943,6 @@ export default {
                 quantity: 0,
                 size: newResponseData[x].Size,
                 color: newResponseData[x].Color,
-                // boxLabel: label,
                 boxNumber: boxNUMBER,
                 category: newResponseData[x].Category,
               };
@@ -2101,7 +1977,6 @@ export default {
         return 0;
       }
       this.isBoxLabel = false;
-      //console.log(this.newTransaction.boxLabels.length);
       let tempBoxLabel = [];
 
       if (this.newTransaction.boxLabels.length == 0) {
@@ -2128,24 +2003,18 @@ export default {
           id: this.newTransaction.boxLabels.length + 1,
         };
       } else {
-        console.log(
-          "Before Add Box",
-          this.newTransaction.boxLabels[this.newTransaction.boxLabels.length - 1].id
-        );
         tempItem = {
           id:
             parseInt(
               this.newTransaction.boxLabels[this.newTransaction.boxLabels.length - 1].id
             ) + 1,
         };
-        console.log("After Add Box", tempItem);
       }
 
       this.newTransaction.boxLabels.push(tempBoxLabel);
       this.newItemInputBox.push(tempItem);
       this.newBoxLabel = "";
-      // this.notifyVue("AddBoxLabel", "bottom", "right");
-      console.log("New Add Box:", this.newItemInputBox);
+
       //Disable the above select buttons
       this.isCompany = true;
       this.isChainCode = true;
@@ -2161,7 +2030,7 @@ export default {
       if (this.newTransaction.boxLabels.length == 0) this.isEditBLDisabled = true;
       else this.isEditBLDisabled = false;
     },
-    submit(confirmation) {
+    async submit(confirmation) {
       if (confirmation) {
         try {
           const uri = window.location.href;
@@ -2177,76 +2046,28 @@ export default {
           this.isValid.boxLabel = !this.newTransaction.boxLabels.length ? true : false;
           this.isValid.item = !this.newTransaction.items.length ? true : false;
 
-          //console.log("Company: ", this.isValid.company);
+          this.transactionDetails = this.newTransaction;
+          this.toSubmit = "update";
+          console.log("Transaction Details 1:", this.transactionDetails);
 
-          // console.log("company", this.newTransaction.items);
-          // alert("Your data: " + JSON.stringify(this.newTransaction));
+          // const updateBranch = await axiosClient.post("/updateBranchStatus", {
+          //   userID: sessionStorage.getItem("UserID"),
+          //   company: sessionStorage.getItem("Company"),
+          //   status: "endorsement",
+          //   id: this.transferTransactionID,
+          //   email: sessionStorage.getItem("Email"),
+          //   transactionData: this.transactionDetails,
+          //   removedItems: this.tempRemoveItems,
+          //   editStatus: true,
+          // });
 
-          if (
-            sessionStorage.getItem("Position") == "Agent" ||
-            sessionStorage.getItem("Position") == "Admin"
-          ) {
-            var status = "endorsement";
-          } else if (
-            sessionStorage.getItem("Position") == "Admin" ||
-            sessionStorage.getItem("Position") == "Approver"
-          ) {
-            var status = "approved";
-          } else {
-            var status = "unprocessed";
-          }
-          axiosClient
-            .post("/updatePullOutBranchRequest", {
-              id: id,
-              chainCode: this.newTransaction.chainCode,
-              companyType: this.newTransaction.company,
-              branchName: this.newTransaction.branchName,
-              transactionType: this.newTransaction.transactionType,
-              email: sessionStorage.getItem("Email"),
-              status: status,
-            })
-            .then((response) => {
-              //console.log("Success Branch Save: ", response.data);
-              this.transferTransactionID = id;
+          this.transferTransactionID = id;
 
-              for (var x = 0; x < this.newTransaction.items.length; x++) {
-                let labelBox = "";
-                for (let box of this.newTransaction.boxLabels) {
-                  if (box.id == this.newTransaction.items[x].boxNumber) {
-                    labelBox = box.boxLabel;
-                  }
-                }
-
-                axiosClient
-                  .post("/updatePullOutItemRequest", {
-                    id: this.newTransaction.items[x].id,
-                    plID: id,
-                    companyType: this.newTransaction.company,
-                    brand: this.newTransaction.items[x].categorybrand,
-                    boxNumber: this.newTransaction.items[x].boxNumber,
-                    boxLabel: labelBox,
-                    itemCode: this.newTransaction.items[x].code,
-                    quantity: this.newTransaction.items[x].quantity,
-                    email: sessionStorage.getItem("Email"),
-                    status: status,
-                  })
-                  .then((response) => {
-                    // console.log("Success Items Save: ", response.data);
-                    // window.location.href =
-                    //   "http://192.168.0.7:4040/#/pull-out/requisition-form";
-                  })
-                  .catch((error) => {
-                    console.error(error);
-                  });
-              }
-              const transactionModal = new bootstrap.Modal("#transactionReceipt");
-              transactionModal.show();
-              this.saving_counter = this.files.length * 2;
-            })
-            .catch((error) => {
-              //console.error(error);
-            });
-          setTimeout(this.handleFileUploadImage, 2000);
+          // console.log("Update:", updateBranch);
+          // const transactionModal = new bootstrap.Modal("#transactionReceipt");
+          // transactionModal.show();
+          const submitdatemodal = new bootstrap.Modal("#submiteditauthorizeddatemodal");
+          submitdatemodal.show();
         } catch {
           this.isValid.company = !this.newTransaction.company ? true : false;
           this.isValid.chainCode = !this.newTransaction.chainCode ? true : false;
@@ -2257,193 +2078,127 @@ export default {
           this.isValid.boxLabel = !this.newTransaction.boxLabels.length ? true : false;
           this.isValid.item = !this.newTransaction.items.length ? true : false;
 
-          //console.log("Company: ", this.isValid.company);
+          this.transactionDetails = {
+            chainCode: this.newTransaction.chainCode,
+            companyType: this.newTransaction.company,
+            branchName: this.newTransaction.branchName,
+            transactionType: this.newTransaction.transactionType,
+            boxes: this.newTransaction.boxLabels,
+            items: this.newTransaction.items,
+            email: sessionStorage.getItem("Email"),
+            status: "endorsement",
+          };
 
-          //console.log("company", this.newTransaction.company);
-          // alert("Your data: " + JSON.stringify(this.newTransaction));
-          axiosClient
-            .post("/savePullOutBranchRequest", {
-              chainCode: this.newTransaction.chainCode,
-              companyType: this.newTransaction.company,
-              branchName: this.newTransaction.branchName,
-              transactionType: this.newTransaction.transactionType,
-              email: sessionStorage.getItem("Email"),
-              status: "unprocessed",
-            })
-            .then((response) => {
-              //console.log("Success Branch Save: ", response.data);
-              this.transferTransactionID = response.data.id;
+          var id = await axiosClient.get("/getLastID", {
+            params: {
+              company: sessionStorage.getItem("Company"),
+            },
+          });
+          console.log("Last ID:", parseInt(id.data) + 1);
+          this.transferTransactionID = parseInt(id.data) + 1;
 
-              for (var x = 0; x < this.newTransaction.items.length; x++) {
-                let labelBox = "";
-                for (let box of this.newTransaction.boxLabels) {
-                  if (box.id == this.newTransaction.items[x].boxNumber) {
-                    labelBox = box.boxLabel;
-                  }
-                }
-                axiosClient
-                  .post("/savePullOutItemRequest", {
-                    plID: response.data.id,
-                    companyType: this.newTransaction.company,
-                    brand: this.newTransaction.items[x].categorybrand,
-                    boxNumber: this.newTransaction.items[x].boxNumber,
-                    boxLabel: labelBox,
-                    itemCode: this.newTransaction.items[x].code,
-                    quantity: this.newTransaction.items[x].quantity,
-                    email: sessionStorage.getItem("Email"),
-                    status: "unprocessed",
-                  })
-                  .then((response) => {
-                    //console.log("Success Items Save: ", response.data);
-                  })
-                  .catch((error) => {
-                    //console.error(error);
-                  });
-              }
-              const transactionModal = new bootstrap.Modal("#transactionReceipt");
-              transactionModal.show();
-              this.saving_counter = this.files.length * 2;
-            })
-            .catch((error) => {
-              //console.error(error);
-            });
+          this.toSubmit = "save";
+          // console.log("Items:", this.newTransaction.items);
+          // console.log("Boxes:", this.newTransaction.boxLabels);
+          // var response = await axiosClient.post("/savePullOutBranchRequest", {
+          //   chainCode: this.newTransaction.chainCode,
+          //   companyType: this.newTransaction.company,
+          //   branchName: this.newTransaction.branchName,
+          //   transactionType: this.newTransaction.transactionType,
+          //   boxes: this.newTransaction.boxLabels,
+          //   items: this.newTransaction.items,
+          //   email: sessionStorage.getItem("Email"),
+          //   status: "endorsement",
+          // });
+          // this.transferTransactionID = response.data;
+
+          // console.log("Save:", response);
+          // const transactionModal = new bootstrap.Modal("#transactionReceipt");
+          // transactionModal.show();
+          const submitdatemodal = new bootstrap.Modal("#submiteditauthorizeddatemodal");
+          submitdatemodal.show();
         }
+        this.saving_counter = this.files.length * 2;
         setTimeout(this.handleFileUploadImage, 2000);
       }
     },
-    draft(confirmation) {
+    async draft(confirmation) {
       if (confirmation) {
         try {
           const uri = window.location.href;
           var transactionID = uri.split("?")[1];
           var id = transactionID.split("=")[1].split("&")[0];
 
+          // const updateBranch = await axiosClient.post("/updateBranchStatus", {
+          //   userID: sessionStorage.getItem("UserID"),
+          //   company: sessionStorage.getItem("Company"),
+          //   status: "draft",
+          //   id: this.transferTransactionID,
+          //   email: sessionStorage.getItem("Email"),
+          //   transactionData: this.transactionDetails,
+          //   removedItems: this.tempRemoveItems,
+          //   editStatus: true,
+          // });
           axiosClient
-            .post("/updatePullOutBranchRequest", {
-              id: id,
-              chainCode: this.newTransaction.chainCode,
-              companyType: this.newTransaction.company,
-              branchName: this.newTransaction.branchName,
-              transactionType: this.newTransaction.transactionType,
+            .post("/updateBranchStatus", {
+              userID: sessionStorage.getItem("UserID"),
+              company: sessionStorage.getItem("Company"),
               status: "draft",
+              id: this.transferTransactionID,
               email: sessionStorage.getItem("Email"),
+              transactionData: this.newTransaction,
+              removedItems: this.tempRemoveItems,
+              editStatus: true,
             })
             .then((response) => {
-              // console.log("Success Branch Save: ", response.data);
-              //console.log("Items Length:", this.newTransaction.items.length);
-              for (var x = 0; x < this.newTransaction.items.length; x++) {
-                let labelBox = "";
-                for (let box of this.newTransaction.boxLabels) {
-                  if (box.id == this.newTransaction.items[x].boxNumber) {
-                    labelBox = box.boxLabel;
-                  }
-                }
-                console.log("Items", this.newTransaction.items);
-                axiosClient
-                  .post("/updatePullOutItemRequest", {
-                    plID: id,
-                    companyType: this.newTransaction.company,
-                    brand: this.newTransaction.items[x].categorybrand,
-                    boxNumber: this.newTransaction.items[x].boxNumber,
-                    boxLabel: labelBox,
-                    itemCode: this.newTransaction.items[x].code,
-                    quantity: this.newTransaction.items[x].quantity,
-                    status: "draft",
-                    email: sessionStorage.getItem("Email"),
-                  })
-                  .then((response) => {
-                    console.log("Success Items Save: ", response.data);
-                  })
-                  .catch((error) => {
-                    console.error(error);
-                  });
-              }
-              const draftModal = new bootstrap.Modal("#draftModal");
-              draftModal.show();
+              console.log("Success Updated:", response.data);
             })
             .catch((error) => {
-              //console.error(error);
+              console.log("Error:", error);
             });
+          // console.log("Draft Update:", updateBranch);
+          const draftModal = new bootstrap.Modal("#draftModal");
+          draftModal.show();
         } catch {
-          axiosClient
-            .post("/savePullOutBranchRequest", {
-              chainCode: this.newTransaction.chainCode,
-              companyType: this.newTransaction.company,
-              branchName: this.newTransaction.branchName,
-              transactionType: this.newTransaction.transactionType,
-              status: "draft",
-              email: sessionStorage.getItem("Email"),
-            })
-            .then((response) => {
-              //console.log("Success Branch Save: ", response.data);
+          console.log("Transactions:", this.newTransaction);
+          var response = await axiosClient.post("/savePullOutBranchRequest", {
+            chainCode: this.newTransaction.chainCode,
+            companyType: this.newTransaction.company,
+            branchName: this.newTransaction.branchName,
+            transactionType: this.newTransaction.transactionType,
+            boxes: this.newTransaction.boxLabels,
+            items: this.newTransaction.items,
+            email: sessionStorage.getItem("Email"),
+            status: "draft",
+          });
+          this.transferTransactionID = response.data;
 
-              for (var x = 0; x < this.newTransaction.items.length; x++) {
-                let labelBox = "";
-                for (let box of this.newTransaction.boxLabels) {
-                  if (box.id == this.newTransaction.items[x].boxNumber) {
-                    labelBox = box.boxLabel;
-                  }
-                }
-                axiosClient
-                  .post("/savePullOutItemRequest", {
-                    plID: response.data.id,
-                    companyType: this.newTransaction.company,
-                    brand: this.newTransaction.items[x].categorybrand,
-                    boxNumber: this.newTransaction.items[x].boxNumber,
-                    boxLabel: labelBox,
-                    itemCode: this.newTransaction.items[x].code,
-                    quantity: this.newTransaction.items[x].quantity,
-                    status: "draft",
-                    email: sessionStorage.getItem("Email"),
-                  })
-                  .then((response) => {
-                    //console.log("Success Items Save: ", response.data);
-                  })
-                  .catch((error) => {
-                    //console.error(error);
-                  });
-              }
-              const draftModal = new bootstrap.Modal("#draftModal");
-              draftModal.show();
-            })
-            .catch((error) => {
-              //console.error(error);
-            });
+          const draftModal = new bootstrap.Modal("#draftModal");
+          draftModal.show();
         }
+        this.saving_counter = this.files.length * 2;
+        setTimeout(this.handleFileUploadImage, 2000);
       }
     },
     editBoxLabel(code, quantity, boxNumber) {
-      // console.log("Items", code, quantity, boxNumber);
       this.validateSubmit();
-      //console.log(
-      //   "Item Code Edit:",
-      //   code,
-      //   " Quantity:",
-      //   quantity,
-      //   " Box Number",
-      //   boxNumber
-      // );
-      //console.log(" == : ", this.newTransaction.items);
+
       var filteredItems = this.newTransaction.items.filter(
         (item) => item.code === code && item.boxNumber === boxNumber
       );
 
-      //console.log("Filtered Items: ", filteredItems);
       var uniqueItems = [];
       filteredItems.forEach((item) => {
         var existingItem = uniqueItems.find(
           (uniqueItem) => uniqueItem.code === item.code
         );
         if (existingItem) {
-          existingItem.quantity += item.quantity;
+          if (existingItem.quantity == 0 && item.quantity == 0) existingItem.quantity = 1;
+          else existingItem.quantity += item.quantity;
         } else {
           uniqueItems.push({ ...item });
         }
       });
-      // The uniqueItems array will contain unique items based on itemCode, with quantities added up.
-      //console.log("Unique Items: 1", uniqueItems);
-      //console.log("Unique Items: Code", uniqueItems[0].code);
-      //console.log("Unique Items: Box Number", uniqueItems[0].boxNumber);
 
       this.newTransaction.items = this.newTransaction.items.filter(
         (item) =>
@@ -2451,6 +2206,18 @@ export default {
       );
       this.newTransaction.items.push(uniqueItems[0]);
       this.notifyVue("ChangeBoxLabel", "bottom", "right");
+    },
+    decodeFromAlphanumeric(input) {
+      let result = "";
+
+      for (let i = 0; i < input.length; i += 2) {
+        const alphanumericChar = input.substr(i, 2);
+        const charCode = parseInt(alphanumericChar, 36);
+
+        result += String.fromCharCode(charCode);
+      }
+
+      return result;
     },
   },
 };

@@ -11,9 +11,6 @@
     >
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-          <!-- <div class="modal-header">
-            <h6 class="modal-title">Request of Updating of Branch of Promo</h6>
-          </div> -->
           <div class="modal-body text-center">
             <p class="m-0">
               Are you sure you want to cancel your request for updating assigned branch?
@@ -43,8 +40,6 @@
   </div>
 </template>
 <script>
-import Vue from "vue";
-import axiosClient from "../../../../axios";
 import PromoViewPendingRequestModal from "./PromoViewPendingRequest.vue";
 
 export default {

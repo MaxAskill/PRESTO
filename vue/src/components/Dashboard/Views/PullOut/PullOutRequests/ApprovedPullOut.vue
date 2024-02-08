@@ -1,44 +1,5 @@
 <template>
   <div>
-    <!-- <div class="row mx-1 justify-content-between">
-      <div class="col-4 px-1">
-        <fg-input
-          class="input-md"
-          placeholder="Search"
-          v-model="searchQuery"
-          addon-right-icon="nc-icon nc-zoom-split"
-        >
-        </fg-input>
-      </div>
-      <div class="col-3 row">
-        <div class="col-6">
-          <el-select
-            class="select-default"
-            v-model="pagination.perPage"
-            placeholder="Per page"
-          >
-            <el-option
-              class="select-default"
-              v-for="item in pagination.perPageOptions"
-              :key="item"
-              :label="item"
-              :value="item"
-            >
-            </el-option>
-          </el-select>
-        </div>
-        <div class="col-6 whitespace-nowrap">
-          <PButton
-            type="success"
-            data-bs-target="#exportApproved"
-            data-bs-toggle="modal"
-            class="btn-margin"
-          >
-            Export Excel
-          </PButton>
-        </div>
-      </div>
-    </div> -->
     <div class="row mx-2">
       <el-table
         class="p-0"
@@ -167,6 +128,7 @@
     <ApprovedModal
       :transferredData="transferredData"
       :itemData="itemData"
+      :totalNumbers="totalNumbers"
       @closeModal="closeModal"
     >
     </ApprovedModal>
@@ -275,13 +237,23 @@ export default {
         },
         {
           prop: "date",
-          label: "DATE",
+          label: "DATE CREATED",
           minWidth: 100,
         },
         {
           prop: "time",
           label: "TIME",
           minWidth: 90,
+        },
+        {
+          prop: "pullOutStartDate",
+          label: "Pull Out Start Date",
+          minWidth: 110,
+        },
+        {
+          prop: "pullOutEndDate",
+          label: "Pull Out End Date",
+          minWidth: 110,
         },
       ],
       headerCellStyle: {
@@ -292,15 +264,17 @@ export default {
       },
       tableData: [],
       headerRow: [
+        "CardCode",
         "Branch Name",
-        "Brand",
-        "Transaction Type",
-        "Box Label",
+        "U_TransferType",
         "Item Code",
         "Quantity",
-        "Date",
-        "Time",
+        "TaxDate",
+        "DocDueDate",
+        "Filler",
       ],
+      listBoxLabel: [],
+      totalNumbers: [],
     };
   },
   watch: {
@@ -327,7 +301,7 @@ export default {
         }
       }
       axiosClient
-        .get("/fetchAllItemsRequest", {
+        .get("/fetchAllItemsRequestExport", {
           params: {
             company: sessionStorage.getItem("Company"),
             plID: selectedItems,
@@ -336,14 +310,14 @@ export default {
         .then((response) => {
           this.excelBranch = response.data;
           dataArray = this.excelBranch.map((obj) => [
+            obj.branchCode,
             obj.branchName,
-            obj.brand,
             obj.transactionType,
-            obj.boxLabel,
             obj.itemCode,
             obj.quantity,
             obj.date,
-            obj.time,
+            obj.date,
+            obj.Filler,
           ]);
 
           const currentDate = new Date();
@@ -374,7 +348,7 @@ export default {
     },
     openModal(data) {
       this.transferredData = data;
-
+      console.log("Transferred Data:", this.transferredData);
       axiosClient
         .get("/fetchPullOutRequestItem", {
           params: {
@@ -383,8 +357,21 @@ export default {
           },
         })
         .then((response) => {
-          // console.log("Success Item Response:", response.data);
           this.itemData = response.data[0];
+          this.totalNumbers = response.data[1];
+
+          this.listBoxLabel = [];
+          this.itemData.forEach((obj) => {
+            const index = this.listBoxLabel.findIndex(
+              (savedObj) => savedObj.boxNumber === obj.boxNumber
+            );
+            if (index === -1) {
+              this.listBoxLabel.push({
+                boxNumber: obj.boxNumber,
+                boxLabel: obj.boxLabel,
+              });
+            }
+          });
         })
         .catch((error) => {
           console.error(error);

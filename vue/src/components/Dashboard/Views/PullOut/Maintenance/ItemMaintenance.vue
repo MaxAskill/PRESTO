@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="row mx-1">
-      <div class="col-3 px-1">
+      <div class="col-2 px-1">
         <el-select
           class="select-default el-select-w"
           placeholder="Select Company"
@@ -12,7 +12,7 @@
           <el-option class="select-default" value="NBFI" label="NBFI">NBFI</el-option>
         </el-select>
       </div>
-      <div class="col-7">
+      <div class="col-6">
         <fg-input
           class="input-md"
           placeholder="Search"
@@ -20,6 +20,15 @@
           addon-right-icon="nc-icon nc-zoom-split"
         >
         </fg-input>
+      </div>
+      <div class="col-2 px-1 whitespace-nowrap">
+        <PButton
+          type="primary"
+          class="btn-margin"
+          data-bs-toggle="modal"
+          data-bs-target="#uploaditemmodal"
+          >Add Item</PButton
+        >
       </div>
       <div class="col-2 px-1 whitespace-nowrap">
         <PButton
@@ -41,6 +50,28 @@
           :label="column.label"
         >
         </el-table-column>
+        <el-table-column :min-width="70" class-name="td-actions" label="Actions">
+          <template slot-scope="props">
+            <p-button
+              type="success"
+              size="sm"
+              icon
+              data-bs-toggle="modal"
+              data-bs-target="#edititemmodal"
+              @click="editItem(props.row)"
+            >
+              <i class="fa fa-edit"></i>
+            </p-button>
+            <p-button
+              type="danger"
+              size="sm"
+              icon
+              @click="handleDelete(props.$index, props.row)"
+            >
+              <i class="fa fa-trash-o" aria-hidden="true"></i>
+            </p-button>
+          </template>
+        </el-table-column>
       </el-table>
     </div>
     <div class="d-flex justify-content-end pagination-info">
@@ -58,6 +89,7 @@
       </p-pagination>
     </div>
     <UploadItemModal></UploadItemModal>
+    <EditItemModal :itemDetail="selectedItem"></EditItemModal>
   </div>
 </template>
 <script>
@@ -67,6 +99,7 @@ import PButton from "../../../../UIComponents/Button.vue";
 import PPagination from "../../../../UIComponents/Pagination.vue";
 import axiosClient from "../../../../../axios";
 import UploadItemModal from "./ModalMaintenance/UploadItemModal.vue";
+import EditItemModal from "./ModalMaintenance/EditMaintenanceModal/EditItemModal.vue";
 
 Vue.use(Table);
 Vue.use(TableColumn);
@@ -78,6 +111,7 @@ export default {
     PButton,
     PPagination,
     UploadItemModal,
+    EditItemModal,
   },
   mounted() {
     this.fetchData();
@@ -147,13 +181,13 @@ export default {
       tableColumns: [
         {
           prop: "ItemNo",
-          label: "Item No.",
-          minWidth: 80,
+          label: "Item Code",
+          minWidth: 100,
         },
         {
           prop: "ItemDescription",
           label: "Item Description",
-          minWidth: 300,
+          minWidth: 180,
         },
         {
           prop: "brandNames",
@@ -163,17 +197,17 @@ export default {
         {
           prop: "Department",
           label: "Department",
-          minWidth: 60,
+          minWidth: 80,
         },
         {
           prop: "SubDepartment",
           label: "Sub-Department",
-          minWidth: 80,
+          minWidth: 100,
         },
         {
           prop: "Category",
           label: "Category",
-          minWidth: 50,
+          minWidth: 80,
         },
         {
           prop: "SubCategory",
@@ -182,9 +216,13 @@ export default {
         },
       ],
       tableData: [],
+      selectedItem: {},
     };
   },
   methods: {
+    editItem(itemDetail) {
+      this.selectedItem = itemDetail;
+    },
     fetchData() {
       axiosClient
         .get("/fetchItemsMaintenance", {

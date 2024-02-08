@@ -72,14 +72,20 @@
               >
                 <i class="fa fa-edit"></i>
               </p-button>
-              <p-button
-                type="danger"
-                size="sm"
-                icon
-                @click="handleDelete(props.$index, props.row)"
+
+              <el-popconfirm
+                width="280"
+                confirm-button-text="Confirm"
+                cancel-button-text="Cancel"
+                icon-color="#c45656"
+                title="Are you sure you want to delete this draft?"
+                @confirm="handleDelete(true, props.$index, props.row)"
+                @cancel="handleDelete(false, props.$index, props.row)"
               >
-                <i class="fa fa-times"></i>
-              </p-button>
+                <p-button slot="reference" type="danger" size="sm" icon>
+                  <i class="fa fa-times"></i>
+                </p-button>
+              </el-popconfirm>
             </template>
           </el-table-column>
         </el-table>
@@ -103,25 +109,18 @@
 </template>
 <script>
 import Vue from "vue";
-// import {
-//   Collapse,
-//   CollapseItem,
-//   Tabs,
-//   TabPane,
-//   Card,
-//   Button,
-// } from "src/components/UIComponents";
-import { Table, TableColumn, Select, Option } from "element-ui";
+
+import { Table, TableColumn, Select, Option, Popconfirm, Message } from "element-ui";
 import PButton from "../../../../UIComponents/Button.vue";
 import PPagination from "../../../../UIComponents/Pagination.vue";
 import axiosClient from "../../../../../axios";
-import axios from "axios";
 import linkName from "../../../../../linkName";
 
 Vue.use(Table);
 Vue.use(TableColumn);
 Vue.use(Select);
 Vue.use(Option);
+Vue.use(Popconfirm);
 
 export default {
   components: {
@@ -189,21 +188,8 @@ export default {
         total: 0,
       },
       searchQuery: "",
-      propsToSearch: [
-        "plID",
-        "branchCode",
-        "branchName",
-        "status",
-        "transactionType",
-        "date",
-        "time",
-      ],
+      propsToSearch: ["branchName", "transactionType", "date", "time"],
       tableColumns: [
-        // {
-        //   prop: "plID",
-        //   label: "Transaction ID",
-        //   minWidth: 150,
-        // },
         {
           prop: "branchName",
           label: "Branch",
@@ -237,7 +223,7 @@ export default {
   methods: {
     fetchData() {
       axiosClient
-        .get("/fetchUserRequestDraft", {
+        .get("/fetchCompanyDraft", {
           params: {
             company: sessionStorage.getItem("Company"),
             promoEmail: sessionStorage.getItem("Email"),
@@ -245,7 +231,6 @@ export default {
           },
         })
         .then((response) => {
-          console.log("Pull Out Request", response.data);
           this.tableData = response.data;
         })
         .catch((error) => {
@@ -253,68 +238,76 @@ export default {
         });
     },
     handleEdit(index, row) {
-      console.log("Row", row);
       var tempStatus = "";
-      // if (row.status === "Active") {
-      //   row.status = "Inactive";
-      //   tempStatus = "Inactive";
-      // } else {
-      //   row.status = "Active";
-      //   tempStatus = "Active";
-      // }
-
-      this.$router.push({
+      var tempTransactionID = this.convertToAlphanumeric("transactionID");
+      var tempcompany = this.convertToAlphanumeric("company");
+      const routeParams = {
         path: "/pull-out/requisition-form",
         query: {
-          transactionID: row.plID,
-          company: row.company,
+          [tempTransactionID]: row.plID,
+          [tempcompany]: this.convertToAlphanumeric(row.company),
         },
-      });
+      };
 
+      this.$router.push(routeParams);
       // location.href =
-      //   "http://192.168.0.7:4040/#/pull-out/requisition-form?transactionID=" +
+      //   "http://192.168.0.7:93/#/pull-out/requisition-form?" +
+      //   tempTransactionID +
+      //   "=" +
       //   row.plID +
-      //   "&company=" +
-      //   row.company;
-      // console.log("Branch ID:", row.id);
-      // console.log("BranchCode:", row.branchCode);
-
-      // axiosClient
-      //   .post("/updateBranch", {
-      //     company: this.company,
-      //     id: row.id,
-      //     status: tempStatus,
-      //     userID: sessionStorage.getItem("UserID"),
-      //   })
-      //   .then((response) => {
-      //     console.log("Success Update Branch:", response.data);
-      //   })
-      //   .catch((error) => {
-      //     console.error(error);
-      //   });
-      // alert(`Your want to edit ${row.status}`);
+      //   "&" +
+      //   tempcompany +
+      //   "=" +
+      //   this.convertToAlphanumeric(row.company);
     },
-    handleDelete(index, row) {
-      console.log("ID:", row.plID, row.company);
+    handleDelete(confirm, index, row) {
+      if (confirm) {
+        let indexToDelete = this.tableData.findIndex(
+          (tableRow) => tableRow.plID === row.plID
+        );
+        if (indexToDelete >= 0) {
+          this.tableData.splice(indexToDelete, 1);
+        }
 
-      let indexToDelete = this.tableData.findIndex(
-        (tableRow) => tableRow.plID === row.plID
-      );
-      if (indexToDelete >= 0) {
-        this.tableData.splice(indexToDelete, 1);
+        axiosClient
+          .post("/deleteDraft", {
+            id: row.plID,
+            company: row.company,
+          })
+          .then((response) => {})
+          .catch((error) => {
+            console.error(error);
+          });
+
+        Message({
+          type: "success",
+          message: "Your draft has been deleted.",
+        });
+      }
+    },
+    convertToAlphanumeric(input) {
+      let result = "";
+
+      for (let i = 0; i < input.length; i++) {
+        const char = input[i];
+        const charCode = char.charCodeAt(0);
+
+        // Check if the character is alphanumeric
+        if (
+          (char >= "0" && char <= "9") ||
+          (char >= "a" && char <= "z") ||
+          (char >= "A" && char <= "Z")
+        ) {
+          // Convert the character code to a base-36 alphanumeric representation
+          const alphanumericChar = charCode.toString(36);
+          result += alphanumericChar;
+        } else {
+          // Non-alphanumeric characters are left unchanged
+          result += char;
+        }
       }
 
-      axiosClient
-        .post("/deleteDraft", {
-          id: row.plID,
-          company: row.company,
-        })
-        .then((response) => {
-          console.log("Success Delete:", response.data);
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+      return result;
     },
   },
 };
@@ -354,5 +347,11 @@ export default {
 
 .card-draft {
   margin-top: 100px;
+}
+
+.el-popconfirm {
+  background-color: #ffffff;
+  padding: 3px;
+  border-radius: 5px;
 }
 </style>

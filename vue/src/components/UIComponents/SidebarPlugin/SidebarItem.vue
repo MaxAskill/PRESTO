@@ -176,11 +176,29 @@ export default {
   methods: {
     dateTime() {
       const today = new Date();
+      const months = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ];
+      const formattedDate =
+        months[today.getMonth()] +
+        " " +
+        (today.getDate() < 10 ? "0" : "") +
+        today.getDate() +
+        ", " +
+        today.getFullYear();
 
-      const date =
-        today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate();
-
-      this.date = date;
+      this.date = formattedDate;
 
       const hours = today.getHours();
       const minutes = today.getMinutes();

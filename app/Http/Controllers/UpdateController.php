@@ -22,7 +22,7 @@ class UpdateController extends Controller
         $name = DB::table('users')
                     ->select('name')
                     ->where('id', $request->userID)
-                    ->first()->name;
+                    ->pluck('name');
 
         if($request->company == "EPC"){
             $old_data = PullOutItemModel::find($request->id);
@@ -41,7 +41,7 @@ class UpdateController extends Controller
                         ->first();
 
             //GETTING THE EFFECTIVE PRICE OF THE SPECIFIC ITEM
-            $price = DB::table('epc_items')
+            $price = DB::table('epc_items_barcode')
                         ->select('EffectivePrice')
                         ->where('ItemNo', '=', $itemCode->itemCode)
                         ->first();
@@ -69,7 +69,7 @@ class UpdateController extends Controller
                         ->first();
 
             //GETTING THE EFFECTIVE PRICE OF THE SPECIFIC ITEM
-            $price = DB::table('nbfi_items')
+            $price = DB::table('nbfi_items_barcode')
                         ->select('EffectivePrice')
                         ->where('ItemNo', '=', $itemCode->itemCode)
                         ->first();
@@ -102,7 +102,7 @@ class UpdateController extends Controller
         $name = DB::table('users')
                     ->select('name')
                     ->where('id', $request->userID)
-                    ->first()->name;
+                    ->pluck('name');
         if($request->company == "EPC"){
             //setting the name who edit the item
             $editBy = DB::select('UPDATE pullOutItemsTbl SET editedBy = \''.$name.'\', updated_at = \''.$date.'\'  WHERE id = \''.$request->id.'\' ');
@@ -142,35 +142,126 @@ class UpdateController extends Controller
         $date = now()->timezone('Asia/Manila'); // GETTING THE TIME ZONE IN PH
 
         $name = DB::table('users')
-                    ->select('name')
                     ->where('id', $request->userID)
-                    ->first()->name;
-
+                    ->value('name');
+        // SETTING TABLES
         if($request->company == "EPC"){
-            //setting the name who edit the item
-            $editBy = DB::select('UPDATE pullOutBranchTbl SET status = \''.$request->status.'\', editedBy = \''.$name.'\', updated_at = \''.$date.'\'  WHERE id = \''.$request->id.'\' ');
             $old_data = PullOutBranchModel::find($request->id);
-            $table_affected = 'pullOutItemsTbl';
+            $tbBranch = 'pullOutBranchTbl';
+            $tbItems = 'pullOutItemsTbl';
+            $tbItem = 'epc_items_barcode';
 
         } else if($request->company == "NBFI"){
-            //setting the name who edit the item
-            $editBy = DB::select('UPDATE pullOutBranchTblNBFI SET status = \''.$request->status.'\', editedBy = \''.$name.'\', updated_at = \''.$date.'\'  WHERE id = \''.$request->id.'\' ');
             $old_data = PullOutBranchModelNBFI::find($request->id);
-            $table_affected = 'pullOutItemsTblNBFI';
+            $tbBranch = 'pullOutBranchTblNBFI';
+            $tbItems = 'pullOutItemsTblNBFI';
+            $tbItem = 'nbfi_items_barcode';
         }
 
-        $oldData = $old_data->toArray(); // Retrieve the old data before the update
+        // UPDATING STATUS
+        if($request->status == "endorsement")
+            $editBy = DB::table($tbBranch)
+                            ->where('id', $request->id)
+                            ->update([
+                                'status' => $request->status,
+                                'editedBy' => $name,
+                                'updated_at' => $date,
+                                'dateTime' => $date,
+                            ]);
+        else if($request->status == "approved")
+            $editBy = DB::table($tbBranch)
+                            ->where('id', $request->id)
+                            ->update([
+                                'status' => $request->status,
+                                'approvedBy' => $name,
+                                'approvedDate' => $date,
+                            ]);
+        else if($request->status == "unprocessed")
+        $editBy = DB::table($tbBranch)
+                        ->where('id', $request->id)
+                        ->update([
+                            'status' => $request->status,
+                        ]);
 
+        $oldData = $old_data->toArray(); // Retrieve the old data before the update
+        $newData = array(
+            'Status' => $request->status,
+            'editBy' => $name,
+            );
+
+        // TRANSACTION LOGS
         $log = new TransactionModel();
         $log->dateTime = $date;
         $log->userID = $request->userID;
         $log->action_type = 'update';
-        $log->table_affected = $table_affected;
+        $log->table_affected = $tbBranch;
         $log->old_data = json_encode($oldData);
-        $log->new_data = json_encode($request->all());
+        $log->new_data = json_encode($newData);
         $log->save();
 
-        return response()->json(['message' => 'Success'], 200);
+        // IF EDIT IS TRUE
+        if($request->editStatus){
+            $items = $request->transactionData['items']; // SETTING THE ITEMS
+            $boxes = $request->transactionData['boxLabels']; // SETTING THE BOX
+            $status = $request->status; // SETTING THE STATUS
+            foreach($items as $item){  // LOOPING THE ITEMS
+                foreach($boxes as $box){ // LOOPING THE BOX
+                    if($box['id'] == $item['boxNumber']){ // CONDITION IF THE BOX ID IS EQUAL TO ITEM BOXNUMBER FOR PUTTING BOXLABEL
+                        switch($request->company){ // SETTING THE TABLE
+                            case "NBFI":
+                                $tbItemSave = new PullOutItemModelNBFI();
+                                break;
+                            case "EPC":
+                                $tbItemSave = new PullOutItemModel();
+                                break;
+                        }
+
+                        if(isset($item['id'])){ // CHECKING IF GOT AN ID FOR UPDATE
+                            $old_data = DB::table($tbItems)
+                                            ->select('quantity', 'boxLabel')
+                                            ->where('id', $item['id'])
+                                            ->get()
+                                            ->first();
+
+                            if($old_data->quantity != $item['quantity'] || $old_data->boxLabel != $item['boxLabel'])
+                                $status = "edited";
+
+                            DB::table($tbItems)->where('id', $item['id'])->delete(); // DELETE THE ITEM FOR REPLACEMENT
+                        }
+
+                        // GETTING THE PRICE
+                        $price = DB::table($tbItem)
+                                    ->select('EffectivePrice')
+                                    ->where('ItemNo', '=', $item['code'])
+                                    ->first();
+
+                        // SETTING THE TOTAL AMOUNT
+                        $amount = floatval($price->EffectivePrice) * floatval($item['quantity']);
+
+                        // SETTING THE VARIABLES
+                        $tbItemSave->plID = $request->id;
+                        $tbItemSave->brand = $item['categorybrand'];
+                        $tbItemSave->boxNumber = $item['boxNumber'];
+                        $tbItemSave->boxLabel = $box['boxLabel'];
+                        $tbItemSave->itemCode = $item['code'];
+                        $tbItemSave->quantity = $item['quantity'];
+                        $tbItemSave->amount = $amount;
+                        $tbItemSave->status = $status;
+                        $tbItemSave->dateTime = $date;
+
+                        // SAVING
+                        $tbItemSave->save();
+                    }
+                }
+            }
+
+            // DELETING ITEMS
+            DB::table($tbItems)
+                    ->whereIn('id', $request->removedItems)
+                    ->delete();
+            return response()->json($items);
+        }
+
     }
 
     public function updateBranchStatusApprover(Request $request){
@@ -180,7 +271,7 @@ class UpdateController extends Controller
         $name = DB::table('users')
                     ->select('name')
                     ->where('id', $request->userID)
-                    ->first()->name;
+                    ->pluck('name');
 
         if($request->company == "EPC"){
             //setting the name who edit the item
@@ -219,6 +310,9 @@ class UpdateController extends Controller
                                 branchName = \''.$request->branchName.'\',
                                 transactionType = \''.$request->transactionType.'\',
                                 status = \''.$request->status.'\', dateTime = \''.$date.'\' WHERE id = \''.$request->id.'\'');
+
+            // if($request->status == 'draft')
+            // DB::select('DELETE FROM pullOutItemsTblNBFI WHERE plID = \''.$request->id.'\'');
         } else if($request->companyType == "EPC" || $request->companyType == "AHLC"){
             $data = DB::select('UPDATE pullOutBranchTbl
                                 SET chainCode = \''.$request->chainCode.'\',
@@ -226,6 +320,9 @@ class UpdateController extends Controller
                                 branchName = \''.$request->branchName.'\',
                                 transactionType = \''.$request->transactionType.'\',
                                 status = \''.$request->status.'\', dateTime = \''.$date.'\' WHERE id = \''.$request->id.'\'');
+
+            // if($request->status == 'draft')
+            // DB::select('DELETE FROM pullOutItemsTbl WHERE plID = \''.$request->id.'\'');
         }
 
         return response()->json($data);
@@ -251,10 +348,11 @@ class UpdateController extends Controller
                 }
             }
 
-            $data = DB::select('DELETE FROM pullOutItemsTblNBFI
-                                WHERE id = \''.$request->id.'\'');
+
+            DB::table('pullOutItemsTblNBFI')->where('id', $request->id)->delete();
+
             $item = new PullOutItemModelNBFI();
-            $price = DB::table('nbfi_items')
+            $price = DB::table('nbfi_items_barcode')
                         ->select('EffectivePrice')
                         ->where('ItemNo', '=', $request->itemCode)
                         ->first();
@@ -265,22 +363,26 @@ class UpdateController extends Controller
 
             // $old_data = PullOutItemModel::find($request->id);
 
-            $old_data = DB::table('pullOutItemsTbl')
+                $old_data = DB::table('pullOutItemsTbl')
                             ->select('quantity', 'boxLabel')
                             ->where('id', $request->id)
                             ->get()
                             ->first();
 
-            if($request->status != "draft"){
-                if($old_data->quantity != $request->quantity || $old_data->boxLabel != $request->boxLabel){
-                    $status = "edited";
+            if($request->id != null){
+                if($request->status != "draft"){
+                    if($old_data->quantity != $request->quantity || $old_data->boxLabel != $request->boxLabel){
+                        $status = "edited";
+                    }
                 }
             }
-            $data = DB::select('DELETE FROM pullOutItemsTbl
-                                WHERE id = \''.$request->id.'\'');
+
+
+
+            DB::table('pullOutItemsTbl')->where('id', $request->id)->delete();
 
             $item = new PullOutItemModel();
-            $price = DB::table('epc_items')
+            $price = DB::table('epc_items_barcode')
                         ->select('EffectivePrice')
                         ->where('ItemNo', '=', $request->itemCode)
                         ->first();
@@ -304,25 +406,72 @@ class UpdateController extends Controller
         //SAVING
         $item->save();
 
-        return response()->json($status);
+        return response()->json($request->quantity);
     }
 
     public function updateUserBranch(Request $request){
-        if($request->status == "Deactivated")
-            DB::select("UPDATE users SET status = 'Inactive' WHERE id = \"".$request->userID."\"");
-        else
-            DB::select("UPDATE users SET status = 'Active' WHERE id = \"".$request->userID."\"");
+        $status = ($request->status == "Deactivated") ? 'Inactive' : 'Active';
 
-        DB::select("UPDATE userBranchMaintenance SET status = \"".$request->status."\" WHERE userID = \"".$request->userID."\"");
+        DB::table('users')
+            ->where('id', $request->userID)
+            ->update(['status' => $status]);
+
+        DB::table('userBranchMaintenance')
+            ->where('userID', $request->userID)
+            ->update(['status' => $request->status]);
     }
 
     public function updateUserBranchByRequest(Request $request){
         // $date = now()->timezone('Asia/Manila');
-        $dateStart = Carbon::createFromFormat('Y-m-d\TH:i:s.v\Z', $request->input('dateStart'))
-                    ->addDay();
-        $dateEnd = Carbon::createFromFormat('Y-m-d\TH:i:s.v\Z', $request->input('dateEnd'))
-                    ->addDay();
-        DB::table('userBranchMaintenance')->where('id', $request->id)->where('request', 'remove')->delete();
-        DB::select("UPDATE userBranchMaintenance SET request = null, date_start = \"".$dateStart."\", date_end = \"".$dateEnd."\" WHERE id = \"".$request->id."\" AND request = 'additional'");
+        // $dateStart = Carbon::createFromFormat('Y-m-d\TH:i:s.v\Z', $request->input('dateStart'))
+        //             ->addDay();
+        // $dateEnd = Carbon::createFromFormat('Y-m-d\TH:i:s.v\Z', $request->input('dateEnd'))
+        //             ->addDay();
+        // DB::table('userBranchMaintenance')->where('id', $request->id)->where('request', 'remove')->delete();
+        // DB::select("UPDATE userBranchMaintenance SET request = null, date_start = \"".$request->dateStart."\", date_end = \"".$request->dateEnd."\" WHERE id = \"".$request->id."\" AND request = 'additional'");
+        DB::table('userBranchMaintenance')
+                ->where('id', $request->id)
+                ->where('request', 'remove')
+                ->delete();
+        DB::table('userBranchMaintenance')
+                ->where('id', $request->id)
+                ->where('request', 'additional')
+                ->update([
+                    'request' => null,
+                    'date_start' => $request->dateStart,
+                    'date_end' => $request->dateEnd
+                ]);
+
+    }
+
+    public function removeTempBranch(Request $request){
+        $data = DB::table('userBranchMaintenance')
+                    ->where('id', $request->id)
+                    ->update(['expired' => 'removed']);
+
+        return response()->json($data);
+    }
+
+    public function updateTempBranch(Request $request){
+        $data = DB::table('userBranchMaintenance')
+                    ->where('id', $request->id)
+                    ->update(['date_start' => $request->startDate, 'date_end' => $request->endDate]);
+
+        return response()->json($data);
+    }
+
+    public function updatePermBranch(Request $request){
+        DB::table('userBranchMaintenance')
+            ->where('company', '=', $request->company)
+            ->where('chainCode', '=', $request->chainCode)
+            ->where('branchName', '=', $request->branchName)
+            ->where('expired', '=', null)
+            ->delete();
+
+        $data = DB::table('userBranchMaintenance')
+                    ->where('id', $request->id)
+                    ->update(['company' => $request->company, 'chainCode' => $request->chainCode, 'branchName' => $request->branchName]);
+
+        return response()->json($data);
     }
 }

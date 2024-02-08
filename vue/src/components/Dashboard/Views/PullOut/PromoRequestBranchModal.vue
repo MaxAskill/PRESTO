@@ -31,7 +31,7 @@
                 <thead>
                   <tr>
                     <th scope="col" class="labelRows">Company</th>
-                    <th scope="col" class="labelRows">Chain Code</th>
+                    <th scope="col" class="labelRows">Chain Name</th>
                     <th scope="col" class="labelRows">Branch Name</th>
                     <th scope="col" class="labelRows">Start Date</th>
                     <th scope="col" class="labelRows">Expiry Date</th>
@@ -66,16 +66,7 @@
                 </tbody>
               </table>
             </div>
-            <!-- <div class="d-flex">
-              <span class="labelRows col-3">Company</span>
-              <span class="labelRows col-3">Chain Code</span>
-              <span class="labelRows col-6">Branch Name</span>
-            </div>
-            <div class="d-flex mt-1" v-for="details in promoDetails">
-              <span class="col-3">{{ details.company }}</span>
-              <span class="col-3">{{ details.chainCode }}</span>
-              <span class="col-6">{{ details.branchName }}</span>
-            </div> -->
+
             <div class="d-flex mt-2 text-center">
               <span class="col-12 mb-2" style="font-size: 13px"
                 ><b>Promo's Request to Update the Temporary Branch</b>
@@ -86,7 +77,7 @@
                 <thead>
                   <tr>
                     <th scope="col" class="labelRows">Company</th>
-                    <th scope="col" class="labelRows">Chain Code</th>
+                    <th scope="col" class="labelRows">Chain Name</th>
                     <th scope="col" class="labelRows">Branch Name</th>
                     <th scope="col" class="labelRows text-center">Request</th>
                     <th scope="col" class="labelRows">Reject</th>
@@ -95,7 +86,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(request, key) in tempPromoRequest">
+                  <tr v-for="(request, key) in tempPromoRequest" class="cursor-pointer">
                     <td class="cell text-nowrap py-1">{{ request.company }}</td>
                     <td class="cell text-nowrap py-1">{{ request.chainCode }}</td>
                     <td class="cell text-nowrap py-1">{{ request.branchName }}</td>
@@ -118,12 +109,18 @@
                       </el-tooltip>
                     </td>
                     <td class="cell text-nowrap text-center py-1">
-                      <button
-                        class="btn btn-default py-1 px-2"
-                        @click="rejectBranch(request)"
+                      <el-popconfirm
+                        width="270"
+                        confirm-button-text="Confirm"
+                        cancel-button-text="Cancel"
+                        icon-color="#c45656"
+                        title="Are you sure you want to reject this request?"
+                        @confirm="rejectBranch(request, key)"
                       >
-                        <i class="nc-icon nc-simple-remove"></i>
-                      </button>
+                        <button slot="reference" class="btn btn-default py-1 px-2">
+                          <i class="nc-icon nc-simple-remove"></i>
+                        </button>
+                      </el-popconfirm>
                     </td>
                     <td class="cell text-nowrap py-1">
                       <fg-input class="text-center mb-0" style="width: 150px"
@@ -131,6 +128,7 @@
                           v-model="dateStart[key]"
                           type="date"
                           placeholder="Select a Day"
+                          :clearable="false"
                         >
                         </el-date-picker
                       ></fg-input>
@@ -141,6 +139,7 @@
                           v-model="dateEnd[key]"
                           type="date"
                           placeholder="Select a Day"
+                          :clearable="false"
                         >
                         </el-date-picker
                       ></fg-input>
@@ -149,68 +148,18 @@
                 </tbody>
               </table>
             </div>
-            <!-- <div class="d-flex mt-1">
-              <span class="labelRows col-3">Company</span>
-              <span class="labelRows col-3">Chain Code</span>
-              <span class="labelRows col-6">Branch Name</span>
-            </div>
-            <div class="d-flex mt-1" v-for="(request, key) in tempPromoRequest">
-              <span class="col-3">{{ request.company }}</span>
-              <span class="col-3">{{ request.chainCode }}</span>
-              <span class="col-6">{{ request.branchName }}</span>
-              <input
-                v-show="rejectMode"
-                class="align-self-start"
-                type="checkbox"
-                v-model="checkedBranch"
-                :value="key"
-              />
-            </div> -->
-            <!-- <div class="mt-3">
-              <fg-input label="Date End Promo" class="col-12 text-center mb-0"
-                ><el-date-picker
-                  v-model="dateEnd"
-                  type="date"
-                  placeholder="Select a Day"
-                  :disabled="rejectMode"
-                >
-                </el-date-picker
-              ></fg-input>
-            </div> -->
           </div>
           <div class="modal-footer d-flex justify-content-center">
             <button v-show="!rejectMode" class="btn btn-default" data-bs-dismiss="modal">
               Cancel
             </button>
-            <!-- <button
-              v-show="rejectMode"
-              class="btn btn-default"
-              @click="(rejectMode = false), (checkedBranch = [])"
-            >
-              Back
-            </button>
+
             <button
               v-show="!rejectMode"
-              class="btn btn-danger"
-              @click="rejectMode = true"
-            >
-              Reject
-            </button>
-            <button
-              v-show="rejectMode"
-              class="btn btn-danger"
-              @click="rejectBranch"
-              :disabled="rejected"
-            >
-              Reject Selected Branch
-            </button> -->
-            <button
-              v-show="!rejectMode"
-              class="btn btn-primary"
+              class="btn btn-success"
               data-bs-toggle="modal"
               data-bs-target="#requestBranchApproveConfirmation"
               @click="approveRequest()"
-              :disabled="disableApprove"
             >
               Approve this Request
             </button>
@@ -227,14 +176,16 @@
 <script>
 import axiosClient from "../../../../axios";
 import PromoRequestBranchApproveConfirmationModal from "./PromoRequestBranchApproveConfirmationModal.vue";
+import { Popconfirm } from "element-ui";
+import Vue from "vue";
+
+Vue.use(Popconfirm);
 
 export default {
   components: {
     PromoRequestBranchApproveConfirmationModal,
   },
   watch: {
-    dateEnd: "validateApprove",
-    dateStart: "validateApprove",
     promoRequest: {
       handler() {
         this.promoDetailsTransfer();
@@ -259,7 +210,6 @@ export default {
     return {
       dateStart: [],
       dateEnd: [],
-      disableApprove: true,
       checkedBranch: [],
       rejectMode: false,
       tempPromoRequest: [],
@@ -269,13 +219,11 @@ export default {
   mounted() {},
   methods: {
     approveRequest(confirm) {
-      console.log("TP APP:", this.tempPromoRequest);
       if (confirm)
         for (let key in this.tempPromoRequest)
           axiosClient
             .post("/updateUserBranchByRequest", {
               id: this.tempPromoRequest[key].id,
-              // userID: this.promoData.id,
               dateStart: this.dateStart[key],
               dateEnd: this.dateEnd[key],
             })
@@ -286,12 +234,7 @@ export default {
               console.error(error);
             });
     },
-    rejectBranch(reject) {
-      // let selectedBranchReject = this.checkedBranch.map((i) => this.tempPromoRequest[i]);
-      // this.tempPromoRequest = this.tempPromoRequest.filter(
-      //   (_, index) => !this.checkedBranch.includes(index)
-      // );
-      // selectedBranchReject.forEach((reject) => {
+    rejectBranch(reject, key) {
       axiosClient
         .post("/deleteUserBranch", {
           userID: this.promoData.id,
@@ -306,26 +249,20 @@ export default {
         .catch((error) => {
           console.error(error);
         });
-      // });
-      // if (this.tempPromoRequest.length <= 0) {
-      //   window.location.reload();
-      // }
-      // this.rejectMode = false;
-      // this.rejected = true;
-      // this.checkedBranch = [];
+      this.tempPromoRequest.splice(key, 1);
+      if (this.tempPromoRequest.length <= 0) {
+        window.location.reload();
+      }
+
       this.$emit("fetchUsers");
     },
     promoDetailsTransfer() {
       this.tempPromoRequest = [...this.promoRequest];
-      console.log("Prom Req:::::::: ", this.promoRequest);
-    },
-    validateApprove() {
-      if (
-        this.dateEnd.length != this.tempPromoRequest.length &&
-        this.dateStart.length != this.tempPromoRequest.length
-      )
-        this.disableApprove = true;
-      else this.disableApprove = false;
+      for (let index = 0; index < this.tempPromoRequest.length; index++) {
+        this.dateStart[index] = this.tempPromoRequest[index].date_start;
+        this.dateEnd[index] = this.tempPromoRequest[index].date_end;
+      }
+      this.tempPromoRequest.forEach((temp) => {});
     },
   },
 };
@@ -339,6 +276,5 @@ export default {
 .labelRows {
   font-size: 0.8571em;
   color: #9a9a9a;
-  // margin-bottom: 5px;
 }
 </style>

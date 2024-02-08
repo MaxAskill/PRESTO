@@ -49,9 +49,6 @@
   </div>
 </template>
 <script>
-import Vue from "vue";
-import axiosClient from "../../../../axios";
-
 export default {
   props: ["remove", "additional"],
   components: {},

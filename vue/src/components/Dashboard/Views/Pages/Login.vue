@@ -89,6 +89,18 @@ export default {
   },
   mounted() {
     this.fetchIpAddress();
+    try {
+      const uri = window.location.href;
+      var credentials = uri.split("?")[1];
+      var email = decodeURIComponent(credentials.split("&")[0]);
+      var password = decodeURIComponent(credentials.split("&")[1]);
+      console.log("email: ", email, "password: ", password);
+      this.form.email = email;
+      this.form.password = password;
+      this.login();
+    } catch {
+      console.log("Default");
+    }
   },
   methods: {
     fetchIpAddress() {
@@ -122,7 +134,7 @@ export default {
             if (response.data.user.position == "Admin") {
               this.$router.push({ name: "Overview" });
             } else if (
-              response.data.user.position == "Agent" ||
+              response.data.user.position == "Reviewer" ||
               response.data.user.position == "Approver"
             ) {
               this.$router.push({ name: "Pull-Out Requests" });
@@ -136,7 +148,7 @@ export default {
         })
         .catch((err) => {
           this.errorMsg = err.response.data.message;
-          console.error(err.response.data.message);
+          console.error(err);
         });
     },
   },

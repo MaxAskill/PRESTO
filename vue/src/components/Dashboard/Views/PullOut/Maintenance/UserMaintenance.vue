@@ -21,10 +21,9 @@
           :label="column.label"
         >
         </el-table-column>
+
         <el-table-column :min-width="80" class-name="td-actions" label="Position">
           <template slot-scope="props">
-            <!-- <label>{{ props.row.position }}</label> -->
-
             <el-select
               class="table-select-box"
               size="large"
@@ -40,23 +39,6 @@
               >
               </el-option>
             </el-select>
-
-            <!-- <p-button
-              type="success"
-              size="sm"
-              icon
-              @click="handleEdit(props.$index, props.row)"
-            >
-              <i class="fa fa-edit"></i>
-            </p-button>
-            <p-button
-              type="danger"
-              size="sm"
-              icon
-              @click="handleDelete(props.$index, props.row)"
-            >
-              <i class="fa fa-times"></i>
-            </p-button> -->
           </template>
         </el-table-column>
         <el-table-column :min-width="100" class-name="td-actions" label="Status">
@@ -79,26 +61,28 @@
             </p-button>
           </template>
         </el-table-column>
-        <!-- <el-table-column :min-width="120" class-name="td-actions" label="">
+        <el-table-column :min-width="70" class-name="td-actions" label="Actions">
           <template slot-scope="props">
             <p-button
               type="success"
               size="sm"
               icon
-              @click="handleEdit(props.$index, props.row)"
+              data-bs-toggle="modal"
+              data-bs-target="#editusermodal"
+              @click="editUser(props.row)"
             >
               <i class="fa fa-edit"></i>
             </p-button>
-            <p-button
+            <!-- <p-button
               type="danger"
               size="sm"
               icon
               @click="handleDelete(props.$index, props.row)"
             >
-              <i class="fa fa-times"></i>
-            </p-button>
+              <i class="fa fa-trash-o" aria-hidden="true"></i>
+            </p-button> -->
           </template>
-        </el-table-column> -->
+        </el-table-column>
       </el-table>
     </div>
     <div class="d-flex justify-content-end pagination-info">
@@ -115,6 +99,7 @@
       >
       </p-pagination>
     </div>
+    <EditUserModal :userDetail="selectedUser"></EditUserModal>
   </div>
 </template>
 <script>
@@ -123,6 +108,7 @@ import { Table, TableColumn, Select, Option } from "element-ui";
 import PButton from "../../../../UIComponents/Button.vue";
 import PPagination from "../../../../UIComponents/Pagination.vue";
 import axiosClient from "../../../../../axios";
+import EditUserModal from "./ModalMaintenance/EditMaintenanceModal/EditUserModal.vue";
 
 Vue.use(Table);
 Vue.use(TableColumn);
@@ -133,6 +119,7 @@ export default {
   components: {
     PButton,
     PPagination,
+    EditUserModal,
   },
   mounted() {
     this.fetchData();
@@ -182,9 +169,10 @@ export default {
   },
   data() {
     return {
+      isEdit: false,
       positions: [
         { position: "Admin" },
-        { position: "Agent" },
+        { position: "Reviewer" },
         { position: "Approver" },
         { position: "User" },
       ],
@@ -226,14 +214,17 @@ export default {
         },
       ],
       tableData: [],
+      selectedUser: {},
     };
   },
   methods: {
+    editUser(userDetail) {
+      this.selectedUser = userDetail;
+    },
     fetchData() {
       axiosClient
         .get("/fetchUsersMaintenance")
         .then((response) => {
-          // console.log("Users: ", response.data);
           this.tableData = response.data;
         })
         .catch((error) => {
@@ -241,7 +232,6 @@ export default {
         });
     },
     handleEdit(index, row) {
-      // alert(`Your want to edit ${row.branchName}`);
       var tempStatus = "";
       if (row.status === "Active") {
         row.status = "Inactive";
@@ -257,9 +247,7 @@ export default {
           userID: sessionStorage.getItem("UserID"),
           position: row.position,
         })
-        .then((response) => {
-          // console.log("Success Update User Account");
-        })
+        .then((response) => {})
         .catch((error) => {
           console.error(error);
         });
@@ -272,9 +260,7 @@ export default {
           userID: sessionStorage.getItem("UserID"),
           position: row.position,
         })
-        .then((response) => {
-          // console.log("Success Update User Account");
-        })
+        .then((response) => {})
         .catch((error) => {
           console.error(error);
         });

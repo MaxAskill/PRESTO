@@ -20,7 +20,7 @@
             <div class="row">
               <div class="col-12 pull-left">
                 <fg-input
-                  label="Name of Sales Representative / Promodiser"
+                  label="Assigned Personnel for Pull-Out/Promodiser/Accredited Service Representative"
                   v-model="transferredData.name"
                 ></fg-input>
               </div>
@@ -75,7 +75,6 @@
 <script>
 import Vue from "vue";
 import { DatePicker, Table, TableColumn, Select, Option } from "element-ui";
-import axiosClient from "../../../../../../axios";
 import ApprovedModal from "./ApprovedModal.vue";
 
 Vue.use(Table);
@@ -129,11 +128,9 @@ export default {
   },
   methods: {
     transferDate() {
-      console.log("Dates:", this.dateData);
       this.dateStarted = this.dateData[0].dateStart;
       this.dateEnded = this.dateData[0].dateEnd;
       this.authorizedPersonnel = this.dateData[0].authorizedPersonnel;
-      console.log("Transfer Date:", this.dateStarted, this.dateEnded);
     },
     generateLetter() {
       var tempDateStart =
@@ -150,9 +147,8 @@ export default {
         ", " +
         this.dateEnded.toString().split(" ")[3];
 
-      console.log("Date Start:", this.dateStarted, "Date End:", this.dateEnded);
       window.open(
-        "http://192.168.0.7:40/api/generatePDF?name=" +
+        "http://192.168.0.7:90/api/generatePDF?name=" +
           this.transferredData.name +
           "&plID=" +
           this.transferredData.plID +

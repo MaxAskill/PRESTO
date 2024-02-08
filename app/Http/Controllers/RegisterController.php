@@ -69,9 +69,6 @@ class RegisterController extends Controller
 
         return 1;
 
-
-
-
     }
 
     public function updatePasswordUser(Request $request){

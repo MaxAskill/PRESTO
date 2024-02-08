@@ -36,11 +36,11 @@
     <content>
 
     <p>Hi <span style="font-weight: bold;">{{ $data['name'] }},</span></p>
-    <p>We would like to inform you that pull-out transaction no.: <span style="font-weight: bold;text-decoration: underline;">{{ $data['transactionID'] }}</span> is still pending.</p>
+    <p>We would like to inform you that the <span style="font-weight: bold;text-decoration: underline;">Pull-Out Request Transaction No. {{ $data['transactionID'] }}</span> is still pending.</p>
 
-    <p>If you have any questions or concerns regarding the transaction, please do not hesitate to contact us thru email.</p><br>
+    <p>If you have any questions or concerns regarding the transaction, please do not hesitate to contact your Retail Area Supervisor/Retail Area Officer thru email or text.</p><br>
     <p>Best regards,</p>
-    <p>MIS</p><br>
+    <p><span style="font-weight: bold;">PRESTO</span></p><br>
 
     </content>
 

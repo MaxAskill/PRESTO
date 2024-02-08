@@ -34,6 +34,7 @@
               v-for="(subLink, index) in link.children"
               v-if="
                 positionEmployee === subLink.access ||
+                positionEmployee === subLink.access2 ||
                 positionEmployee === 'Admin' ||
                 subLink.access === 'All'
               "
@@ -110,9 +111,9 @@ export default {
     async initScrollBarAsync() {
       this.positionEmployee = sessionStorage.getItem("Position");
 
-      if (this.positionEmployee == "Approver") {
-        this.positionEmployee = "Agent";
-      }
+      // if (this.positionEmployee == "Approver") {
+      //   this.positionEmployee = "Reviewer";
+      // }
       // console.log("SideBar: ", this.sidebarLinks);
       let isWindows = navigator.platform.startsWith("Win");
       if (!isWindows) {
@@ -128,7 +129,7 @@ export default {
           path: "/admin/overview",
         });
       } else if (
-        this.positionEmployee == "Agent" ||
+        this.positionEmployee == "Reviewer" ||
         this.positionEmployee == "Approver"
       ) {
         // window.location.href = "http://192.168.0.7:4040/#/pull-out/requests";
@@ -177,10 +178,10 @@ export default {
         return this.sidebarLinks.filter(
           (link) => link.access === "User" || link.access === "All"
         );
-      } else if (userPosition === "Agent" || userPosition === "Approver") {
+      } else if (userPosition === "Reviewer" || userPosition === "Approver") {
         console.log("Approver");
         return this.sidebarLinks.filter(
-          (link) => link.access === "Agent" || link.access === "All"
+          (link) => link.access === "Reviewer" || link.access === "All"
         );
       } else {
         return this.sidebarLinks;

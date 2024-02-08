@@ -50,6 +50,28 @@
             </p-button>
           </template>
         </el-table-column>
+        <el-table-column :min-width="70" class-name="td-actions" label="Actions">
+          <template slot-scope="props">
+            <p-button
+              type="success"
+              size="sm"
+              icon
+              data-bs-toggle="modal"
+              data-bs-target="#editpersonnelmodal"
+              @click="editPersonnel(props.row)"
+            >
+              <i class="fa fa-edit"></i>
+            </p-button>
+            <p-button
+              type="danger"
+              size="sm"
+              icon
+              @click="handleDelete(props.$index, props.row)"
+            >
+              <i class="fa fa-trash-o" aria-hidden="true"></i>
+            </p-button>
+          </template>
+        </el-table-column>
       </el-table>
     </div>
     <div class="d-flex justify-content-end pagination-info">
@@ -67,6 +89,7 @@
       </p-pagination>
     </div>
     <AddPersonnelModal></AddPersonnelModal>
+    <EditPersonnelModal :personnelDetail="selectedPersonnel"></EditPersonnelModal>
   </div>
 </template>
 <script>
@@ -75,8 +98,8 @@ import { Table, TableColumn, Select, Option } from "element-ui";
 import PButton from "../../../../UIComponents/Button.vue";
 import PPagination from "../../../../UIComponents/Pagination.vue";
 import axiosClient from "../../../../../axios";
-import axios from "axios";
 import AddPersonnelModal from "./ModalMaintenance/AddPersonnelModal.vue";
+import EditPersonnelModal from "./ModalMaintenance/EditMaintenanceModal/EditPersonnelModal.vue";
 
 Vue.use(Table);
 Vue.use(TableColumn);
@@ -88,6 +111,7 @@ export default {
     PButton,
     PPagination,
     AddPersonnelModal,
+    EditPersonnelModal,
   },
   mounted() {
     this.fetchData();
@@ -158,9 +182,14 @@ export default {
         },
       ],
       tableData: [],
+      selectedPersonnel: {},
     };
   },
   methods: {
+    editPersonnel(personnelDetail) {
+      console.log("select branch", personnelDetail);
+      this.selectedPersonnel = personnelDetail;
+    },
     fetchData() {
       axiosClient
         .get("/fetchDriverMaintenance")
@@ -172,7 +201,6 @@ export default {
         });
     },
     handleEdit(index, row) {
-      // alert(`Your want to edit ${row.branchName}`);
       var tempStatus = "";
       if (row.status === "Active") {
         row.status = "Inactive";
@@ -188,9 +216,7 @@ export default {
           status: tempStatus,
           userID: sessionStorage.getItem("UserID"),
         })
-        .then((response) => {
-          // console.log("Success Update Driver");
-        })
+        .then((response) => {})
         .catch((error) => {
           console.error(error);
         });

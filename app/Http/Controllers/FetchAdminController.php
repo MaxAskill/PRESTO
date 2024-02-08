@@ -47,16 +47,16 @@ class FetchAdminController extends Controller
         return response()->json($data);
 
     }
-    //EPC Items Maintenance
+    //Items Maintenance
     public function epcItems(Request $request){
 
         if($request->company == "EPC"){
-                $data = DB::table('epc_items as a')
+                $data = DB::table('epc_items_barcode as a')
                         ->join('epcbrandsmaintenance as b', DB::raw('CAST(a.Brand AS UNSIGNED)'), '=', DB::raw('CAST(b.id AS UNSIGNED)'))
                         ->select('a.ItemNo', 'a.ItemDescription', 'b.brandNames', 'a.Department', 'a.SubDepartment', 'a.Category', 'a.SubCategory')
                         ->get();
         }else {
-                $data = DB::table('nbfi_items as a')
+                $data = DB::table('nbfi_items_barcode as a')
                         ->join('nbfibrandsmaintenance as b', DB::raw('CAST(a.Brand AS UNSIGNED)'), '=', DB::raw('CAST(b.id AS UNSIGNED)'))
                         ->select('a.ItemNo', 'a.ItemDescription', 'b.brandNames', 'a.Department', 'a.SubDepartment', 'a.Category', 'a.SubCategory')
                         ->get();
@@ -71,7 +71,7 @@ class FetchAdminController extends Controller
         return response()->json($data);
     }
 
-    //EPC Branch Maintenance
+    //Branch Maintenance
     public function fetchBranchMaintenance(Request $request){
 
         if($request->company == "EPC"){
@@ -108,7 +108,7 @@ class FetchAdminController extends Controller
         return response()->json($data);
     }
 
-    //EPC Brand Maintenance
+    //Brand Maintenance
     public function fetchBrandMaintenance(Request $request){
 
         if($request->company == "EPC"){
@@ -164,11 +164,11 @@ class FetchAdminController extends Controller
         return response()->json($data);
     }
 
-    //EPC Reason Maintenance
+    //Reason Maintenance
     public function fetchReasonLabel(){
 
         $data = DB::table('reasonMaintenance')
-                ->select('id', 'reasonLabel', 'dateTime', 'status')
+                ->select('id', 'reasonLabel', 'dateTime', 'status', 'company')
                 ->get();
 
         return response()->json($data);

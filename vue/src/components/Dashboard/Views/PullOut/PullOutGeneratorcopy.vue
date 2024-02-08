@@ -36,11 +36,11 @@
             </fg-input>
           </div>
           <div class="col-sm-3">
-            <fg-input label="Chain Code">
+            <fg-input label="Chain Name">
               <el-select
                 class="select-default"
                 size="large"
-                placeholder="Select Chain Code"
+                placeholder="Select Chain Name"
                 v-model="newTransaction.chainCode"
                 @change="
                   fetchChainName(),
@@ -59,7 +59,7 @@
                 </el-option>
               </el-select>
               <label v-show="isValid.chainCode" class="label-font"
-                >Chain Code is required.</label
+                >Chain Name is required.</label
               >
             </fg-input>
           </div>

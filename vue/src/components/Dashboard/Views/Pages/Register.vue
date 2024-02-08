@@ -23,12 +23,18 @@
                     placeholder="Email..."
                   ></fg-input>
                   <div class="input-group d-flex" v-if="showCompany">
-                    <div class="input-group-prepend">
+                    <!-- <div class="input-group-prepend">
                       <span class="input-group-text">
                         <i class="nc-icon nc-bank"></i>
                       </span>
-                    </div>
-                    <el-select
+                    </div> -->
+                    <fg-input
+                      v-model="form.company"
+                      addon-left-icon="nc-icon nc-bank"
+                      placeholder="Company..."
+                      :disabled="true"
+                    ></fg-input>
+                    <!-- <el-select
                       suffix-icon="nc-icon nc-key-25"
                       class="select-default flex-grow-1 sign-select"
                       size="large"
@@ -44,7 +50,7 @@
                         :key="option.id"
                       >
                       </el-option>
-                    </el-select>
+                    </el-select> -->
                   </div>
                   <fg-input
                     v-model="form.password"
@@ -138,19 +144,19 @@ export default {
     },
     register() {
       switch (this.form.company) {
-        case "NBFI":
+        case "New Barbizon Fashion Incorporation":
           this.form.company = 1;
           break;
-        case "ASC":
+        case "ActiveStyle Corporation":
           this.form.company = 2;
           break;
-        case "CMC":
+        case "Cotton Mountain Corporation":
           this.form.company = 3;
           break;
-        case "EPC":
+        case "Everyday Products Corporation":
           this.form.company = 4;
           break;
-        case "AHLC":
+        case "Athome Lifestyle Corporation":
           this.form.company = 5;
           break;
 
@@ -187,9 +193,9 @@ export default {
         if (companyDomains.includes(domain)) {
           this.form.position = "Agent";
           if (domain == "barbizonfashion.com") {
-            this.form.company = "NBFI";
+            this.form.company = "New Barbizon Fashion Incorporation";
           } else {
-            this.form.company = "EPC";
+            this.form.company = "Everyday Products Corporation";
           }
           this.showCompany = true;
         } else {

@@ -1,36 +1,6 @@
 <template>
   <div class="card card-account">
     <div class="card-body">
-      <!-- <div class="card-header">
-        <h4 class="title">Promodiser's Account</h4>
-      </div> -->
-      <!-- <div class="row mx-2">
-        <div class="col-2 pl-0 pr-1">
-          <el-select
-            class="select-default"
-            v-model="pagination.perPage"
-            placeholder="Per page"
-          >
-            <el-option
-              class="select-default"
-              v-for="item in pagination.perPageOptions"
-              :key="item"
-              :label="item"
-              :value="item"
-            >
-            </el-option>
-          </el-select>
-        </div>
-        <div class="col-10 pl-1 pr-0">
-          <fg-input
-            class="input-md"
-            placeholder="Search"
-            v-model="searchQuery"
-            addon-right-icon="nc-icon nc-zoom-split"
-          >
-          </fg-input>
-        </div>
-      </div> -->
       <div class="row mx-2">
         <el-table
           class="table-striped p-0"
@@ -68,13 +38,14 @@
               class-name="td-actions"
               label="Branch"
               header-align="center"
+              align="center"
             >
               <template slot-scope="props">
                 <p-button
                   v-if="
                     (props.row.status === 'Activated' ||
                       props.row.status === 'Deactivated') &&
-                    props.row.details.length > 1
+                    props.row.roving > 1
                   "
                   type="success"
                   size="sm"
@@ -85,13 +56,13 @@
                       fetchDataPromoDetails(props.row.id)
                   "
                 >
-                  Roving
+                  Roving [ {{ props.row.roving }} ]
                 </p-button>
                 <p-button
                   v-if="
                     (props.row.status === 'Activated' ||
                       props.row.status === 'Deactivated') &&
-                    props.row.details.length == 1
+                    props.row.roving == 1
                   "
                   type="info"
                   size="sm"
@@ -106,51 +77,7 @@
                 </p-button>
               </template>
             </el-table-column>
-            <!-- <el-table-column label="Roving Personnel" width="175">
-              <template slot-scope="scope">
-                <el-popover trigger="click" placement="top">
-                  <div class="overflow-x-auto">
-                    <table class="table">
-                      <thead>
-                        <tr>
-                          <th scope="col" class="text-nowrap">Company</th>
-                          <th scope="col" class="text-nowrap">Chain Code</th>
-                          <th scope="col" class="text-nowrap">Branch Name</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr v-for="promo in scope.row.details">
-                          <td class="cell">{{ promo.company }}</td>
-                          <td class="cell text-nowrap">{{ promo.chainCode }}</td>
-                          <td class="cell text-nowrap">{{ promo.branchName }}</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                  <div class="overflow-x-auto">
-                    <div class="d-flex">
-                      <span class="span-popover col-sm-auto">Company</span>
-                      <span class="span-popover col-sm-auto">Chain Code</span>
-                      <span class="span-popover col-sm-auto">Branch Name</span>
-                    </div>
-                    <div class="d-flex mt-1" v-for="promo in scope.row.details">
-                      <span class="col-3" style="word-break: keep-all">{{
-                        promo.company
-                      }}</span>
-                      <span class="col-3" style="word-break: keep-all">{{
-                        promo.chainCode
-                      }}</span>
-                      <span class="col-6" style="word-break: keep-all">{{
-                        promo.branchName
-                      }}</span>
-                    </div>
-                  </div>
-                  <div slot="reference">
-                    <el-tag>Yes</el-tag>
-                  </div>
-                </el-popover>
-              </template>
-            </el-table-column> -->
+
             <el-table-column
               :width="110"
               class-name="td-actions"
@@ -275,6 +202,8 @@
       :promoData="promoData"
       :promoDetails="promoDetails"
       :dateBranchEnd="dateBranchEnd"
+      @fetchPromoDetails="fetchDataPromoDetails($event)"
+      @fetchData="fetchData()"
     ></PromoDetailsModal>
     <PromoRequestBranchModal
       :promoData="promoData"
@@ -288,16 +217,7 @@
 </template>
 <script>
 import Vue from "vue";
-// import {
-//   Collapse,
-//   CollapseItem,
-//   Tabs,
-//   TabPane,
-//   Card,
-//   Button,
-// } from "src/components/UIComponents";
 import { Table, TableColumn, Select, Option, Popover, Tag } from "element-ui";
-// import PButton from "../../../../UIComponents/Button.vue";
 import PButton from "../../../UIComponents/Button.vue";
 import PPagination from "../../../UIComponents/Pagination.vue";
 import axiosClient from "../../../../axios";
@@ -324,7 +244,6 @@ export default {
     PromoDeactivationModal,
     PromoReactivationModal,
     PromoDetailsModal,
-    PromoRequestBranchModal,
     PromoRequestBranchModal,
   },
   mounted() {
@@ -401,32 +320,13 @@ export default {
           minWidth: 150,
           sortable: false,
         },
-        // {
-        //   prop: "company",
-        //   label: "Company",
-        //   minWidth: 70,
-        // },
-        // {
-        //   prop: "chainCode",
-        //   label: "Chain Code",
-        //   minWidth: 80,
-        // },
-        // {
-        //   prop: "branchName",
-        //   label: "Branch Name",
-        //   minWidth: 170,
-        // },
+
         {
           prop: "date",
           label: "Date Registered",
           minWidth: 180,
           sortable: true,
         },
-        // {
-        //   prop: "dateEnd",
-        //   label: "Date Branch Expiration",
-        //   minWidth: 75,
-        // },
       ],
       tableData: [],
       promoData: {},
@@ -437,12 +337,6 @@ export default {
   },
   methods: {
     denied(row) {
-      // location.href =
-      //   "http://192.168.0.7:4040/#/pull-out/requisition-form?transactionID=" +
-      //   row.plID +
-      //   "&company=" +
-      //   row.company;
-
       this.$router.push({
         path: "/pull-out/requisition-form",
         query: {
@@ -459,7 +353,6 @@ export default {
           },
         })
         .then((response) => {
-          // console.log("Pull Out Request", response.data);
           this.tableData = response.data;
         })
         .catch((error) => {
@@ -474,14 +367,12 @@ export default {
           },
         })
         .then((response) => {
-          console.log("Pull Out Promo Details: ", response.data);
           this.promoDetails = response.data;
           this.dateBranchEnd = this.promoDetails[0].dateEnd;
         })
         .catch((error) => {
           console.error(error);
         });
-      console.log("userr: ", user_ID);
     },
     fetchDataPromoRequest(user_ID) {
       axiosClient
@@ -491,18 +382,15 @@ export default {
           },
         })
         .then((response) => {
-          console.log("Pull Out Promo Request: ", response.data);
           this.promoRequest = response.data;
         })
         .catch((error) => {
           console.error(error);
         });
-      console.log("userr: ", user_ID);
       this.fetchDataPromoDetails(user_ID);
     },
     handleEdit(index, row) {
       this.promoData = row;
-      console.log("Promo Data:", this.promoData);
     },
     handleDelete(index, row) {
       let indexToDelete = this.tableData.findIndex((tableRow) => tableRow.id === row.id);

@@ -22,8 +22,13 @@ class UpdateAdminController extends Controller
 
         $date = now()->timezone('Asia/Manila'); // GETTING THE TIME ZONE IN PH
 
-        $data = DB::select('UPDATE users SET position = \''.$request->position.'\', status = \''.$request->status.'\', updated_at = \''.$date.'\' WHERE id = \''.$request->id.'\' ');
-
+        $data = DB::table('users')
+                    ->where('id', $request->id)
+                    ->update([
+                        'position' => $request->position,
+                        'status' => $request->status,
+                        'updated_at' => $date
+                    ]);
         $old_data = User::find($request->id);
 
         $oldData = $old_data->toArray(); // Retrieve the old data before the update
@@ -66,11 +71,11 @@ class UpdateAdminController extends Controller
         $log->new_data = json_encode($request->all());
         $log->save();
 
-        if($request->company == "EPC")
-        $data = DB::select('UPDATE epcbranchmaintenance SET status = \''.$request->status.'\' WHERE id = \''.$request->id.'\'');
-        else
-        $data = DB::select('UPDATE nbfibranchmaintenance SET status = \''.$request->status.'\' WHERE id = \''.$request->id.'\'');
 
+
+        $data = DB::table($table_affected)
+                    ->where('id', $request->id)
+                    ->update(['status' => $request->status]);
         return response()->json($data);
     }
 
@@ -98,10 +103,9 @@ class UpdateAdminController extends Controller
         $log->new_data = json_encode($request->all());
         $log->save();
 
-        if($request->company == "EPC")
-        $data = DB::select('UPDATE epcbrandsmaintenance SET status = \''.$request->status.'\' WHERE id = \''.$request->id.'\'');
-        else
-        $data = DB::select('UPDATE nbfibrandsmaintenance SET status = \''.$request->status.'\' WHERE id = \''.$request->id.'\'');
+        $data = DB::table($table_affected)
+                    ->where('id', $request->id)
+                    ->update(['status' => $request->status]);
 
         return response()->json($data);
     }
@@ -123,7 +127,13 @@ class UpdateAdminController extends Controller
         $log->new_data = json_encode($request->all());
         $log->save();
 
-        $data = DB::select('UPDATE driverMaintenance SET status = \''.$request->status.'\', updated_at = \''.$date.'\' WHERE id = \''.$request->id.'\'');
+        $data = DB::table('driverMaintenance')
+                    ->where('id', $request->id)
+                    ->update([
+                        'status' => $request->status,
+                        'updated_at' => $date
+                    ]);
+
 
         return response()->json($data);
     }
@@ -145,7 +155,12 @@ class UpdateAdminController extends Controller
         $log->new_data = json_encode($request->all());
         $log->save();
 
-        $data = DB::select('UPDATE reasonMaintenance SET status = \''.$request->status.'\', updated_at = \''.$date.'\' WHERE id = \''.$request->id.'\'');
+        $data = DB::table('reasonMaintenance')
+                    ->where('id', $request->id)
+                    ->update([
+                        'status' => $request->status,
+                        'updated_at' => $date
+                    ]);
 
         return response()->json($data);
     }

@@ -61,7 +61,7 @@
                 suffix-icon="nc-icon nc-key-25"
                 class="select-default flex-grow-1 sign-select"
                 size="large"
-                placeholder="Select Chain Code"
+                placeholder="Select Chain Name"
                 v-model="form.chainCode"
                 :disabled="disableChainCode"
                 @change="fetchBranchName"
@@ -101,20 +101,6 @@
               </el-select>
             </div>
           </div>
-          <!-- <div class="row">
-            <fg-input label="Date End Promo">
-              <el-date-picker
-                v-model="form.dateEnd"
-                type="date"
-                placeholder="Select a Day"
-              >
-              </el-date-picker>
-            </fg-input>
-          </div> -->
-
-          <!-- <div class="card-footer my-2">
-                <p-button native-type="submit" type="info" round>Register </p-button>
-              </div> -->
         </div>
         <div class="modal-footer d-flex justify-content-center">
           <button class="btn btn-secondary" data-bs-dismiss="modal" @click="cancel">
@@ -169,7 +155,12 @@ export default {
     };
   },
   mounted() {
-    this.fetchCompany();
+    if (
+      sessionStorage.getItem("Position") == "Reviewer" ||
+      sessionStorage.getItem("Position") == "Approver"
+    )
+      this.fetchCompanyByRA();
+    else this.fetchCompany();
   },
   watch: {
     form: {
@@ -184,7 +175,20 @@ export default {
       axiosClient
         .get("/fetchCompany")
         .then((response) => {
-          console.log("Company Response:", response.data);
+          this.companyList = response.data;
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    },
+    fetchCompanyByRA() {
+      axiosClient
+        .get("/fetchCompanyByRA", {
+          params: {
+            company: sessionStorage.getItem("Company"),
+          },
+        })
+        .then((response) => {
           this.companyList = response.data;
         })
         .catch((error) => {
@@ -200,7 +204,6 @@ export default {
           },
         })
         .then((response) => {
-          console.log("Chain Code Response:", response.data);
           this.chainCodeList = response.data;
         })
         .catch((error) => {
@@ -217,7 +220,6 @@ export default {
           },
         })
         .then((response) => {
-          console.log("Chain Code Response:", response.data);
           this.branchNameList = response.data;
         })
         .catch((error) => {
@@ -225,29 +227,6 @@ export default {
         });
     },
     register() {
-      // switch (this.form.company) {
-      //   case "NBFI":
-      //     this.form.company = 1;
-      //     break;
-      //   case "ASC":
-      //     this.form.company = 2;
-      //     break;
-      //   case "CMC":z
-      //     this.form.company = 3;
-      //     break;
-      //   case "EPC":
-      //     this.form.company = 4;
-      //     break;
-      //   case "AHLC":
-      //     this.form.company = 5;
-      //     break;
-
-      //   default:
-      //     break;
-      // }
-      console.log("Promo Data: ", this.promoData);
-      console.log("Form Data:", this.form);
-
       axiosClient
         .post("/postUserBranch", {
           userID: this.promoData.id,
@@ -255,33 +234,13 @@ export default {
           branchName: this.form.branchName,
           user: sessionStorage.getItem("UserID"),
           company: this.form.company,
-          // dateEnd: this.form.dateEnd,
         })
         .then((response) => {
-          console.log("Success Activate Account", response.data);
           this.$emit("fetchUsers");
         })
         .catch((error) => {
           console.error(error);
         });
-      // axiosClient
-      //   .get("/sendVerificationCode", {
-      //     params: {
-      //       email: this.form.email,
-      //     },
-      //   })
-      //   .then((response) => {
-      //     sessionStorage.setItem("Name", this.form.fullName);
-      //     sessionStorage.setItem("Email", this.form.email);
-      //     sessionStorage.setItem("Company", this.form.company);
-      //     sessionStorage.setItem("Password", this.form.password);
-      //     sessionStorage.setItem("Position", this.form.position);
-      //     sessionStorage.setItem("HashCode", response.data);
-      //     this.$router.push({ name: "OTPForm" });
-      //   })
-      //   .catch((error) => {
-      //     console.error(error);
-      //   });
     },
     formValidation() {
       if (this.form.company) this.disableChainCode = false;
@@ -308,15 +267,6 @@ export default {
 };
 </script>
 <style lang="scss">
-// .linkLogin {
-//   text-decoration-line: underline !important;
-//   margin-right: 10px;
-//   color: gray !important;
-// }
-// .linkLogin:hover {
-//   color: black !important;
-//   cursor: pointer;
-// }
 .sign-select .el-input__inner {
   border-left: none !important;
   border-top-left-radius: 0px !important;

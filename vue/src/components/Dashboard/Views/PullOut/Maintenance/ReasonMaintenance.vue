@@ -50,13 +50,15 @@
             </p-button>
           </template>
         </el-table-column>
-        <!-- <el-table-column :width="120" class-name="td-actions" label="">
+        <el-table-column :min-width="70" class-name="td-actions" label="Actions">
           <template slot-scope="props">
             <p-button
               type="success"
               size="sm"
               icon
-              @click="handleEdit(props.$index, props.row)"
+              data-bs-toggle="modal"
+              data-bs-target="#editreasonmodal"
+              @click="editReason(props.row)"
             >
               <i class="fa fa-edit"></i>
             </p-button>
@@ -66,10 +68,10 @@
               icon
               @click="handleDelete(props.$index, props.row)"
             >
-              <i class="fa fa-times"></i>
+              <i class="fa fa-trash-o" aria-hidden="true"></i>
             </p-button>
           </template>
-        </el-table-column> -->
+        </el-table-column>
       </el-table>
     </div>
     <div class="d-flex justify-content-end pagination-info">
@@ -87,6 +89,7 @@
       </p-pagination>
     </div>
     <AddReasonModal></AddReasonModal>
+    <EditReason :reasonDetail="selectedReason"></EditReason>
   </div>
 </template>
 <script>
@@ -96,6 +99,7 @@ import PButton from "../../../../UIComponents/Button.vue";
 import PPagination from "../../../../UIComponents/Pagination.vue";
 import axiosClient from "../../../../../axios";
 import AddReasonModal from "./ModalMaintenance/AddReasonModal.vue";
+import EditReason from "./ModalMaintenance/EditMaintenanceModal/EditReason.vue";
 
 Vue.use(Table);
 Vue.use(TableColumn);
@@ -107,6 +111,7 @@ export default {
     PButton,
     PPagination,
     AddReasonModal,
+    EditReason,
   },
   mounted() {
     this.fetchData();
@@ -163,23 +168,27 @@ export default {
         total: 0,
       },
       searchQuery: "",
-      propsToSearch: ["reasonLabel", "status"],
+      propsToSearch: ["company", "reasonLabel", "status"],
       tableColumns: [
+        {
+          prop: "company",
+          label: "Company",
+          minWidth: 100,
+        },
         {
           prop: "reasonLabel",
           label: "Reason",
           minWidth: 200,
         },
-        // {
-        //   prop: "status",
-        //   label: "Status",
-        //   minWidth: 100,
-        // },
       ],
       tableData: [],
+      selectedReason: {},
     };
   },
   methods: {
+    editReason(reasonDetail) {
+      this.selectedReason = reasonDetail;
+    },
     fetchData() {
       axiosClient
         .get("/fetchReasonLabelMaintenance")
@@ -191,7 +200,6 @@ export default {
         });
     },
     handleEdit(index, row) {
-      // alert(`Your want to edit ${row.branchName}`);
       var tempStatus = "";
       if (row.status === "Active") {
         row.status = "Inactive";
@@ -206,9 +214,7 @@ export default {
           status: tempStatus,
           userID: sessionStorage.getItem("UserID"),
         })
-        .then((response) => {
-          // console.log("Success Update Reason");
-        })
+        .then((response) => {})
         .catch((error) => {
           console.error(error);
         });

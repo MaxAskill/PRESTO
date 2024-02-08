@@ -11,11 +11,6 @@
     <div class="modal-dialog modal-dialog-centered modal-xl">
       <div class="modal-content">
         <div class="modal-header">
-          <!-- <h6 class="modal-title">Pull Out Transaction</h6>
-          <button class="delete-buttons">
-            <i class="nc-icon nc-simple-remove font-weight-bold"></i>
-          </button> -->
-
           <div class="row">
             <div class="col d-flex justify-content-center">
               <h6 class="modal-title">Pull Out Transaction</h6>
@@ -239,7 +234,7 @@
                 Showing {{ from + 1 }} to {{ to }} of {{ total }} entries
               </p>
             </div>
-            <!-- <div class="d-flex justify-content-center">
+            <div class="d-flex justify-content-center">
               <p-pagination
                 class="pull-center"
                 v-model="pagination.currentPage"
@@ -247,7 +242,7 @@
                 :total="pagination.total"
               >
               </p-pagination>
-            </div> -->
+            </div>
           </div>
 
           <div class="row">
@@ -271,7 +266,6 @@
           >
             Edit
           </button>
-          <!-- <button class="btn btn-primary" data-bs-dismiss="modal">Okay</button> -->
         </div>
       </div>
     </div>
@@ -279,16 +273,8 @@
 </template>
 <script>
 import Vue from "vue";
-// import {
-//   Collapse,
-//   CollapseItem,
-//   Tabs,
-//   TabPane,
-//   Card,
-//   Button,
-// } from "src/components/UIComponents";
+
 import { Table, TableColumn, Select, Option } from "element-ui";
-// import PButton from "../../../../UIComponents/Button.vue";
 import PButton from "../../../UIComponents/Button.vue";
 import PPagination from "../../../UIComponents/Pagination.vue";
 import axiosClient from "../../../../axios";
@@ -394,11 +380,6 @@ export default {
           label: "Quantity",
           minWidth: 50,
         },
-        {
-          prop: "amount",
-          label: "Amount",
-          minWidth: 100,
-        },
       ],
       headerCellStyle: {
         fontSize: "10px",
@@ -410,7 +391,6 @@ export default {
     };
   },
   mounted() {
-    // this.fetchData();
     if (window.resolveRouteChange) {
       window.resolveRouteChange();
       window.resolveRouteChange = null;
@@ -419,27 +399,23 @@ export default {
   },
   methods: {
     transfer() {
-      console.log("Transfer");
       this.tableData = this.itemData;
     },
     denied(row) {
-      console.log("Company", row);
       var company1 = row.company.split("(")[1];
       var company = company1.split(")")[0];
-      console.log("Company After", company);
-      // location.href =
-      //   "http://192.168.0.7:4040/#/pull-out/requisition-form?transactionID=" +
-      //   row.transactionNumber +
-      //   "&company=" +
-      //   company;
 
-      this.$router.push({
-        path: "/pull-out/requisition-form",
-        query: {
-          transactionID: row.transactionNumber,
-          company: company,
-        },
-      });
+      var tempTransactionID = this.convertToAlphanumeric("transactionID");
+      var tempcompany = this.convertToAlphanumeric("company");
+      location.href =
+        "http://192.168.0.7:4040/#/pull-out/requisition-form?" +
+        tempTransactionID +
+        "=" +
+        row.transactionNumber +
+        "&" +
+        tempcompany +
+        "=" +
+        this.convertToAlphanumeric(company);
     },
     fetchData() {
       axiosClient
@@ -449,7 +425,6 @@ export default {
           },
         })
         .then((response) => {
-          console.log("Pull Out Request", response.data);
           this.tableData = response.data;
         })
         .catch((error) => {
@@ -466,9 +441,6 @@ export default {
         tempStatus = "Active";
       }
 
-      console.log("Branch ID:", row.id);
-      console.log("BranchCode:", row.branchCode);
-
       axiosClient
         .post("/updateBranch", {
           company: this.company,
@@ -476,21 +448,40 @@ export default {
           status: tempStatus,
           userID: sessionStorage.getItem("UserID"),
         })
-        .then((response) => {
-          console.log("Success Update Branch:", response.data);
-        })
+        .then((response) => {})
         .catch((error) => {
           console.error(error);
         });
-      // alert(`Your want to edit ${row.status}`);
     },
     handleDelete(index, row) {
-      console.log("ID:", row.id, row.company);
-
       let indexToDelete = this.tableData.findIndex((tableRow) => tableRow.id === row.id);
       if (indexToDelete >= 0) {
         this.tableData.splice(indexToDelete, 1);
       }
+    },
+    convertToAlphanumeric(input) {
+      let result = "";
+
+      for (let i = 0; i < input.length; i++) {
+        const char = input[i];
+        const charCode = char.charCodeAt(0);
+
+        // Check if the character is alphanumeric
+        if (
+          (char >= "0" && char <= "9") ||
+          (char >= "a" && char <= "z") ||
+          (char >= "A" && char <= "Z")
+        ) {
+          // Convert the character code to a base-36 alphanumeric representation
+          const alphanumericChar = charCode.toString(36);
+          result += alphanumericChar;
+        } else {
+          // Non-alphanumeric characters are left unchanged
+          result += char;
+        }
+      }
+
+      return result;
     },
   },
 };

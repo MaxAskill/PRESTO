@@ -15,7 +15,7 @@
         </div>
         <div class="modal-body text-center">
           <p class="m-0">
-            You can contact your authorized agent to immediately approve your request.
+            You can contact your authorized Officer to immediately approve your request.
           </p>
         </div>
         <div class="modal-footer d-flex justify-content-center">
@@ -26,9 +26,6 @@
   </div>
 </template>
 <script>
-import Vue from "vue";
-import axiosClient from "../../../../axios";
-
 export default {
   components: {},
   watch: {},

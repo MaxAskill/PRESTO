@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="row mx-1">
-      <div class="col-3 px-1">
+      <div class="col-1 px-1">
         <el-select
           class="select-default el-select-w"
           placeholder="Select Company"
@@ -10,6 +10,22 @@
         >
           <el-option class="select-default" value="EPC" label="EPC">EPC</el-option>
           <el-option class="select-default" value="NBFI" label="NBFI">NBFI</el-option>
+        </el-select>
+      </div>
+      <div class="col-1">
+        <el-select
+          class="select-default"
+          v-model="pagination.perPage"
+          placeholder="Per page"
+        >
+          <el-option
+            class="select-default"
+            v-for="item in pagination.perPageOptions"
+            :key="item"
+            :label="item"
+            :value="item"
+          >
+          </el-option>
         </el-select>
       </div>
       <div class="col-6">
@@ -22,7 +38,6 @@
         </fg-input>
       </div>
       <div class="col-2 first-btn whitespace-nowrap">
-        <!-- <button type="primary" class="btn">Add Branch</button> -->
         <PButton
           type="primary"
           class="btn-margin"
@@ -31,7 +46,7 @@
           >Add Branch</PButton
         >
       </div>
-      <div class="col-1 px-1">
+      <div class="col-2 px-1">
         <p-button
           type="info"
           class="btn-margin"
@@ -56,6 +71,7 @@
           :label="column.label"
         >
         </el-table-column>
+
         <el-table-column :min-width="70" class-name="td-actions" label="Status">
           <template slot-scope="props">
             <p-button
@@ -74,14 +90,28 @@
             >
               Inactive
             </p-button>
-            <!-- <p-button
+          </template>
+        </el-table-column>
+        <el-table-column :min-width="70" class-name="td-actions" label="Actions">
+          <template slot-scope="props">
+            <p-button
+              type="success"
+              size="sm"
+              icon
+              data-bs-toggle="modal"
+              data-bs-target="#editbranchmodal"
+              @click="editBranch(props.row)"
+            >
+              <i class="fa fa-edit"></i>
+            </p-button>
+            <p-button
               type="danger"
               size="sm"
               icon
               @click="handleDelete(props.$index, props.row)"
             >
-              <i class="fa fa-times"></i>
-            </p-button> -->
+              <i class="fa fa-trash-o" aria-hidden="true"></i>
+            </p-button>
           </template>
         </el-table-column>
       </el-table>
@@ -101,6 +131,7 @@
       </p-pagination>
     </div>
     <AddBranchModal :company="company" :chainCodeList="chainCodeList"></AddBranchModal>
+    <EditBranchModal :branchDetail="selectedBranch"></EditBranchModal>
     <UploadBranchModal></UploadBranchModal>
   </div>
 </template>
@@ -113,7 +144,7 @@ import axiosClient from "../../../../../axios";
 import PSwitch from "src/components/UIComponents/Switch.vue";
 import AddBranchModal from "../Maintenance/ModalMaintenance/AddBranchModal.vue";
 import UploadBranchModal from "./ModalMaintenance/UploadBranchModal.vue";
-import axios from "axios";
+import EditBranchModal from "./ModalMaintenance/EditMaintenanceModal/EditBranchModal.vue";
 
 Vue.use(Table);
 Vue.use(TableColumn);
@@ -127,6 +158,7 @@ export default {
     PSwitch,
     AddBranchModal,
     UploadBranchModal,
+    EditBranchModal,
   },
   mounted() {
     this.fetchData();
@@ -176,6 +208,13 @@ export default {
   },
   data() {
     return {
+      items: [
+        { id: 1, name: "Row 1", isEditable: false },
+        { id: 2, name: "Row 2", isEditable: false },
+        { id: 3, name: "Row 3", isEditable: false },
+        // Add more rows as needed
+      ],
+      isEdit: false,
       company: "NBFI",
       companyType: "NBFI",
       chainCodeList: "",
@@ -205,9 +244,21 @@ export default {
         },
       ],
       tableData: [],
+      selectedBranch: {},
     };
   },
   methods: {
+    editBranch(branchDetail) {
+      console.log("select branch", branchDetail);
+      this.selectedBranch = branchDetail;
+    },
+    toggleEdit(index) {
+      this.items[index].isEditable = !this.items[index].isEditable;
+    },
+    onInputChange(index) {
+      // Handle input changes if needed
+      // You can update data or send requests to a server here
+    },
     fetchData() {
       axiosClient
         .get("/fetchBranchMaintenance", {
@@ -247,9 +298,7 @@ export default {
           status: tempStatus,
           userID: sessionStorage.getItem("UserID"),
         })
-        .then((response) => {
-          // console.log("Success Update Branch:", response.data);
-        })
+        .then((response) => {})
         .catch((error) => {
           console.error(error);
         });

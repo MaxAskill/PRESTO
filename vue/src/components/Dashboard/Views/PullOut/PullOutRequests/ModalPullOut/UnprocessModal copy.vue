@@ -255,9 +255,6 @@
                         Box Label
                       </th>
                       <th scope="col" class="nowrap" style="font-size: 10px">Quantity</th>
-                      <th scope="col" class="nowrap" style="font-size: 10px">
-                        Amount (P)
-                      </th>
                       <!-- <th scope="col" class="nowrap" style="font-size: 10px">Action</th> -->
                     </tr>
                   </thead>
@@ -346,16 +343,6 @@
                         required="true"
                         message="you can give score -10 to +10 only"
                       /> -->
-                      </td>
-                      <td style="min-width: 80px" class="cell-unprocess">
-                        <!-- <input
-                        :disabled="true"
-                        v-model="item.amount"
-                        class="table-input-box"
-                        required="true"
-                        message="you can give score -10 to +10 only"
-                      /> -->
-                        {{ item.amount }}
                       </td>
                       <!-- <td style="min-width: 50px" class="cell-unprocess">
                       <p-button type="danger" size="sm" icon @click="handleDelete(item)">

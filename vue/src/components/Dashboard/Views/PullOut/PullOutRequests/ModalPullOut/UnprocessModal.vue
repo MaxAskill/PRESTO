@@ -12,12 +12,9 @@
       <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
           <div class="modal-header">
-            <!-- <h1 class="modal-title fs-5 text-weight-bold" id="unprocessModalLabel">
-              Pull Out Transaction
-            </h1> -->
             <div class="row">
               <div class="col d-flex justify-content-center">
-                <h6 class="modal-title">Unprocessed Pull Out Transaction</h6>
+                <h6 class="modal-title">For Review Pull Out Transaction</h6>
               </div>
               <div class="col-auto">
                 <button class="delete-buttons" data-bs-dismiss="modal">
@@ -255,10 +252,7 @@
                         Box Label
                       </th>
                       <th scope="col" class="nowrap" style="font-size: 10px">Quantity</th>
-                      <th scope="col" class="nowrap" style="font-size: 10px">
-                        Amount (P)
-                      </th>
-                      <!-- <th scope="col" class="nowrap" style="font-size: 10px">Action</th> -->
+                      <th scope="col" class="nowrap" style="font-size: 10px">Amount</th>
                     </tr>
                   </thead>
                   <tbody class="text-center">
@@ -278,90 +272,13 @@
                       </td>
                       <td style="min-width: 400px" class="cell-unprocess">
                         {{ item.boxLabel }}
-                        <!-- {{ item.boxLabel }} -->
-                        <!-- <el-select
-                        class="table-select-box"
-                        size="large"
-                        v-model="item.boxLabel"
-                        @change="editBoxLabel(item.code, item.quantity, item.boxLabel)"
-                      > -->
-                        <!-- <el-select
-                        class="table-select-box"
-                        style="font-size: 12px; font-weight: bold"
-                        size="large"
-                        @visible-change="getBoxLabels"
-                        @change="changeBoxNumber(item)"
-                        v-model="item.boxLabel"
-                        :style="{ width: '100%' }"
-                      >
-                        <el-option
-                          v-for="boxLabel in listBoxLabel"
-                          class="table-select-box"
-                          :value="boxLabel.boxLabel"
-                          :label="boxLabel.boxLabel"
-                          :key="boxLabel.id"
-                        >
-                        </el-option>
-                      </el-select> -->
                       </td>
-                      <!-- <td class="cell px-3">{{ item.quantity }}</td> -->
                       <td style="min-width: 50px" class="cell-unprocess">
-                        <!-- <div class="btn-group btn-group-sm d-flex flex-row"> -->
                         {{ item.quantity }}
-                        <!-- <p-button
-                          type="default"
-                          round
-                          outline
-                          size="sm"
-                          @click="
-                            item.quantity > 0 ? item.quantity-- : 0, handleQuantity(item)
-                          "
-                        >
-                          <i class="nc-icon nc-simple-delete"></i>
-                        </p-button>
-                        <input
-                          type="text"
-                          @blur="handleQuantity(item)"
-                          v-model="item.quantity"
-                          class="table-input-box"
-                          style="width: 75px; text-align: center"
-                          @keypress="numberOnly"
-                        />
-                        <p-button
-                          type="default"
-                          round
-                          outline
-                          size="sm"
-                          @click="item.quantity++, handleQuantity(item)"
-                        >
-                          <i class="nc-icon nc-simple-add"></i>
-                        </p-button> -->
-                        <!-- </div> -->
-                        <!-- <input
-                        type="number"
-                        min="1"
-                        @blur="handleQuantity(item)"
-                        v-model="item.quantity"
-                        class="table-input-box"
-                        required="true"
-                        message="you can give score -10 to +10 only"
-                      /> -->
                       </td>
-                      <td style="min-width: 80px" class="cell-unprocess">
-                        <!-- <input
-                        :disabled="true"
-                        v-model="item.amount"
-                        class="table-input-box"
-                        required="true"
-                        message="you can give score -10 to +10 only"
-                      /> -->
+                      <td style="min-width: 50px" class="cell-unprocess">
                         {{ item.amount }}
                       </td>
-                      <!-- <td style="min-width: 50px" class="cell-unprocess">
-                      <p-button type="danger" size="sm" icon @click="handleDelete(item)">
-                        <i class="fa fa-times"></i>
-                      </p-button>
-                    </td> -->
                     </tr>
                   </tbody>
                 </table>
@@ -379,6 +296,20 @@
                   >
                   </p-pagination>
                 </div>
+                <div class="row">
+                  <div class="col-sm-6 text-center">
+                    <label> Number of Boxes</label><br />
+                    <span class="font-weight-bold label-size">
+                      {{ totalNumbers.boxCount }}
+                    </span>
+                  </div>
+                  <div class="col-sm-6 text-center">
+                    <label> Number of Items</label><br />
+                    <span class="font-weight-bold label-size">
+                      {{ totalNumbers.totalItems }}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -395,11 +326,15 @@
             >
               View
             </button>
+            <button type="submit" class="btn btn-info" @click="exportExcel">
+              Export
+            </button>
             <button
               type="submit"
               class="btn btn-warning"
               @click="submit"
               data-bs-dismiss="modal"
+              v-if="isReviewer"
             >
               Edit
             </button>
@@ -408,6 +343,7 @@
               class="btn btn-danger"
               data-bs-target="#deniedunprocess"
               data-bs-toggle="modal"
+              v-if="isReviewer"
             >
               Denied
             </button>
@@ -415,6 +351,7 @@
               class="btn btn-success"
               data-bs-target="#approvedunprocess"
               data-bs-toggle="modal"
+              v-if="isReviewer"
             >
               Approved
             </button>
@@ -441,17 +378,14 @@ import DeniedUnprocessModal from "./UnprocessModal/DeniedUnprocessModal.vue";
 import ApprovedUnprocessModal from "./UnprocessModal/ApprovedUnprocessModal.vue";
 import ViewModal from "./UnprocessModal/ViewModal.vue";
 import PPagination from "../../../../../UIComponents/Pagination.vue";
-import axios from "axios";
+import XLSX from "../../../../../../../node_modules/xlsx/dist/xlsx.full.min.js";
 
 Vue.use(Table);
 Vue.use(TableColumn);
 Vue.use(Select);
 Vue.use(Option);
 export default {
-  // mounted() {
-  //   this.fetchData();
-  // },
-  props: ["transactionData", "itemData", "listBoxLabel"],
+  props: ["transactionData", "itemData", "totalNumbers", "listBoxLabel"],
   components: {
     [Select.name]: Select,
     NotifItemQuantity,
@@ -463,8 +397,7 @@ export default {
   },
 
   mounted() {
-    // this.itemsData = this.transfer();
-    // console.log("Item Data: ", this.itemsData);
+    this.checkPos();
   },
   watch: {
     transferredData(newValue) {
@@ -581,14 +514,103 @@ export default {
       button: null,
       popover: null,
       toggle: false,
-      // listBoxLabel: [],
       viewImages: [],
+      isReviewer: false,
+      headerRowNBFI: [
+        "Item Code",
+        "Item Description",
+        "Size",
+        "Color",
+        "Brand",
+        "Box Number",
+        "Box Label",
+        "Quantity",
+        "Amount",
+      ],
+      headerRowEPC: [
+        "Item Code",
+        "Item Description",
+        "Size",
+        "Color",
+        "Sub-Category",
+        "Box Number",
+        "Box Label",
+        "Quantity",
+        "Amount",
+      ],
+      headerCellStyle: {
+        fontSize: "10px",
+      },
+      cellStyle: {
+        fontSize: "12px !important",
+      },
     };
   },
   methods: {
-    viewImage() {
-      console.log("Transaction Number:", this.transactionData);
+    exportExcel() {
+      var dataArray = "";
+      const selectedItems = [this.transactionData.plID];
 
+      axiosClient
+        .get("/fetchAllItemsRequestExport", {
+          params: {
+            company: sessionStorage.getItem("Company"),
+            plID: selectedItems,
+          },
+        })
+        .then((response) => {
+          this.excelBranch = response.data;
+          dataArray = this.excelBranch.map((obj) => [
+            obj.itemCode,
+            obj.ItemDescription,
+            obj.Size,
+            obj.Color,
+            obj.brand,
+            obj.boxNumber,
+            obj.boxLabel,
+            obj.quantity,
+            obj.amount,
+          ]);
+
+          const currentDate = new Date();
+          const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+          const currentDateString = currentDate
+            .toLocaleDateString("en-PH", options)
+            .replace(/\//g, "-");
+          if (sessionStorage.getItem("Company") == "NBFI") {
+            dataArray = [this.headerRowNBFI, ...dataArray];
+          } else {
+            dataArray = [this.headerRowEPC, ...dataArray];
+          }
+          const workbook = XLSX.utils.book_new();
+          const worksheet = XLSX.utils.aoa_to_sheet(dataArray);
+
+          XLSX.utils.book_append_sheet(workbook, worksheet, "Raw Data");
+          const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+          const blob = new Blob([excelBuffer], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          });
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download =
+            currentDateString + "_ " + this.transactionData.branchName + ".xlsx";
+          link.click();
+          window.URL.revokeObjectURL(url);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    },
+    checkPos() {
+      if (
+        sessionStorage.getItem("Position") == "Reviewer" ||
+        sessionStorage.getItem("Position") == "Admin"
+      )
+        this.isReviewer = true;
+    },
+
+    viewImage() {
       axiosClient
         .get("/fetchImageBranchDoc", {
           params: {
@@ -597,147 +619,50 @@ export default {
           },
         })
         .then((response) => {
-          console.log("Pull out path image:", response.data);
-          console.log("Pull out path image length:", response.data.length);
-
           this.viewImages = response.data.imagePaths;
-          // for (var x = 0; x < response.data.length; x++) {
-          //   this.viewImages.push(
-          //     "http://192.168.0.7:40/public/uploads/" +
-          //       sessionStorage.getItem("Company") +
-          //       "/" +
-          //       response.data[x].path
-          //   );
-          // }
-          // console.log("Images:", this.viewImages);
         })
         .catch((error) => {
           console.error(error);
         });
     },
     submit() {
-      console.log("Transaction Number:", this.transactionData);
-      console.log("Company", this.transactionData.shortName);
+      var tempTransactionID = this.convertToAlphanumeric("transactionID");
+      var tempcompany = this.convertToAlphanumeric("company");
 
-      // location.href =
-      //   "http://192.168.0.7:4040/#/pull-out/requisition-form?transactionID=" +
-      //   this.transactionData.plID +
-      //   "&company=" +
-      //   this.transactionData.shortName;
-
-      this.$router.push({
+      const routeParams = {
         path: "/pull-out/requisition-form",
         query: {
-          transactionID: this.transactionData.plID,
-          company: this.transactionData.shortName,
+          [tempTransactionID]: this.transactionData.plID,
+          [tempcompany]: this.convertToAlphanumeric(this.transactionData.shortName),
         },
-      });
-    },
-    changeBoxNumber(item) {
-      console.log("Edit Labels:", item);
-      const matchingObject = this.listBoxLabel.find(
-        (obj) => obj.boxLabel === item.boxLabel
-      );
-      console.log("Edit matchingObject:", matchingObject);
+      };
 
-      if (matchingObject) {
-        item.boxNumber = matchingObject.boxNumber;
-        item.boxLabel = matchingObject.boxLabel;
-      }
-
-      console.log("Edit Labels:", item);
-    },
-    getBoxLabels() {
-      // this.itemData.forEach((obj) => {
-      //   const index = this.listBoxLabel.findIndex(
-      //     (savedObj) => savedObj.boxNumber === obj.boxNumber
-      //   );
-      //   if (index === -1) {
-      //     this.listBoxLabel.push(obj);
-      //     // console.log(`Object ${obj.boxNumber} saved.`);
-      //   }
-      // });
-      // console.log("Edit Labels:", this.listBoxLabel);
-    },
-    handleQuantity(item) {
-      console.log("Quantity", item.itemCode);
-      axiosClient
-        .get("/fetchNewAmount", {
-          params: {
-            company: sessionStorage.getItem("Company"),
-            itemCode: item.itemCode,
-            quantity: item.quantity,
-          },
-        })
-        .then((response) => {
-          console.log("Success New Amount", response.data);
-          item.amount = response.data;
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-      // this.getBoxLabels();
-      // this.notifyVue("ItemQuantity", "bottom", "right");
-    },
-    notifyVue(notify, verticalAlign, horizontalAlign) {
-      var notification = "";
-      let notifType = "";
-
-      if (notify === "ItemQuantity") {
-        notification = NotifItemQuantity;
-        notifType = "success";
-      } else {
-        notification = NotifDeleteItem;
-        notifType = "danger";
-      }
-      this.$notify({
-        component: notification,
-        // icon: 'nc-icon nc-app',
-        horizontalAlign: horizontalAlign,
-        verticalAlign: verticalAlign,
-        type: notifType,
-        props: {
-          customValue: "Success Add Box",
-        },
-      });
-    },
-    handleEdit(index, row) {
-      alert(`Your want to edit ${row.id}`);
-    },
-    handleDelete(item) {
-      let indexToDelete = this.itemData.findIndex((tableRow) => tableRow.id === item.id);
-      if (indexToDelete >= 0) {
-        this.itemData.splice(indexToDelete, 1);
-        this.notifyVue("DeleteItem", "bottom", "right");
-      }
-    },
-    insertElement(btn, tip) {
-      this.button = btn;
-      this.popover = tip;
+      this.$router.push(routeParams);
     },
 
-    handleClick(e) {
-      if (this.button === null && this.popover === null) {
-        this.insertElement(e.target, document.querySelector(".popoverPanel"));
-      }
-      this.popover.setAttribute("data-show", "");
-      this.popperInstance.update();
-      this.toggle = true;
-    },
+    convertToAlphanumeric(input) {
+      let result = "";
 
-    handleHide(e) {
-      if (this.button === null && this.popover === null) {
-        this.insertElement(e.target, document.querySelector(".popoverPanel"));
+      for (let i = 0; i < input.length; i++) {
+        const char = input[i];
+        const charCode = char.charCodeAt(0);
+
+        // Check if the character is alphanumeric
+        if (
+          (char >= "0" && char <= "9") ||
+          (char >= "a" && char <= "z") ||
+          (char >= "A" && char <= "Z")
+        ) {
+          // Convert the character code to a base-36 alphanumeric representation
+          const alphanumericChar = charCode.toString(36);
+          result += alphanumericChar;
+        } else {
+          // Non-alphanumeric characters are left unchanged
+          result += char;
+        }
       }
-      this.popover.removeAttribute("data-show");
-      this.toggle = false;
-    },
-    numberOnly($event) {
-      let keyCode = $event.keyCode ? $event.keyCode : $event.which;
-      if (keyCode < 48 || keyCode > 57) {
-        // 46 is dot
-        $event.preventDefault();
-      }
+
+      return result;
     },
   },
 };

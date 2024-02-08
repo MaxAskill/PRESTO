@@ -116,7 +116,13 @@ Route::get('/otpform', function () {
     return Inertia::render('otpForm');
 })->name('otpform');
 
+Route::get('/bbmshome', function () {
+    return Inertia::render('BBMSHomePage');
+})->name('bbmshome');
 
+Route::get('/bbmsnewbranchform', function () {
+    return Inertia::render('BBMSNewBranchForm');
+})->name('bbmsnewbranchform');
 // Route::get('/copy', function () {
 //     return Inertia::render('Copy');
 //     // $pdf = PDF::loadView('copy', $data);
@@ -133,6 +139,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/fetchCompany', [FetchController::class, 'fetchCompany']);
+    Route::get('/fetchCompanyByRA', [FetchController::class, 'fetchCompanyByRA']);
     Route::get('/fetchSameItemNBFI', [FetchController::class, 'fetchSameItemNBFI']);
     // Route::get('/data', [FetchController::class, 'fetchData']);
     Route::get('/fetchChain', [FetchController::class, 'fetchChain']);
@@ -179,6 +186,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/savePullOutItemRequest', [PostController::class, 'savePullOutItemRequest']);
 
     Route::post('/sendDeniedBranch', [PostController::class, 'sendDeniedBranch']);
+    Route::post('/deleteImage', [PostController::class, 'deleteImage']);
 
     Route::get('/fetchUsersMaintenance', [FetchAdminController::class, 'fetchUsers']);
     Route::get('/fetchEPCBrandsMaintenance', [FetchAdminController::class, 'fetchEPCBrandsMaintenance']);

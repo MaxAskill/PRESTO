@@ -45,6 +45,8 @@ Route::get('/users',[FetchController::class, 'users']);
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/fetchCompany', [FetchController::class, 'fetchCompany']);
+    Route::get('/fetchBranchStatus', [FetchController::class, 'fetchBranchStatus']);
+    Route::get('/fetchCompanyByRA', [FetchController::class, 'fetchCompanyByRA']);
     Route::get('/fetchCompanyByUser', [FetchController::class, 'fetchCompanyByUser']);
     Route::get('/fetchSameItem', [FetchController::class, 'fetchSameItem']);
     // Route::get('/data', [FetchController::class, 'fetchData']);
@@ -74,7 +76,11 @@ Route::get('/users',[FetchController::class, 'users']);
     Route::post('/postRemarks', [PostController::class, 'postRemarks']);
     Route::post('/upload', [PostController::class, 'upload']);
     Route::post('/postPromoUserBranch', [PostController::class, 'postPromoUserBranch']);
+    Route::post('/removeTempBranch', [UpdateController::class, 'removeTempBranch']);
+    Route::post('/updateTempBranch', [UpdateController::class, 'updateTempBranch']);
+    Route::post('/updatePermBranch', [UpdateController::class, 'updatePermBranch']);
     Route::post('/postDatesLetter', [PostController::class, 'postDatesLetter']);
+    Route::post('/logsDeleteItemEdit', [PostController::class, 'logsDeleteItemEdit']);
 
     Route::get('/fetchPullOutReq', [FetchController::class, 'fetchPullOutRequest']);
     Route::get('/fetchReasonLabel', [FetchController::class, 'getReasons']);
@@ -85,10 +91,13 @@ Route::get('/users',[FetchController::class, 'users']);
     Route::get('/fetchPullOutRequestDenied', [FetchController::class, 'fetchPullOutRequestDenied']);
     Route::get('/fetchItemsRequest', [FetchController::class, 'fetchItemsRequest']);
     Route::get('/fetchAllItemsRequest', [FetchController::class, 'fetchAllItemsRequest']);
+    Route::get('/fetchAllItemsRequestExport', [FetchController::class, 'fetchAllItemsRequestExport']);
     Route::get('/getLastID', [FetchController::class, 'fetchLastID']);
+    Route::get('/fetchGenerateLetter', [FetchController::class, 'fetchGenerateLetter']);
     Route::get('/getPromoName', [FetchController::class, 'getPromoName']);
     Route::get('/getBranchStatus', [FetchController::class, 'getBranchStatus']);
     Route::get('/fetchUserRequestDraft', [FetchController::class, 'fetchUserRequestDraft']);
+    Route::get('/fetchCompanyDraft', [FetchController::class, 'fetchCompanyDraft']);
     Route::get('/fetchUserRequestTransactionList', [FetchController::class, 'fetchUserRequestTransactionList']);
     Route::get('/fetchEditDraftBranch', [FetchController::class, 'fetchEditDraftBranch']);
     Route::get('/fetchEditDraftItem', [FetchController::class, 'fetchEditDraftItem']);
@@ -120,6 +129,7 @@ Route::get('/users',[FetchController::class, 'users']);
     Route::post('/updateUserBranchByRequest', [UpdateController::class, 'updateUserBranchByRequest']);
 
     Route::post('/sendDeniedBranch', [PostController::class, 'sendDeniedBranch']);
+    Route::post('/deleteImage', [PostController::class, 'deleteImage']);
 
     Route::get('/fetchUsersMaintenance', [FetchAdminController::class, 'fetchUsers']);
     Route::get('/fetchEPCBrandsMaintenance', [FetchAdminController::class, 'fetchEPCBrandsMaintenance']);

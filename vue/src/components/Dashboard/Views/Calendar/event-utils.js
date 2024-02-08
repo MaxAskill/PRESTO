@@ -14,6 +14,7 @@ export const INITIAL_EVENTS = [
   {
     id: createEventId(),
     title: "Meeting",
+    // start: new Date(2023, 0 ,30),
     start: new Date(y, m, d - 1, 10, 30),
     allDay: false,
     className: "event-green",

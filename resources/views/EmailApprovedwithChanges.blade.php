@@ -41,7 +41,7 @@
     <content>
 
     <p>Hi <span style="font-weight: bold;">{{ $data['name'] }}</span></p>
-    <p>We would like to inform you that the pull-out transaction no.: <span style="font-weight: bold;text-decoration: underline;">{{ $data['transactionID'] }}</span> has been approved and will be process.</p>
+    <p>We would like to inform you that the <span style="font-weight: bold;text-decoration: underline;">Pull-Out Request Transaction No. {{ $data['transactionID'] }}</span> has been approved and will be process.</p>
     <p>Below is the list of item codes that have changed:</p>
 
     <p> Branch Name: {{ $data['branchName'] }} </p>
@@ -87,9 +87,9 @@
 
     </table><br>
 
-    <p>If you have any questions or concerns regarding the transaction, please do not hesitate to contact me thru email or text.</p><br>
+    <p>If you have any questions or concerns regarding the transaction, please do not hesitate to contact your Retail Area Supervisor/Retail Area Officer thru email or text.</p><br>
     <p>Best regards,</p>
-    <p>{{ $data['adminName'] }}</p><br>
+    <p><span style="font-weight: bold;">PRESTO</span></p><br>
 
     </content>
 

@@ -44,6 +44,33 @@ export default [
     ]
   },
   {
+    name: 'BBMS',
+    icon: 'nc-icon nc-shop',
+    access: 'Admin',
+    children: [
+      {
+        name: 'BBMS Home Page',
+        path: '/bbms/bbmshome',
+        access: 'Admin'
+      },
+      {
+        name: 'BBMS New Form',
+        path: '/bbms/bbmsform',
+        access: 'Admin'
+      },
+      {
+        name: 'BBMS Branch Deactivation',
+        path: '/bbms/bbmsbranchdeactivation',
+        access: 'Admin'
+      },
+      {
+        name: 'BBMS Brand Deactivation',
+        path: '/bbms/bbmsbranddeactivation',
+        access: 'Admin'
+      },
+    ]
+  },
+  {
     name: 'Components',
     icon: 'nc-icon nc-layout-11',
     access: 'Admin',
@@ -139,12 +166,15 @@ export default [
     children: [{
       name: 'Pull-Out Form',
       path: '/pull-out/requisition-form',
-      access: 'User'
+      access: 'Reviewer',
+      access2: 'Reviewer'
+
     },
     {
       name: 'Pull-Out Draft Documents',
       path: '/pull-out/requisition-draft',
-      access: 'User'
+      access: 'Reviewer',
+      access2: 'Reviewer'
     },
     {
       name: 'Pull-Out Transactions',
@@ -154,7 +184,9 @@ export default [
     {
       name: 'Pull-Out Requests',
       path: '/pull-out/requests',
-      access: 'Agent',
+      access: 'Reviewer',
+      access2: 'Approver'
+
 
     },
     {
@@ -170,7 +202,8 @@ export default [
     {
       name: 'Promodiser\'s Account',
       path: '/pull-out/promodisers-account',
-      access: 'Agent',
+      access: 'Reviewer',
+      access2: 'Approver'
 
     },
     {

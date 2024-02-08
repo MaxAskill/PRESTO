@@ -44,7 +44,7 @@ New Barbizon Fashion Incorporated (NBFI) </textarea
         </div>
         <div class="col-sm-3">
           <div class="form-group">
-            <label class="font-weight-bold label-size">Chain Code</label>
+            <label class="font-weight-bold label-size">Chain Name</label>
             <textarea rows="1" readonly class="form-control control-form">
 All Home </textarea
             >

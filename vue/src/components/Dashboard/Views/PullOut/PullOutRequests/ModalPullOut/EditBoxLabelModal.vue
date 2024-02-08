@@ -129,7 +129,7 @@ export default {
     ConfirmationDeleteBoxLabelModal,
     ConfirmationDeleteBoxLabelModal,
   },
-  props: ["transferredData", "newItemInputBox", "remarksList"],
+  props: ["transferredData", "newItemInputBox", "remarksList", "tempRemoveItems"],
   // mounted() {},
   // destroyed() {
   //   $("#myModal").modal("hide");
@@ -175,7 +175,6 @@ export default {
       deleteBoxLabel: null,
     };
   },
-  // this.selectedBoxLabel = BoxLabel;
   methods: {
     restrictChar($event) {
       let keyCode = $event.keyCode ? $event.keyCode : $event.which;
@@ -192,9 +191,6 @@ export default {
       const selectedItems = [];
       for (let key in this.transferredData.boxLabels) {
         if (this.transferredData.boxLabels.hasOwnProperty(key)) {
-          // console.log("Box Label", this.transferredData.boxLabels[key].id);
-          // console.log("Box Number", this.transferredData.boxLabels[index].boxNumber);
-
           if (
             this.transferredData.boxLabels[index].boxNumber ===
             this.transferredData.boxLabels[key].boxNumber
@@ -204,7 +200,6 @@ export default {
                 //loop for items
                 if (this.transferredData.items.hasOwnProperty(ikey)) {
                   //checking if the key still existed
-                  console.log("same: ", this.transferredData.boxLabels[key].boxNumber); //new value
                   if (
                     this.transferredData.items[ikey].boxNumber ===
                     this.transferredData.boxLabels[key].boxNumber
@@ -220,7 +215,6 @@ export default {
                 //loop for items
                 if (this.transferredData.items.hasOwnProperty(ikey)) {
                   //checking if the key still existed
-                  // console.log("same: ", this.transferredData.boxLabels[key].boxNumber); //new value
                   if (
                     this.transferredData.items[ikey].boxNumber === this.selectedBoxLabel
                   ) {
@@ -239,32 +233,19 @@ export default {
         }
       }
 
-      // console.log("Original Items: ", origItems);
-      // console.log("Original Items: ", this.selectedBox);
-      // console.log("Selected Items: ", selectedItems);
-      // console.log("transfer: ", this.transferredData.boxLabels[index]);
-
       for (this.count = 0; this.count < origItems.length; this.count++) {
         this.transferredData.items[
           origItems[this.count]
         ].boxNumber = this.selectedBoxLabel;
-        // this.transferredData.items[origItems[this.count]].boxLabel = this.selectedBox;
-        console.log("origItems", this.transferredData.items[origItems[this.count]]);
       }
 
       for (this.icount = 0; this.icount < selectedItems.length; this.icount++) {
         this.transferredData.items[
           selectedItems[this.icount]
         ].boxNumber = this.transferredData.boxLabels[index].boxNumber;
-        // this.transferredData.items[
-        //   selectedItems[this.icount]
-        // ].boxLabel = this.transferredData.boxLabels[index].boxLabel;
-        // console.log("selectedItems", this.transferredData.items[selectedItems[count]]);
       }
     },
     listBoxNumber(index) {
-      // console.log("Select input box focused", this.transferredData.boxLabels[index]);
-      console.log("Select input box focused", index);
       this.selectedBoxLabel = this.transferredData.boxLabels[index].boxNumber;
       this.numberBoxLabel = [];
       this.transferredData.boxLabels.forEach((obj) => {
@@ -281,10 +262,8 @@ export default {
       }
     },
     inputClicked(index, boxLabel) {
-      // console.log("Input box was clicked!");
       this.tempBoxLabel = boxLabel;
       this.tempindexBoxLabel = index;
-      console.log("Input box was clicked!", this.tempBoxLabel);
     },
     resetFlag() {
       this.clicked = false;
@@ -292,17 +271,16 @@ export default {
     transferBoxLabel(deleteboxLabel) {
       this.deleteBoxLabel = deleteboxLabel;
       this.deleteBoxLabel.boxLength = this.transferredData.boxLabels.length;
-      console.log("Transfer DELETE: ", this.deleteBoxLabel);
-      console.log("ITEMSSS ", this.transferredData.items);
     },
     removeBoxLabel(confirm) {
       if (confirm) {
         let localData = this.transferredData.boxLabels.findIndex(
           (tablerow) => tablerow.id === this.deleteBoxLabel.id
         );
-        // console.log("deleteboxLabel", this.deleteBoxLabel);
-        // console.log("dasd", localData);
-        // console.log("before", this.transferredData.boxLabels[localData].id);
+        this.transferredData.items.forEach((item) => {
+          if (this.deleteBoxLabel.boxNumber == item.boxNumber)
+            this.tempRemoveItems.push(item.id);
+        });
         // Remove objects with the same ID from the original list
         this.transferredData.items = this.transferredData.items.filter(
           (obj) => obj.boxNumber !== this.transferredData.boxLabels[localData].id
@@ -322,32 +300,16 @@ export default {
           this.newItemInputBox.splice(localData, 1);
           this.notifyVue("DeleteBoxLabel", "bottom", "right");
         }
-        // console.log("Before Box Label after deletion:", this.transferredData.boxLabels);
         this.transferredData.boxLabels.forEach((key, index) => {
-          // console.log("Index: ", index);
           this.transferredData.boxLabels[index].id = index + 1;
         });
         this.$emit("TransferDataBoxNumber", this.transferredData.boxLabels);
         this.$emit("DeletedBoxNumber", this.deleteBoxLabel.boxNumber);
-        // console.log("New Box Label after deletion:", this.transferredData.boxLabels);
-        // console.log("after", this.transferredData);
-        // this.$emit("closeModal", this.transferredData);
       }
     },
     handleBoxLabel(index, boxLabel) {
-      // console.log("items changed:", boxLabel);
-      // const newItemLabel = "New Label";
-      // const itemToUpdate = this.transferredData.items.find(
-      //   (item) => item.id === this.transferredData.boxLabels[index].id
-      // );
-      // if (itemToUpdate) {
-      //   itemToUpdate.boxLabel = newItemLabel;
-      // }
-      // console.log("items changed:", itemToUpdate);
       if (!boxLabel) {
-        console.log("Empty boxlabel", this.tempBoxLabel);
         this.notifyVue("RestoredBoxLabel", "bottom", "right");
-        // console.log("Empty boxlabels", this.transferredData);
         this.transferredData.boxLabels[index].boxLabel = this.tempBoxLabel;
       } else {
         this.notifyVue("EditBoxLabel", "bottom", "right");
@@ -370,10 +332,8 @@ export default {
         notifType = "success";
       }
 
-      // const color = Math.floor(Math.random() * 4 + 1);
       this.$notify({
         component: notification,
-        // icon: "nc-icon nc-app",
         horizontalAlign: horizontalAlign,
         verticalAlign: verticalAlign,
         type: notifType,

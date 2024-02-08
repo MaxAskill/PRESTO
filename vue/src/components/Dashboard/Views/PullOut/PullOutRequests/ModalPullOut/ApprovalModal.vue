@@ -14,7 +14,7 @@
           <div class="modal-header">
             <div class="row">
               <div class="col d-flex justify-content-center">
-                <h6 class="modal-title">Pending Approval Pull Out Transaction</h6>
+                <h6 class="modal-title">For Approval Pull Out Transaction</h6>
               </div>
               <div class="col-auto">
                 <button class="delete-buttons" data-bs-dismiss="modal">
@@ -28,9 +28,6 @@
           </div>
 
           <div class="modal-body">
-            <!-- <h1 class="modal-title fs-5 text-weight-bold" id="approvedModalLabel">
-              APPROVEDs:
-            </h1> -->
             <div class="row">
               <div class="col-sm-3">
                 <div class="form-group">
@@ -274,29 +271,17 @@
               </p-pagination>
             </div>
             <div class="row">
-              <div class="col-sm-4 d-flex justify-content-end">
-                <div class="form-group">
-                  <label class="font-weight-bold label-size">Total Number of Box</label>
-                  <textarea rows="1" readonly class="form-control control-form">{{
-                    totalNumbers.boxCount
-                  }}</textarea>
-                </div>
+              <div class="col-sm-6 text-center">
+                <label> Number of Boxes</label><br />
+                <span class="font-weight-bold label-size">
+                  {{ totalNumbers.boxCount }}
+                </span>
               </div>
-              <div class="col-sm-4 d-flex justify-content-end">
-                <div class="form-group">
-                  <label class="font-weight-bold label-size">Total Number of Item</label>
-                  <textarea rows="1" readonly class="form-control control-form">{{
-                    totalNumbers.totalItems
-                  }}</textarea>
-                </div>
-              </div>
-              <div class="col-sm-4 d-flex justify-content-end">
-                <div class="form-group">
-                  <label class="font-weight-bold label-size">Total Amount</label>
-                  <textarea rows="1" readonly class="form-control control-form">
-P {{ totalNumbers.totalAmount }}</textarea
-                  >
-                </div>
+              <div class="col-sm-6 text-center">
+                <label> Number of Items</label><br />
+                <span class="font-weight-bold label-size">
+                  {{ totalNumbers.totalItems }}
+                </span>
               </div>
             </div>
           </div>
@@ -313,12 +298,16 @@ P {{ totalNumbers.totalAmount }}</textarea
             >
               View
             </button>
+            <button type="submit" class="btn btn-info" @click="exportExcel">
+              Export Excel
+            </button>
             <button
               :disabled="isDisabledSubmit"
               type="submit"
               class="btn btn-warning btn-fill btn-wd"
               @click.prevent="submit"
               data-bs-dismiss="modal"
+              v-if="isApprover"
             >
               Edit
             </button>
@@ -327,6 +316,7 @@ P {{ totalNumbers.totalAmount }}</textarea
               class="btn btn-danger btn-fill btn-wd"
               data-bs-target="#deniedPending"
               data-bs-toggle="modal"
+              v-if="isApprover"
             >
               Denied
             </button>
@@ -336,6 +326,7 @@ P {{ totalNumbers.totalAmount }}</textarea
               class="btn btn-success btn-fill btn-wd"
               data-bs-target="#approvedPending"
               data-bs-toggle="modal"
+              v-if="isApprover"
             >
               Approve
             </button>
@@ -343,11 +334,7 @@ P {{ totalNumbers.totalAmount }}</textarea
         </div>
       </div>
     </div>
-    <!-- <RegenerateApprovedModal
-      :transferredData="transferredData"
-      :itemData="itemData"
-      :dateData="dateData"
-    ></RegenerateApprovedModal> -->
+
     <DeniedPendingModal :transferredData="transferredData"></DeniedPendingModal>
     <ApprovedPendingModal
       :transferredData="transferredData"
@@ -361,12 +348,12 @@ P {{ totalNumbers.totalAmount }}</textarea
 import Vue from "vue";
 import { Table, TableColumn, Select, Option } from "element-ui";
 import axiosClient from "../../../../../../axios";
-// import RegenerateApprovedModal from "./RegenerateApprovedModal.vue";
 import { createPopper } from "@popperjs/core/lib/popper-lite.js";
 import PPagination from "../../../../../UIComponents/Pagination.vue";
 import ApprovedPendingModal from "./PendingApprovalModal/ApprovedPendingModal.vue";
 import DeniedPendingModal from "./PendingApprovalModal/DeniedPendingModal.vue";
 import ViewPendingModal from "./PendingApprovalModal/ViewPendingModal.vue";
+import XLSX from "../../../../../../../node_modules/xlsx/dist/xlsx.full.min.js";
 
 Vue.use(Table);
 Vue.use(TableColumn);
@@ -375,7 +362,6 @@ Vue.use(Option);
 export default {
   components: {
     PPagination,
-    // RegenerateApprovedModal,
     ApprovedPendingModal,
     DeniedPendingModal,
     ViewPendingModal,
@@ -389,6 +375,9 @@ export default {
         this.$emit("closeModal");
       }
     },
+  },
+  mounted() {
+    this.checkPos();
   },
   computed: {
     pagedData() {
@@ -468,7 +457,7 @@ export default {
         {
           prop: "itemCode",
           label: "Item Code",
-          minWidth: 175,
+          minWidth: 125,
         },
         {
           prop: "brand",
@@ -478,12 +467,12 @@ export default {
         {
           prop: "boxNumber",
           label: "Box Number",
-          minWidth: 120,
+          minWidth: 90,
         },
         {
           prop: "boxLabel",
           label: "Box Label",
-          minWidth: 250,
+          minWidth: 330,
         },
         {
           prop: "quantity",
@@ -493,9 +482,33 @@ export default {
         {
           prop: "amount",
           label: "Amount",
-          minWidth: 100,
+          minWidth: 90,
         },
       ],
+      isApprover: false,
+      headerRowNBFI: [
+        "Item Code",
+        "Item Description",
+        "Size",
+        "Color",
+        "Brand",
+        "Box Number",
+        "Box Label",
+        "Quantity",
+        "Amount",
+      ],
+      headerRowEPC: [
+        "Item Code",
+        "Item Description",
+        "Size",
+        "Color",
+        "Sub-Category",
+        "Box Number",
+        "Box Label",
+        "Quantity",
+        "Amount",
+      ],
+
       headerCellStyle: {
         fontSize: "10px",
       },
@@ -505,9 +518,69 @@ export default {
     };
   },
   methods: {
-    viewImage() {
-      console.log("Transaction Number:", this.transferredData);
+    exportExcel() {
+      var dataArray = "";
+      const selectedItems = [this.transferredData.plID];
 
+      axiosClient
+        .get("/fetchAllItemsRequestExport", {
+          params: {
+            company: sessionStorage.getItem("Company"),
+            plID: selectedItems,
+          },
+        })
+        .then((response) => {
+          this.excelBranch = response.data;
+          dataArray = this.excelBranch.map((obj) => [
+            obj.itemCode,
+            obj.ItemDescription,
+            obj.Size,
+            obj.Color,
+            obj.brand,
+            obj.boxNumber,
+            obj.boxLabel,
+            obj.quantity,
+            obj.amount,
+          ]);
+
+          const currentDate = new Date();
+          const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+          const currentDateString = currentDate
+            .toLocaleDateString("en-PH", options)
+            .replace(/\//g, "-");
+          if (sessionStorage.getItem("Company") == "NBFI") {
+            dataArray = [this.headerRowNBFI, ...dataArray];
+          } else {
+            dataArray = [this.headerRowEPC, ...dataArray];
+          }
+          const workbook = XLSX.utils.book_new();
+          const worksheet = XLSX.utils.aoa_to_sheet(dataArray);
+
+          XLSX.utils.book_append_sheet(workbook, worksheet, "Raw Data");
+          const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+          const blob = new Blob([excelBuffer], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          });
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download =
+            currentDateString + "_ " + this.transferredData.branchName + ".xlsx";
+          link.click();
+          window.URL.revokeObjectURL(url);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    },
+    checkPos() {
+      if (
+        sessionStorage.getItem("Position") == "Approver" ||
+        sessionStorage.getItem("Position") == "Admin"
+      )
+        this.isApprover = true;
+    },
+    viewImage() {
       axiosClient
         .get("/fetchImageBranchDoc", {
           params: {
@@ -516,40 +589,49 @@ export default {
           },
         })
         .then((response) => {
-          console.log("Pull out path image:", response.data);
-          console.log("Pull out path image length:", response.data.length);
-
           this.viewImages = response.data.imagePaths;
-          // for (var x = 0; x < response.data.length; x++) {
-          //   this.viewImages.push(
-          //     "http://192.168.0.7:40/public/uploads/" +
-          //       sessionStorage.getItem("Company") +
-          //       "/" +
-          //       response.data[x].path
-          //   );
-          // }
-          // console.log("Images:", this.viewImages);
         })
         .catch((error) => {
           console.error(error);
         });
     },
     submit() {
-      console.log("Transaction Number:", this.transferredData.plID);
-      console.log("Company", this.transferredData.shortName);
-      // location.href =
-      //   "http://192.168.0.7:4040/#/pull-out/requisition-form?transactionID=" +
-      //   this.transferredData.plID +
-      //   "&company=" +
-      //   this.transferredData.shortName;
+      var tempTransactionID = this.convertToAlphanumeric("transactionID");
+      var tempcompany = this.convertToAlphanumeric("company");
 
-      this.$router.push({
+      const routeParams = {
         path: "/pull-out/requisition-form",
         query: {
-          transactionID: this.transferredData.plID,
-          company: this.transferredData.company,
+          [tempTransactionID]: this.transferredData.plID,
+          [tempcompany]: this.convertToAlphanumeric(this.transferredData.shortName),
         },
-      });
+      };
+
+      this.$router.push(routeParams);
+    },
+    convertToAlphanumeric(input) {
+      let result = "";
+
+      for (let i = 0; i < input.length; i++) {
+        const char = input[i];
+        const charCode = char.charCodeAt(0);
+
+        // Check if the character is alphanumeric
+        if (
+          (char >= "0" && char <= "9") ||
+          (char >= "a" && char <= "z") ||
+          (char >= "A" && char <= "Z")
+        ) {
+          // Convert the character code to a base-36 alphanumeric representation
+          const alphanumericChar = charCode.toString(36);
+          result += alphanumericChar;
+        } else {
+          // Non-alphanumeric characters are left unchanged
+          result += char;
+        }
+      }
+
+      return result;
     },
   },
 };

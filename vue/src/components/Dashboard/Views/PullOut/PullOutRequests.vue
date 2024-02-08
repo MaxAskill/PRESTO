@@ -4,77 +4,19 @@
       <card>
         <!-- <h4 class="title">Pull-Out Requests</h4> -->
         <el-tabs type="card">
-          <el-tab-pane label="Unprocessed Pull-Out" v-if="isAdmin || isAgent">
+          <el-tab-pane label="For Review Pull-Out Request">
             <unprocessed-pull-out></unprocessed-pull-out>
           </el-tab-pane>
-          <el-tab-pane label="Pending Approval Pull-Out" v-if="isAdmin || isApprover">
+          <el-tab-pane label="For Approval Pull-Out Request">
             <pending-approval-pull-out></pending-approval-pull-out>
           </el-tab-pane>
-          <el-tab-pane label="Approved Pull-Out">
+          <el-tab-pane label="Approved Pull-Out Request">
             <ApprovedPullOut></ApprovedPullOut>
           </el-tab-pane>
-          <el-tab-pane label="Denied Pull-Out">
+          <el-tab-pane label="Denied Pull-Out Request">
             <DeniedPullOut></DeniedPullOut>
           </el-tab-pane>
         </el-tabs>
-        <!-- <tabs value="Description" tab-content-classes="text-center" v-if="isAdmin">
-          <tab-pane title="Unprocessed Pull-Out" key="UPO">
-            <unprocessed-pull-out></unprocessed-pull-out>
-          </tab-pane>
-          <tab-pane title="Pending Approval Pull-Out" key="PAP">
-            <pending-approval-pull-out></pending-approval-pull-out>
-          </tab-pane>
-          <tab-pane title="Approved Pull-Out" key="APO">
-            <ApprovedPullOut></ApprovedPullOut>
-          </tab-pane>
-          <tab-pane title="Denied Pull-Out" key="DPO">
-            <DeniedPullOut></DeniedPullOut>
-          </tab-pane>
-        </tabs>
-        <tabs value="Description" tab-content-classes="text-center" v-if="isApprover">
-          <tab-pane title="Pending Approval Pull-Out" key="PAP">
-            <pending-approval-pull-out></pending-approval-pull-out>
-          </tab-pane>
-          <tab-pane title="Approved Pull-Out" key="APO">
-            <ApprovedPullOut></ApprovedPullOut>
-          </tab-pane>
-          <tab-pane title="Denied Pull-Out" key="DPO">
-            <DeniedPullOut></DeniedPullOut>
-          </tab-pane>
-        </tabs>
-        <tabs value="Description" tab-content-classes="text-center" v-if="isAgent">
-          <tab-pane title="Unprocessed Pull-Out" key="UPO">
-            <unprocessed-pull-out></unprocessed-pull-out>
-          </tab-pane>
-          <tab-pane title="Approved Pull-Out" key="APO">
-            <ApprovedPullOut></ApprovedPullOut>
-          </tab-pane>
-          <tab-pane title="Denied Pull-Out" key="DPO">
-            <DeniedPullOut></DeniedPullOut>
-          </tab-pane>
-        </tabs> -->
-        <!-- <tabs value="Description" tab-content-classes="text-center" v-if="isApprover">
-          <tab-pane title="Pending Approval Pull-Out" key="PAP">
-            <pending-approval-pull-out></pending-approval-pull-out>
-          </tab-pane>
-          <tab-pane title="Approved Pull-Out" key="APO">
-            <ApprovedPullOut></ApprovedPullOut>
-          </tab-pane>
-          <tab-pane title="Denied Pull-Out" key="DPO">
-            <DeniedPullOut></DeniedPullOut>
-          </tab-pane>
-        </tabs>
-        <tabs value="Description" tab-content-classes="text-center" v-if="isAgent">
-          <tab-pane title="Unprocessed Pull-Out" key="UPO">
-            <unprocessed-pull-out></unprocessed-pull-out>
-          </tab-pane>
-          <tab-pane title="Approved Pull-Out" key="APO">
-            <ApprovedPullOut></ApprovedPullOut>
-          </tab-pane>
-          <tab-pane title="Denied Pull-Out" key="DPO">
-            <DeniedPullOut></DeniedPullOut>
-          </tab-pane>
-        </tabs> -->
       </card>
     </div>
   </div>
@@ -104,44 +46,15 @@ export default {
     Card,
   },
   mounted() {
-    this.showingPerPosition();
-
     if (window.resolveRouteChange) {
       window.resolveRouteChange();
       window.resolveRouteChange = null;
     }
     linkName.val = "Pull-Out Requests";
   },
-  methods: {
-    showingPerPosition() {
-      var position = sessionStorage.getItem("Position");
-      if (position == "Agent") {
-        this.isUnprocessed = true;
-        this.isPendingApproval = false;
-        this.isApproval = true;
-        this.isDenied = true;
-        this.isAgent = true;
-      } else if (position == "Approver") {
-        this.isUnprocessed = false;
-        this.isPendingApproval = true;
-        this.isApproval = true;
-        this.isDenied = true;
-        this.isApprover = true;
-      } else if (position == "Admin") {
-        this.isAdmin = true;
-      }
-    },
-  },
+  methods: {},
   data() {
-    return {
-      isUnprocessed: null,
-      isPendingApproval: null,
-      isApproval: true,
-      isDenied: true,
-      isAdmin: false,
-      isAgent: false,
-      isApprover: false,
-    };
+    return {};
   },
 };
 </script>

@@ -19,10 +19,6 @@
           </p>
         </div>
         <div class="modal-footer d-flex justify-content-center">
-          <!-- <div class="spinner-border text-dark" role="status" v-if="counter">
-            <span class="sr-only">Loading...</span>
-          </div> -->
-          <!-- <div v-else> -->
           <button
             class="btn btn-secondary"
             data-bs-dismiss="modal"
@@ -37,17 +33,12 @@
             ></span>
             Close
           </button>
-          <!-- </div> -->
         </div>
       </div>
     </div>
   </div>
 </template>
 <script>
-import Vue from "vue";
-import axiosClient from "../../../../../../axios";
-import axios from "axios";
-
 export default {
   props: ["transferTransactionID", "savingCounter"],
   components: {},
@@ -70,10 +61,8 @@ export default {
   mounted() {},
   methods: {
     reloadPage() {
-      // window.location.href = "http://192.168.0.7:4040/#/pull-out/pullout-transaction";
-
       if (
-        sessionStorage.getItem("Position") == "Agent" ||
+        sessionStorage.getItem("Position") == "Reviewer" ||
         sessionStorage.getItem("Position") == "Approver"
       )
         this.$router.push({
@@ -85,12 +74,9 @@ export default {
         });
     },
     counterSaving() {
-      // foreach(v);
-      console.log("Counter: ", this.counter);
       setTimeout(() => {
         this.counter = false;
       }, this.savingCounter * 1000);
-      console.log("Counter after: ", this.counter);
     },
   },
 };

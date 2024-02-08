@@ -32,17 +32,6 @@
                 :key="reasonLabel.id"
               ></option>
             </datalist>
-            <!-- <fg-input label="Reason" placeholder="Reason" v-model="reason"></fg-input>
-            <el-select class="denied-select-box" size="large" v-model="reason">
-              <el-option
-                v-for="reasonLabel in reasonLabelList"
-                class="denied-select-box"
-                :value="reasonLabel.reasonLabel"
-                :label="reasonLabel.reasonLabel"
-                :key="reasonLabel.id"
-              >
-              </el-option>
-            </el-select> -->
           </div>
         </div>
         <div class="modal-footer px-5">
@@ -74,7 +63,6 @@ import Vue from "vue";
 import { Table, TableColumn, Select, Option } from "element-ui";
 import axiosClient from "../../../../../../../axios";
 import UnprocessModal from "../UnprocessModal.vue";
-import axios from "axios";
 
 Vue.use(Table);
 Vue.use(TableColumn);
@@ -136,7 +124,6 @@ export default {
           reason: this.reason,
         })
         .then((response) => {
-          console.log("Success Denied", response.data);
           setTimeout(() => {
             window.location.reload();
           }, 3000); // Reload after 3 seconds

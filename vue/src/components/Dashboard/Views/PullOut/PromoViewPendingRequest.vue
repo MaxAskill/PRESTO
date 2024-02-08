@@ -22,7 +22,7 @@
             </span>
             <div class="d-flex">
               <span class="labelRows col-3">Company</span>
-              <span class="labelRows col-3">Chain Code</span>
+              <span class="labelRows col-3">Chain Name</span>
               <span class="labelRows col-6">Branch Name</span>
             </div>
             <div class="d-flex mt-1" v-for="user in userData">
@@ -43,7 +43,7 @@
             </div>
             <div class="d-flex mt-1">
               <span class="labelRows col-3">Company</span>
-              <span class="labelRows col-3">Chain Code</span>
+              <span class="labelRows col-3">Chain Name</span>
               <span class="labelRows col-6">Branch Name</span>
             </div>
             <div class="d-flex mt-1" v-for="request in userRequest">
@@ -61,14 +61,6 @@
             >
               Cancel Request
             </button>
-            <!-- <button
-              class="btn btn-primary"
-              data-bs-toggle="modal"
-              data-bs-target="#requestBranchApproveConfirmation"
-              @click="approveRequest()"
-            >
-              Approve this Request
-            </button> -->
           </div>
         </div>
       </div>
